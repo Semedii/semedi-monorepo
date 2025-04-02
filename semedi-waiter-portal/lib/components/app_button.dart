@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppButton extends StatelessWidget {
-  const AppButton({required this.text, this.onPressed, super.key});
+  const AppButton({required this.text, this.color, this.onPressed, super.key});
 
   final String text;
+  final Color? color;
   final Function()? onPressed;
 
   @override
@@ -14,7 +15,7 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2563EB),
+          backgroundColor: color ?? const Color(0xFF2563EB),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
