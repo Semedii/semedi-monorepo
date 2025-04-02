@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
+import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/utils/order_status_enum.dart';
@@ -113,7 +114,16 @@ class HomePage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OrderPage(tableNumber: index + 1),
+                builder: (context) => OrderPage(
+                  tableNumber: index + 1,
+                  menuItems: [
+                    MenuItem(name: 'Shawarma'),
+                    MenuItem(name: 'Pizza', price: 12),
+                    MenuItem(name: 'Burger', price: 12),
+                    MenuItem(name: 'Sandwich', price: 12),
+                    MenuItem(name: 'Chicken', price: 12),
+                  ],
+                ),
               ),
             );
           },
