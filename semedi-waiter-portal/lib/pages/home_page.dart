@@ -117,7 +117,7 @@ class HomePage extends StatelessWidget {
                 builder: (context) => OrderPage(
                   tableNumber: index + 1,
                   menuItems: [
-                    MenuItem(name: 'Shawarma'),
+                    MenuItem(name: 'Shawarma', isAvailable: false),
                     MenuItem(name: 'Pizza', price: 12),
                     MenuItem(name: 'Burger', price: 12),
                     MenuItem(name: 'Sandwich', price: 12),
