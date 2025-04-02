@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
-import 'package:semedi/cubits/cubit/login_cubit.dart';
+import 'package:semedi/cubits/login/login_cubit.dart';
 import 'package:semedi/services/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
