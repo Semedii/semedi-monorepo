@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
+import 'package:semedi/models/order.dart';
+import 'package:semedi/utils/order_status_enum.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
 
-  final List<Map<String, dynamic>> _activeOrders = const [
-    {
-      'table': 'Table 3',
-      'items': ['2x Pasta', '1x Juice'],
-      'status': 'preparing',
-    },
-    {
-      'table': 'Takeaway #5',
-      'items': ['1x Pizza'],
-      'status': 'ready',
-    },
+  final List<Order> _activeOrders = [
+    Order(
+        tableNumber: 21,
+        orderItems: ["Pizza"],
+        orderStatus: OrderStatusEnum.preparing,
+        note: "note"),
+    Order(
+        tableNumber: 21,
+        orderItems: ["Pizza", "half Pasta"],
+        orderStatus: OrderStatusEnum.ready,
+        note: "note")
   ];
 
   @override
@@ -54,7 +56,7 @@ class HomePage extends StatelessWidget {
 
   AppButton _buildTakeAwayButton(BuildContext context) {
     return AppButton(
-      color: Colors.orange[600],
+      isOutlined: true,
       text: "TAKEAWAY",
       onPressed: () {},
     );

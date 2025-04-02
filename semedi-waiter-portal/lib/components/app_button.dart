@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:semedi/utils/app_colors.dart';
 
 class AppButton extends StatelessWidget {
-  const AppButton({required this.text, this.color, this.onPressed, super.key});
+  const AppButton({
+    required this.text,
+    this.color,
+    this.onPressed,
+    this.isOutlined = false,
+    super.key,
+  });
 
   final String text;
   final Color? color;
+  final bool isOutlined;
   final Function()? onPressed;
 
   @override
@@ -15,14 +23,14 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color ?? const Color(0xFF2563EB),
+          backgroundColor: isOutlined ? null : color ?? AppColors.deepBlue,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: AppColors.deepBlue)),
         ),
         child: Text(
           text.toUpperCase(),
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: isOutlined ? Colors.black : Colors.white),
         ),
       ),
     );
