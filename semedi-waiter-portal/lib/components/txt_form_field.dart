@@ -6,24 +6,28 @@ class TxtFormField extends StatelessWidget {
     this.isTextObscure = false,
     this.prefixIcon,
     this.suffixIcon,
+    this.onChanged,
     super.key,
   });
   final String? labelText;
   final bool isTextObscure;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
+  final Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-        obscureText: isTextObscure,
-        decoration: InputDecoration(
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ));
+      obscureText: isTextObscure,
+      decoration: InputDecoration(
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onChanged: onChanged,
+    );
   }
 }

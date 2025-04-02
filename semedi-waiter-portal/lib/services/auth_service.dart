@@ -4,7 +4,9 @@ class AuthService {
   signInWithEmailAndPassword(String email, String password) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: 'abdisamed@gmail.com', password: 'abdi1122');
+        email: email,
+        password: password,
+      );
       print("afafsafa $credential");
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

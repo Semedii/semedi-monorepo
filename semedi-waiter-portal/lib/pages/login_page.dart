@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
-import 'package:semedi/components/waiters_dropdown_list.dart';
+import 'package:semedi/cubits/cubit/login_cubit.dart';
 import 'package:semedi/services/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeaderSection(context),
-            _buildLoginForm(),
-          ],
+      body: BlocProvider(
+        create: (context) => LoginCubit(_authService),
+        child: BlocBuilder<LoginCubit, LoginState>(
+          builder: (context, state) {
+            state as LoginInitial;
+            final cubit = BlocProvider.of<LoginCubit>(context);
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeaderSection(context),
+                  _buildLoginForm(cubit),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -68,7 +80,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Padding _buildLoginForm() {
+  Padding _buildLoginForm(LoginCubit cubit) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -77,13 +89,11 @@ class LoginPage extends StatelessWidget {
           const SizedBox(height: 24),
           _buildWelcomeAndSignInText(),
           const SizedBox(height: 32),
-          _buildLoginFormText(),
-          const SizedBox(height: 8),
-          const WaitersDropdownList(),
+          _buildEmailField(cubit),
           const SizedBox(height: 16),
-          _buildPasswordField(),
+          _buildPasswordField(cubit),
           const SizedBox(height: 32),
-          _buildLoginButton()
+          _buildLoginButton(cubit)
         ],
       ),
     );
@@ -118,30 +128,27 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Text _buildLoginFormText() {
-    return const Text(
-      "Select Waiter",
-      style: TextStyle(
-        fontWeight: FontWeight.w500,
-        color: Color(0xFF1E293B),
-      ),
+  TxtFormField _buildEmailField(LoginCubit cubit) {
+    return TxtFormField(
+      labelText: "Enter Email",
+      prefixIcon: const Icon(Icons.email),
+      onChanged: cubit.onEmailChanged,
     );
   }
 
-  TxtFormField _buildPasswordField() {
-    return const TxtFormField(
+  TxtFormField _buildPasswordField(LoginCubit cubit) {
+    return TxtFormField(
       isTextObscure: true,
       labelText: "Enter Password",
-      prefixIcon: Icon(Icons.lock_outline),
+      prefixIcon: const Icon(Icons.lock_outline),
+      onChanged: cubit.onPasswordChanged,
     );
   }
 
-  AppButton _buildLoginButton() {
+  AppButton _buildLoginButton(LoginCubit cubit) {
     return AppButton(
       text: "Sign in",
-      onPressed: () {
-        AuthService().signInWithEmailAndPassword('email', 'password');
-      },
+      onPressed: cubit.onLoginPressed,
     );
   }
 }
