@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/models/order.dart';
+import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 class HomePage extends StatelessWidget {
@@ -104,9 +105,17 @@ class HomePage extends StatelessWidget {
         ),
         itemCount: 12,
         itemBuilder: (ctx, index) => ElevatedButton(
-          child: Text('Table ${index + 1}'),
+          child: Text(
+            'Table ${index + 1}',
+            textAlign: TextAlign.center,
+          ),
           onPressed: () {
-            Navigator.pop(ctx);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrderPage(tableNumber: index + 1),
+              ),
+            );
           },
         ),
       ),
