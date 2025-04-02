@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/components/waiters_dropdown_list.dart';
+import 'package:semedi/services/auth_service.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -138,7 +139,9 @@ class LoginPage extends StatelessWidget {
   AppButton _buildLoginButton() {
     return AppButton(
       text: "Sign in",
-      onPressed: () {},
+      onPressed: () {
+        AuthService().signInWithEmailAndPassword('email', 'password');
+      },
     );
   }
 }
