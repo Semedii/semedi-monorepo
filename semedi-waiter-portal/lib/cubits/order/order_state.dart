@@ -36,3 +36,5 @@ final class OrderInitial extends OrderState {
     );
   }
 }
+
+class OrderSuccess extends OrderState {}

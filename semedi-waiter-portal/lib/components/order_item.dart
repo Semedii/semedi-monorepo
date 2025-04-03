@@ -12,13 +12,13 @@ class OrderItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         title: Text("Table: ${order.tableNumber}"),
-        subtitle: Text(order.orderItems.join(', ')),
+        subtitle: Text(order.items.keys.join(', ')),
         trailing: Chip(
           label: Text(
-            order.orderStatus.name.toUpperCase(),
+            order.status.name.toUpperCase(),
             style: const TextStyle(color: Colors.white),
           ),
-          backgroundColor: order.orderStatus.name.toLowerCase() == 'ready'
+          backgroundColor: order.status.name.toLowerCase() == 'ready'
               ? AppColors.green
               : AppColors.warmOrange,
         ),

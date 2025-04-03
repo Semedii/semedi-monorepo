@@ -1,12 +1,12 @@
 class MenuItem {
   final String name;
-  final double? price;
+  final double price;
   bool isAvailable;
   List<String> searchKeywords;
 
   MenuItem({
     required this.name,
-    this.price,
+    required this.price,
     this.isAvailable = true,
     this.searchKeywords = const [],
   });

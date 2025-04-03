@@ -11,15 +11,11 @@ class HomePage extends StatelessWidget {
 
   final List<Order> _activeOrders = [
     Order(
-        tableNumber: 21,
-        orderItems: ["Pizza"],
-        orderStatus: OrderStatusEnum.preparing,
-        note: "note"),
-    Order(
-        tableNumber: 21,
-        orderItems: ["Pizza", "half Pasta"],
-        orderStatus: OrderStatusEnum.ready,
-        note: "note")
+      tableNumber: 21,
+      items: {"Pizza": 2, "Shawarma": 1},
+      itemDetails: {},
+      status: OrderStatusEnum.ordered,
+    )
   ];
 
   @override
@@ -117,7 +113,7 @@ class HomePage extends StatelessWidget {
                 builder: (context) => OrderPage(
                   tableNumber: index + 1,
                   menuItems: [
-                    MenuItem(name: 'Shawarma', isAvailable: false),
+                    MenuItem(name: 'Shawarma', isAvailable: false, price: 1),
                     MenuItem(name: 'Pizza', price: 12),
                     MenuItem(name: 'Burger', price: 12),
                     MenuItem(name: 'Sandwich', price: 12),

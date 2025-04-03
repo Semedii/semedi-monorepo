@@ -56,7 +56,7 @@ class MenuItemCard extends StatelessWidget {
 
   Text _buildItemPrice() {
     return Text(
-      item.price?.toStringAsFixed(2) ?? '',
+      item.price.toStringAsFixed(2),
       style: TextStyle(
         fontWeight: FontWeight.bold,
         color: item.isAvailable ? Colors.green : Colors.grey,

@@ -66,129 +66,131 @@ class OrderPage extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget _buildSelectedItemsSection(List<MenuItem> selectedItems) {
-  if (selectedItems.isEmpty) {
-    return _buildNoSelectedItemsText();
+  Widget _buildSelectedItemsSection(List<MenuItem> selectedItems) {
+    if (selectedItems.isEmpty) {
+      return _buildNoSelectedItemsText();
+    }
+    return _buildSelectedItemsList(selectedItems);
   }
-  return _buildSelectedItemsList(selectedItems);
-}
 
-Widget _buildNoSelectedItemsText() {
-  return const Expanded(
-    flex: 2,
-    child: Center(
-      child: Text(
-        'No items selected yet',
-        style: TextStyle(color: Colors.grey),
+  Widget _buildNoSelectedItemsText() {
+    return const Expanded(
+      flex: 2,
+      child: Center(
+        child: Text(
+          'No items selected yet',
+          style: TextStyle(color: Colors.grey),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildSelectedItemsList(List<MenuItem> selectedItems) {
-  return Expanded(
-    flex: 2,
-    child: ListView.builder(
-      itemCount: selectedItems.length,
+  Widget _buildSelectedItemsList(List<MenuItem> selectedItems) {
+    return Expanded(
+      flex: 2,
+      child: ListView.builder(
+        itemCount: selectedItems.length,
+        itemBuilder: (context, index) {
+          return _buildSelectedItemTile(context, selectedItems, index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildSelectedItemTile(
+    BuildContext context,
+    List<MenuItem> selectedItems,
+    int index,
+  ) {
+    final item = selectedItems[index];
+    return ListTile(
+      leading: Text('\$${item.price.toStringAsFixed(2)}'),
+      title: Text(item.name),
+      trailing: IconButton(
+        icon: const Icon(Icons.remove_circle, color: Colors.red),
+        onPressed: () => context.read<OrderCubit>().onRemoveItem(index),
+      ),
+    );
+  }
+
+  Expanded _buildMenuSection(OrderInitial state, BuildContext context) {
+    return Expanded(
+      flex: 3,
+      child: state.searchQuery.isEmpty
+          ? _buildMenuGrid(context, state.filteredMenuItems)
+          : _buildSearchResultList(context, state.filteredMenuItems),
+    );
+  }
+
+  Widget _buildMenuGrid(BuildContext context, List<MenuItem> items) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: _getGridDelegate(),
+      itemCount: items.length,
       itemBuilder: (context, index) {
-        return _buildSelectedItemTile(context, selectedItems, index);
-      },
-    ),
-  );
-}
-
-Widget _buildSelectedItemTile(
-  BuildContext context,
-  List<MenuItem> selectedItems,
-  int index,
-) {
-  final item = selectedItems[index];
-  return ListTile(
-    leading: Text('\$${item.price?.toStringAsFixed(2)}'),
-    title: Text(item.name),
-    trailing: IconButton(
-      icon: const Icon(Icons.remove_circle, color: Colors.red),
-      onPressed: () => context.read<OrderCubit>().onRemoveItem(index),
-    ),
-  );
-}
-
-Expanded _buildMenuSection(OrderInitial state, BuildContext context) {
-  return Expanded(
-    flex: 3,
-    child: state.searchQuery.isEmpty
-        ? _buildMenuGrid(context, state.filteredMenuItems)
-        : _buildSearchResultList(context, state.filteredMenuItems),
-  );
-}
-
-Widget _buildMenuGrid(BuildContext context, List<MenuItem> items) {
-  return GridView.builder(
-    padding: const EdgeInsets.all(16),
-    gridDelegate: _getGridDelegate(),
-    itemCount: items.length,
-    itemBuilder: (context, index) {
-      final item = items[index];
-      return MenuItemCard(
-        item: item,
-        onTap: () => BlocProvider.of<OrderCubit>(context).onSelectedItem(item),
-      );
-    },
-  );
-}
-
-SliverGridDelegate _getGridDelegate() {
-  return const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: 1.5,
-    crossAxisSpacing: 10,
-    mainAxisSpacing: 10,
-  );
-}
-
-Widget _buildSearchResultList(BuildContext context, List<MenuItem> items) {
-  return ListView.builder(
-    padding: const EdgeInsets.all(16),
-    itemCount: items.length,
-    itemBuilder: (context, index) {
-      return _buildSearchResultTile(context, items, index);
-    },
-  );
-}
-
-Widget _buildSearchResultTile(
-  BuildContext context,
-  List<MenuItem> items,
-  int index,
-) {
-  final item = items[index];
-  return ListTile(
-    title: Text(item.name),
-    subtitle: Text(item.price?.toStringAsFixed(2) ?? ''),
-    trailing: _buildResultTileTrailing(context, item),
-    onTap: null,
-  );
-}
-
-Widget _buildResultTileTrailing(BuildContext context, MenuItem item) {
-  return item.isAvailable
-      ? IconButton(
-          icon: const Icon(Icons.add_circle, color: Colors.green),
-          onPressed: () => context.read<OrderCubit>().onSelectedItem(item),
-        )
-      : const Text(
-          'Not Available',
-          style: TextStyle(color: Colors.red),
+        final item = items[index];
+        return MenuItemCard(
+          item: item,
+          onTap: () =>
+              BlocProvider.of<OrderCubit>(context).onSelectedItem(item),
         );
-}
+      },
+    );
+  }
 
-Widget _buildSubmitButton(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: AppButton(
-        text: 'Submit order',
-        onPressed: () => BlocProvider.of<OrderCubit>(context).submitOrder()),
-  );
+  SliverGridDelegate _getGridDelegate() {
+    return const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      childAspectRatio: 1.5,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+    );
+  }
+
+  Widget _buildSearchResultList(BuildContext context, List<MenuItem> items) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return _buildSearchResultTile(context, items, index);
+      },
+    );
+  }
+
+  Widget _buildSearchResultTile(
+    BuildContext context,
+    List<MenuItem> items,
+    int index,
+  ) {
+    final item = items[index];
+    return ListTile(
+      title: Text(item.name),
+      subtitle: Text(item.price.toStringAsFixed(2) ?? ''),
+      trailing: _buildResultTileTrailing(context, item),
+      onTap: null,
+    );
+  }
+
+  Widget _buildResultTileTrailing(BuildContext context, MenuItem item) {
+    return item.isAvailable
+        ? IconButton(
+            icon: const Icon(Icons.add_circle, color: Colors.green),
+            onPressed: () => context.read<OrderCubit>().onSelectedItem(item),
+          )
+        : const Text(
+            'Not Available',
+            style: TextStyle(color: Colors.red),
+          );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: AppButton(
+          text: 'Submit order',
+          onPressed: () =>
+              BlocProvider.of<OrderCubit>(context).submitOrder(tableNumber)),
+    );
+  }
 }
