@@ -12,7 +12,6 @@ class OrderCubit extends Cubit<OrderState> {
           selectedItems: [],
           allMenuItems: menuItems,
           filteredMenuItems: menuItems,
-          tableNumber: tableNumber,
         ));
 
   void onSelectedItem(MenuItem item) {
@@ -46,43 +45,13 @@ class OrderCubit extends Cubit<OrderState> {
     ));
   }
 
-  void updateMenuItemAvailability(String itemName, bool isAvailable) {
-    var currentState = state as OrderInitial;
-    final updatedItems = currentState.allMenuItems.map((item) {
-      if (item.name == itemName) {
-        return MenuItem(
-          name: item.name,
-          price: item.price,
-          isAvailable: isAvailable,
-          searchKeywords: item.searchKeywords,
-        );
-      }
-      return item;
-    }).toList();
-
-    emit(currentState.copyWith(
-      allMenuItems: updatedItems,
-      filteredMenuItems: updatedItems.where((item) {
-        return item.name
-                .toLowerCase()
-                .contains(currentState.searchQuery.toLowerCase()) ||
-            item.searchKeywords.any((k) => k
-                .toLowerCase()
-                .contains(currentState.searchQuery.toLowerCase()));
-      }).toList(),
-    ));
-  }
-
   Future<void> submitOrder() async {
     var currentState = state as OrderInitial;
 
-    emit(currentState.copyWith(status: OrderStatusEnum.preparing));
+    emit(currentState.copyWith(status: OrderStatusEnum.ordered));
 
     if (currentState.selectedItems.isEmpty) {
       throw Exception('Please select at least one item');
     }
-
-    // Here you would typically call your repository/API
-    // await _orderRepository.submitOrder(state.tableNumber, state.selectedItems);
   }
 }
