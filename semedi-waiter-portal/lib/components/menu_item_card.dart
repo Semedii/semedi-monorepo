@@ -22,33 +22,44 @@ class MenuItemCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                item.name,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: item.isAvailable ? Colors.black : Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              _buildItemName(),
               const SizedBox(height: 4),
-              Text(
-                item.price?.toStringAsFixed(2) ?? '',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: item.isAvailable ? Colors.green : Colors.grey,
-                ),
-              ),
-              if (!item.isAvailable)
-                const Text(
-                  'Not Available',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                  ),
-                ),
+              _buildItemPrice(),
+              if (!item.isAvailable) _buildNotAvailableText(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Text _buildItemName() {
+    return Text(
+      item.name,
+      style: TextStyle(
+        fontSize: 16,
+        color: item.isAvailable ? Colors.black : Colors.grey,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Text _buildNotAvailableText() {
+    return const Text(
+      'Not Available',
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: 12,
+      ),
+    );
+  }
+
+  Text _buildItemPrice() {
+    return Text(
+      item.price?.toStringAsFixed(2) ?? '',
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: item.isAvailable ? Colors.green : Colors.grey,
       ),
     );
   }
