@@ -2,7 +2,7 @@ class MenuItem {
   final String name;
   final double? price;
   bool isAvailable;
-  List<String> searchKeywords; // For better search
+  List<String> searchKeywords;
 
   MenuItem({
     required this.name,
