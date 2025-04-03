@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/services/auth_service.dart';
+import 'package:semedi/services/secure_storage_service.dart';
 
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   final AuthService _authService;
+  final SecureStorageService _secureStorage = SecureStorageService();
   LoginCubit(this._authService) : super(LoginInitial());
 
   void onEmailChanged(String? email) {
@@ -17,11 +19,19 @@ class LoginCubit extends Cubit<LoginState> {
     emit(currentState.copyWith(password: password));
   }
 
-  void onLoginPressed() {
+  void onLoginPressed() async {
     var currentState = state as LoginInitial;
-    _authService.signInWithEmailAndPassword(
+
+    String? token = await _authService.signInWithEmailAndPassword(
       currentState.email!,
       currentState.password!,
     );
+
+    if (token != null) {
+      await _secureStorage.write('auth_token', token);
+      emit(LoginSuccess(token: token));
+    } else {
+      emit(LoginFailure(message: "Login failed, token not received."));
+    }
   }
 }

@@ -16,7 +16,14 @@ class LoginPage extends StatelessWidget {
       backgroundColor: const Color(0xFFF8FAFC),
       body: BlocProvider(
         create: (context) => LoginCubit(_authService),
-        child: BlocBuilder<LoginCubit, LoginState>(
+        child: BlocConsumer<LoginCubit, LoginState>(
+          listener: (context, state) {
+            if (state is LoginFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
           builder: (context, state) {
             state as LoginInitial;
             final cubit = BlocProvider.of<LoginCubit>(context);
