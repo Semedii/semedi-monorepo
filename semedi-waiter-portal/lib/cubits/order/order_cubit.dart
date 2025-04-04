@@ -7,31 +7,35 @@ part 'order_state.dart';
 
 class OrderCubit extends Cubit<OrderState> {
   final OrderService _orderService = OrderService();
-  OrderCubit({
-    required int tableNumber,
-    required List<MenuItem> menuItems,
-  }) : super(OrderInitial(
-          selectedItems: [],
-          allMenuItems: menuItems,
-          filteredMenuItems: menuItems,
-        ));
+
+  OrderCubit() : super(OrderInitial());
+
+  void initPage(List<MenuItem> menuItems) {
+    emit(
+      OrderIdle(
+        selectedItems: [],
+        allMenuItems: menuItems,
+        filteredMenuItems: menuItems,
+      ),
+    );
+  }
 
   void onSelectedItem(MenuItem item) {
-    var currentState = state as OrderInitial;
+    var currentState = state as OrderIdle;
     emit(currentState.copyWith(
       selectedItems: [...currentState.selectedItems, item],
     ));
   }
 
   void onRemoveItem(int index) {
-    var currentState = state as OrderInitial;
+    var currentState = state as OrderIdle;
     final newItems = List<MenuItem>.from(currentState.selectedItems);
     newItems.removeAt(index);
     emit(currentState.copyWith(selectedItems: newItems));
   }
 
   void updateSearchQuery(String query) {
-    var currentState = state as OrderInitial;
+    var currentState = state as OrderIdle;
     final filtered = currentState.allMenuItems.where((item) {
       final itemName = item.name.toLowerCase();
       final keywords = item.searchKeywords.map((k) => k.toLowerCase()).toList();
@@ -48,7 +52,7 @@ class OrderCubit extends Cubit<OrderState> {
   }
 
   submitOrder(int tableNumber) async {
-    var currentState = state as OrderInitial;
+    var currentState = state as OrderIdle;
     try {
       int orderNumber = await _orderService.addNewOrder(
           currentState.selectedItems, tableNumber);

@@ -5,8 +5,8 @@ import 'package:semedi/models/order.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
+  final db = FirebaseFirestore.instance;
   addNewOrder(List<MenuItem> selectedItems, int tableNumber) async {
-    final db = FirebaseFirestore.instance;
     try {
       final orderNumberRef = db
           .collection('shops')
@@ -68,5 +68,20 @@ class OrderService {
       total: total,
       waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
     );
+  }
+
+  Stream<List<OrderModel>> getAllOrders() {
+    return db
+        .collection('shops')
+        .doc('Barkulan')
+        .collection('orders')
+        .orderBy('timestamp', descending: true) // Newest orders first
+        .withConverter<OrderModel>(
+          fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
+          toFirestore: (order, _) => order.toFirestore(),
+        )
+        .snapshots()
+        .map((querySnapshot) =>
+            querySnapshot.docs.map((doc) => doc.data()).toList());
   }
 }

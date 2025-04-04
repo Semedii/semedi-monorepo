@@ -2,7 +2,9 @@ part of 'order_cubit.dart';
 
 sealed class OrderState {}
 
-final class OrderInitial extends OrderState {
+final class OrderInitial extends OrderState {}
+
+final class OrderIdle extends OrderState {
   final List<MenuItem> selectedItems;
   final List<MenuItem> allMenuItems;
   final List<MenuItem> filteredMenuItems;
@@ -10,7 +12,7 @@ final class OrderInitial extends OrderState {
   final String searchQuery;
   final String? note;
 
-  OrderInitial({
+  OrderIdle({
     required this.selectedItems,
     required this.allMenuItems,
     required this.filteredMenuItems,
@@ -19,14 +21,14 @@ final class OrderInitial extends OrderState {
     this.note,
   });
 
-  OrderInitial copyWith({
+  OrderIdle copyWith({
     List<MenuItem>? selectedItems,
     List<MenuItem>? filteredMenuItems,
     OrderStatusEnum? status,
     String? searchQuery,
     String? note,
   }) {
-    return OrderInitial(
+    return OrderIdle(
       selectedItems: selectedItems ?? this.selectedItems,
       allMenuItems: allMenuItems,
       filteredMenuItems: filteredMenuItems ?? this.filteredMenuItems,

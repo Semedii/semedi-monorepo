@@ -19,15 +19,14 @@ class OrderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          OrderCubit(tableNumber: tableNumber, menuItems: menuItems),
+      create: (context) => OrderCubit()..initPage(menuItems),
       child: Scaffold(
         backgroundColor: AppColors.offWhite,
         appBar: _buildAppBar(),
         body: BlocConsumer<OrderCubit, OrderState>(
           listener: _getListener,
           builder: (context, state) {
-            state as OrderInitial;
+            state as OrderIdle;
             return Column(
               children: [
                 _buildSearchBar(context),
@@ -115,7 +114,7 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Expanded _buildMenuSection(OrderInitial state, BuildContext context) {
+  Expanded _buildMenuSection(OrderIdle state, BuildContext context) {
     return Expanded(
       flex: 3,
       child: state.searchQuery.isEmpty
