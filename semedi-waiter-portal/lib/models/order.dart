@@ -53,6 +53,7 @@ class OrderModel {
       });
     }
     return OrderModel(
+      orderNumber: doc.id,
       tableNumber: data['tableNumber'],
       items: Map<String, int>.from(data['items'] ?? {}),
       itemDetails: itemDetails,
