@@ -6,7 +6,43 @@ import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
   final db = FirebaseFirestore.instance;
+
+  submitOrder(List<MenuItem> selectedItems, int tableNumber) async {
+    String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
+    if (existingOrderNumber != null) {
+      await addItemsToExistingOrder(
+        orderNumber: existingOrderNumber,
+        newItems: selectedItems,
+      );
+    } else {
+      return await addNewOrder(selectedItems, tableNumber);
+    }
+  }
+
   addNewOrder(List<MenuItem> selectedItems, int tableNumber) async {
+    try {
+      int orderNumber = await _getLastOrderNumber();
+      OrderModel order = _prepareOrderData(selectedItems, tableNumber);
+      final orderRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber.toString().padLeft(4, '0'));
+
+      orderRef
+          .withConverter<OrderModel>(
+            fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
+            toFirestore: (order, _) => order.toFirestore(),
+          )
+          .set(order);
+
+      return orderNumber;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<int> _getLastOrderNumber() async {
     try {
       final orderNumberRef = db
           .collection('shops')
@@ -21,22 +57,9 @@ class OrderService {
         docSnapshot = await orderNumberRef.get();
         orderNumber = docSnapshot['lastNumber'];
       } else {
-        ;
         orderNumber = 1;
-        orderNumberRef.set({'lastNumber': 1});
+        orderNumberRef.set({'lastNumber': orderNumber});
       }
-      OrderModel order = _prepareOrderData(selectedItems, tableNumber);
-      final orderRef = db
-          .collection('shops')
-          .doc('Barkulan')
-          .collection('orders')
-          .doc(orderNumber.toString().padLeft(4, '0'));
-      orderRef
-          .withConverter<OrderModel>(
-            fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
-            toFirestore: (order, _) => order.toFirestore(),
-          )
-          .set(order);
       return orderNumber;
     } catch (e) {
       throw Exception(e);
@@ -84,5 +107,81 @@ class OrderService {
         .snapshots()
         .map((querySnapshot) =>
             querySnapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  _getActiveOrderForTable(int tableNumber) async {
+    try {
+      final query = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .where('tableNumber', isEqualTo: tableNumber)
+          .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
+          .limit(1)
+          .get();
+
+      if (query.docs.isEmpty) return null;
+
+      return query.docs.first.id;
+    } catch (e) {
+      throw Exception('Failed to check table status: ${e.toString()}');
+    }
+  }
+
+  Future<void> addItemsToExistingOrder({
+    required String orderNumber,
+    required List<MenuItem> newItems,
+  }) async {
+    try {
+      final orderRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber);
+
+      final docSnapshot = await orderRef.get();
+      if (!docSnapshot.exists) {
+        throw Exception("Order not found");
+      }
+
+      final currentOrder = OrderModel.fromFirestore(docSnapshot);
+
+      final updatedOrder = _updateOrderWithNewItems(currentOrder, newItems);
+
+      await orderRef.update(updatedOrder.toFirestore());
+    } catch (e) {
+      throw Exception("Failed to update order: $e");
+    }
+  }
+
+  OrderModel _updateOrderWithNewItems(
+    OrderModel currentOrder,
+    List<MenuItem> newItems,
+  ) {
+    final updatedItems = Map<String, int>.from(currentOrder.items);
+    final updatedItemDetails =
+        Map<String, dynamic>.from(currentOrder.itemDetails);
+    double updatedTotal = currentOrder.total;
+
+    for (final item in newItems) {
+      final newQuantity = (updatedItems[item.name] ?? 0) + 1;
+      updatedItems[item.name] = newQuantity;
+
+      updatedItemDetails[item.name] = {
+        'price': item.price * newQuantity,
+        'name': item.name,
+      };
+
+      updatedTotal += item.price;
+    }
+
+    return currentOrder.copyWithItem(
+      items: updatedItems,
+      itemDetails: updatedItemDetails,
+      status: OrderStatusEnum.ordered,
+      total: updatedTotal,
+      timestamp: DateTime.now(),
+      waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
+    );
   }
 }

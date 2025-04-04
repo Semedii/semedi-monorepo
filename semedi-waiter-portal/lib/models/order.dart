@@ -2,6 +2,7 @@ import 'package:semedi/utils/order_status_enum.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrderModel {
+  String? orderNumber;
   final int tableNumber;
   final Map<String, int> items;
   final Map<String, dynamic> itemDetails;
@@ -19,6 +20,7 @@ class OrderModel {
     required this.total,
     required this.waiter,
     this.note,
+    this.orderNumber,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -26,8 +28,8 @@ class OrderModel {
   Map<String, dynamic> toFirestore() {
     return {
       'tableNumber': tableNumber,
-      'items': items, // {"Chicken Shawarma": 2}
-      'prices': _getPriceSnapshot(), // {"Chicken Shawarma": 8.99}
+      'items': items,
+      'prices': itemDetails,
       'status': status.name,
       'note': note,
       'timestamp': Timestamp.fromDate(timestamp),
@@ -36,51 +38,54 @@ class OrderModel {
     };
   }
 
-  Map<String, double> _getPriceSnapshot() {
-    return {for (var e in itemDetails.entries) e.key: e.value['price']};
-  }
-
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    final rawDetails = data['itemDetails'] ?? {};
+    final itemDetails = <String, dynamic>{};
+
+    if (rawDetails is Map) {
+      rawDetails.forEach((key, value) {
+        if (value is Map) {
+          itemDetails[key] = value;
+        } else if (value is num) {
+          itemDetails[key] = {'price': value.toDouble()};
+        }
+      });
+    }
     return OrderModel(
       tableNumber: data['tableNumber'],
-      items: Map<String, int>.from(data['items']),
-      itemDetails: Map<String, dynamic>.from(data['prices']),
+      items: Map<String, int>.from(data['items'] ?? {}),
+      itemDetails: itemDetails,
       status: OrderStatusEnum.values.firstWhere(
         (e) => e.name == data['status'],
         orElse: () => OrderStatusEnum.ordered,
       ),
       note: data['note'],
       timestamp: (data['timestamp'] as Timestamp).toDate(),
-      total: data['total'] ?? 0,
+      total: (data['total'] as num?)?.toDouble() ?? 0,
       waiter: data['waiter'] ?? "unknown",
     );
   }
 
   // Add/modify items
   OrderModel copyWithItem({
-    required String itemName,
-    required int quantity,
-    required double price,
-    required String menuItemId,
+    required Map<String, int> items,
+    required Map<String, dynamic> itemDetails,
+    required OrderStatusEnum status,
+    String? note,
+    required DateTime timestamp,
+    required double total,
+    required String waiter,
   }) {
-    final newItems = Map<String, int>.from(items);
-    final newDetails = Map<String, dynamic>.from(itemDetails);
-
-    newItems[itemName] = quantity;
-    newDetails[itemName] = {
-      'price': price,
-      'menuItemId': menuItemId,
-    };
-
     return OrderModel(
-        tableNumber: tableNumber,
-        items: newItems,
-        itemDetails: newDetails,
-        status: status,
-        note: note,
-        timestamp: timestamp,
-        total: total,
-        waiter: waiter);
+      tableNumber: tableNumber,
+      items: items,
+      itemDetails: itemDetails,
+      status: status,
+      note: note ?? '',
+      timestamp: timestamp,
+      total: total,
+      waiter: waiter,
+    );
   }
 }
