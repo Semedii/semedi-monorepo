@@ -7,6 +7,7 @@ import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/order_service.dart';
+import 'package:semedi/utils/app_colors.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -105,6 +106,7 @@ class HomePage extends StatelessWidget {
   }
 
   void _showTableSelection(BuildContext context) {
+    final cubit = BlocProvider.of<HomeCubit>(context);
     showModalBottomSheet(
       context: context,
       builder: (ctx) => GridView.builder(
@@ -117,6 +119,12 @@ class HomePage extends StatelessWidget {
         ),
         itemCount: 12,
         itemBuilder: (ctx, index) => ElevatedButton(
+          style: ButtonStyle(
+            side: cubit.isTableOccupied(index + 1)
+                ? WidgetStateProperty.all(
+                    BorderSide(color: AppColors.warmOrange))
+                : null,
+          ),
           child: Text(
             'Table ${index + 1}',
             textAlign: TextAlign.center,

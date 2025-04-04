@@ -29,6 +29,12 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
+  bool isTableOccupied(int tableNumber) {
+    if (state is! HomeLoaded) return false;
+    final currentState = state as HomeLoaded;
+    return currentState.orders.any((order) => order.tableNumber == tableNumber);
+  }
+
   @override
   Future<void> close() {
     _ordersSubscription?.cancel();
