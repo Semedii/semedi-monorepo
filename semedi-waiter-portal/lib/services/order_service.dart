@@ -7,36 +7,40 @@ import 'package:semedi/utils/order_status_enum.dart';
 class OrderService {
   addNewOrder(List<MenuItem> selectedItems, int tableNumber) async {
     final db = FirebaseFirestore.instance;
+    try {
+      final orderNumberRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('metadata')
+          .doc('orderNumber');
 
-    final orderNumberRef = db
-        .collection('shops')
-        .doc('Barkulan')
-        .collection('metadata')
-        .doc('orderNumber');
-
-    var docSnapshot = await orderNumberRef.get();
-    int orderNumber;
-    if (docSnapshot.exists) {
-      await orderNumberRef.update({'lastNumber': FieldValue.increment(1)});
-      docSnapshot = await orderNumberRef.get();
-      orderNumber = docSnapshot['lastNumber'];
-    } else {
-      ;
-      orderNumber = 1;
-      orderNumberRef.set({'lastNumber': 1});
+      var docSnapshot = await orderNumberRef.get();
+      int orderNumber;
+      if (docSnapshot.exists) {
+        await orderNumberRef.update({'lastNumber': FieldValue.increment(1)});
+        docSnapshot = await orderNumberRef.get();
+        orderNumber = docSnapshot['lastNumber'];
+      } else {
+        ;
+        orderNumber = 1;
+        orderNumberRef.set({'lastNumber': 1});
+      }
+      OrderModel order = _prepareOrderData(selectedItems, tableNumber);
+      final orderRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber.toString().padLeft(4, '0'));
+      orderRef
+          .withConverter<OrderModel>(
+            fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
+            toFirestore: (order, _) => order.toFirestore(),
+          )
+          .set(order);
+      return orderNumber;
+    } catch (e) {
+      throw Exception(e);
     }
-    OrderModel order = _prepareOrderData(selectedItems, tableNumber);
-    final orderRef = db
-        .collection('shops')
-        .doc('Barkulan')
-        .collection('orders')
-        .doc(orderNumber.toString().padLeft(4, '0'));
-    orderRef
-        .withConverter<OrderModel>(
-          fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
-          toFirestore: (order, _) => order.toFirestore(),
-        )
-        .set(order);
   }
 
   OrderModel _prepareOrderData(List<MenuItem> selectedItems, int tableNumber) {
