@@ -99,14 +99,29 @@ class OrderService {
         .doc('Barkulan')
         .collection('orders')
         .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
-        .orderBy('timestamp', descending: true)
+        .orderBy(
+            'status') // Primary sort by status (Firestore sorts alphabetically)
+        .orderBy('timestamp', descending: true) // Secondary sort
         .withConverter<OrderModel>(
           fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
           toFirestore: (order, _) => order.toFirestore(),
         )
         .snapshots()
-        .map((querySnapshot) =>
-            querySnapshot.docs.map((doc) => doc.data()).toList());
+        .map((querySnapshot) {
+      // Client-side sorting to prioritize 'ready' status
+      final orders = querySnapshot.docs.map((doc) => doc.data()).toList();
+      orders.sort((a, b) {
+        if (a.status == OrderStatusEnum.ready &&
+            b.status != OrderStatusEnum.ready) {
+          return -1; // 'ready' comes first
+        } else if (a.status != OrderStatusEnum.ready &&
+            b.status == OrderStatusEnum.ready) {
+          return 1;
+        }
+        return b.timestamp.compareTo(a.timestamp); // Fallback to timestamp
+      });
+      return orders;
+    });
   }
 
   _getActiveOrderForTable(int tableNumber) async {
