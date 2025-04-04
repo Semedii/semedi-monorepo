@@ -37,4 +37,14 @@ final class OrderInitial extends OrderState {
   }
 }
 
-class OrderSuccess extends OrderState {}
+class OrderSuccess extends OrderState {
+  final String orderNumber;
+
+  OrderSuccess({required this.orderNumber});
+}
+
+class OrderFailure extends OrderState {
+  final String error;
+
+  OrderFailure({required this.error});
+}

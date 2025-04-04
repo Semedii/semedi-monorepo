@@ -48,31 +48,77 @@ class OrderCubit extends Cubit<OrderState> {
   }
 
   Future<void> submitOrder(int tableNumber) async {
-    var currentState = state as OrderInitial;
+    final currentState = state as OrderInitial;
     if (currentState.selectedItems.isEmpty) {
-      throw Exception('Please select at least one item');
+      throw Exception('Cannot submit empty order');
     }
+
+    final orderData = _prepareOrderData(currentState, tableNumber);
+
+    try {
+      final formattedOrderNumber = await _createOrderInFirestore(orderData);
+      emit(OrderSuccess(orderNumber: formattedOrderNumber));
+    } catch (e) {
+      emit(OrderFailure(error: 'Order submission failed: ${e.toString()}'));
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic> _prepareOrderData(OrderInitial state, int tableNumber) {
     final items = <String, int>{};
     final prices = <String, double>{};
-    for (final item in currentState.selectedItems) {
-      items[item.name] = (items[item.name] ?? 0) + 1;
-      prices[item.name] = item.price;
+    double total = 0.0;
+
+    for (final item in state.selectedItems) {
+      final quantity = (items[item.name] ?? 0) + 1;
+      items[item.name] = quantity;
+      final itemTotal = item.price * quantity;
+      prices[item.name] = itemTotal;
+      total += item.price;
     }
-    const shopId = 'Barkulan';
-    await FirebaseFirestore.instance
-        .collection('shops')
-        .doc(shopId)
-        .collection('orders')
-        .add({
+
+    return {
       'tableNumber': tableNumber,
       'items': items,
       'prices': prices,
+      'total': total,
       'status': 'ordered',
       'timestamp': FieldValue.serverTimestamp(),
-      'waiter': FirebaseAuth.instance.currentUser?.displayName,
-    });
+      'waiter': FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown',
+    };
+  }
 
-    // 5. Update state
-    emit(OrderSuccess());
+  Future<String> _createOrderInFirestore(Map<String, dynamic> orderData) async {
+    const shopId = 'Barkulan';
+    final ordersRef = FirebaseFirestore.instance
+        .collection('shops')
+        .doc(shopId)
+        .collection('orders');
+
+    final counterRef = FirebaseFirestore.instance
+        .collection('shops')
+        .doc(shopId)
+        .collection('metadata')
+        .doc('order_counter');
+
+    return await FirebaseFirestore.instance
+        .runTransaction<String>((transaction) async {
+      final counterSnapshot = await transaction.get(counterRef);
+      final nextOrderNumber = (counterSnapshot.data()?['lastNumber'] ?? 0) + 1;
+
+      final formattedOrderNumber = nextOrderNumber.toString().padLeft(4, '0');
+
+      transaction.set(
+        ordersRef.doc(formattedOrderNumber),
+        {
+          ...orderData,
+          'orderNumber': nextOrderNumber,
+          'formattedOrderNumber': formattedOrderNumber,
+        },
+      );
+      transaction.set(counterRef, {'lastNumber': nextOrderNumber});
+
+      return formattedOrderNumber;
+    });
   }
 }

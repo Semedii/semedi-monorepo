@@ -24,7 +24,8 @@ class OrderPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.offWhite,
         appBar: _buildAppBar(),
-        body: BlocBuilder<OrderCubit, OrderState>(
+        body: BlocConsumer<OrderCubit, OrderState>(
+          listener: _getListener,
           builder: (context, state) {
             state as OrderInitial;
             return Column(
@@ -166,7 +167,7 @@ class OrderPage extends StatelessWidget {
     final item = items[index];
     return ListTile(
       title: Text(item.name),
-      subtitle: Text(item.price.toStringAsFixed(2) ?? ''),
+      subtitle: Text(item.price.toStringAsFixed(2)),
       trailing: _buildResultTileTrailing(context, item),
       onTap: null,
     );
@@ -191,6 +192,35 @@ class OrderPage extends StatelessWidget {
           text: 'Submit order',
           onPressed: () =>
               BlocProvider.of<OrderCubit>(context).submitOrder(tableNumber)),
+    );
+  }
+
+  _getListener(context, state) {
+    if (state is OrderSuccess) {
+      _getOrderSuccessListener(context, state);
+    }
+    if (state is OrderFailure) {
+      _getOrderFailureListener(context, state);
+    }
+  }
+
+  _getOrderSuccessListener(BuildContext context, OrderSuccess state) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.green,
+        content: Text("Order: ${state.orderNumber} created successfully"),
+      ),
+    );
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  _getOrderFailureListener(BuildContext context, OrderFailure state) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.softRed,
+        content: Text("Error: ${state.error} "),
+      ),
     );
   }
 }

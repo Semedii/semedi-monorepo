@@ -32,6 +32,7 @@ class LoginCubit extends Cubit<LoginState> {
       emit(LoginSuccess(token: token));
     } else {
       emit(LoginFailure(message: "Login failed, token not received."));
+      emit(LoginInitial());
     }
   }
 }
