@@ -9,6 +9,7 @@ class OrderModel {
   final String? note;
   final DateTime timestamp;
   final double total;
+  final String waiter;
 
   OrderModel({
     required this.tableNumber,
@@ -16,6 +17,7 @@ class OrderModel {
     required this.itemDetails,
     required this.status,
     required this.total,
+    required this.waiter,
     this.note,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
@@ -30,6 +32,7 @@ class OrderModel {
       'note': note,
       'timestamp': Timestamp.fromDate(timestamp),
       'total': total,
+      'waiter': waiter,
     };
   }
 
@@ -50,6 +53,7 @@ class OrderModel {
       note: data['note'],
       timestamp: (data['timestamp'] as Timestamp).toDate(),
       total: data['total'],
+      waiter: data['waiter'],
     );
   }
 
@@ -70,13 +74,13 @@ class OrderModel {
     };
 
     return OrderModel(
-      tableNumber: tableNumber,
-      items: newItems,
-      itemDetails: newDetails,
-      status: status,
-      note: note,
-      timestamp: timestamp,
-      total: total,
-    );
+        tableNumber: tableNumber,
+        items: newItems,
+        itemDetails: newDetails,
+        status: status,
+        note: note,
+        timestamp: timestamp,
+        total: total,
+        waiter: waiter);
   }
 }

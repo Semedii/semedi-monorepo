@@ -16,6 +16,7 @@ class HomePage extends StatelessWidget {
       itemDetails: {},
       status: OrderStatusEnum.ordered,
       total: 12,
+      waiter: 'abdi',
     )
   ];
 

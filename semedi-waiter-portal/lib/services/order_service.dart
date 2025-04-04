@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/utils/order_status_enum.dart';
@@ -61,6 +62,7 @@ class OrderService {
       status: OrderStatusEnum.ordered,
       timestamp: DateTime.now(),
       total: total,
+      waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
     );
   }
 }
