@@ -1,19 +1,21 @@
 import 'package:semedi/utils/order_status_enum.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Order {
+class OrderModel {
   final int tableNumber;
-  final Map<String, int> items; // ItemName : Quantity
-  final Map<String, dynamic> itemDetails; // Supplemental data
+  final Map<String, int> items;
+  final Map<String, dynamic> itemDetails;
   final OrderStatusEnum status;
   final String? note;
   final DateTime timestamp;
+  final double total;
 
-  Order({
+  OrderModel({
     required this.tableNumber,
     required this.items,
     required this.itemDetails,
     required this.status,
+    required this.total,
     this.note,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
@@ -27,6 +29,7 @@ class Order {
       'status': status.name,
       'note': note,
       'timestamp': Timestamp.fromDate(timestamp),
+      'total': total,
     };
   }
 
@@ -34,10 +37,9 @@ class Order {
     return {for (var e in itemDetails.entries) e.key: e.value['price']};
   }
 
-  // Create from Firestore snapshot
-  factory Order.fromFirestore(DocumentSnapshot doc) {
+  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return Order(
+    return OrderModel(
       tableNumber: data['tableNumber'],
       items: Map<String, int>.from(data['items']),
       itemDetails: Map<String, dynamic>.from(data['itemDetails']),
@@ -47,19 +49,12 @@ class Order {
       ),
       note: data['note'],
       timestamp: (data['timestamp'] as Timestamp).toDate(),
+      total: data['total'],
     );
   }
 
-  // Helper method to calculate total
-  double get total {
-    return items.entries.fold(0, (sum, entry) {
-      final price = itemDetails[entry.key]['price'] ?? 0;
-      return sum + (price * entry.value);
-    });
-  }
-
   // Add/modify items
-  Order copyWithItem({
+  OrderModel copyWithItem({
     required String itemName,
     required int quantity,
     required double price,
@@ -74,13 +69,14 @@ class Order {
       'menuItemId': menuItemId,
     };
 
-    return Order(
+    return OrderModel(
       tableNumber: tableNumber,
       items: newItems,
       itemDetails: newDetails,
       status: status,
       note: note,
       timestamp: timestamp,
+      total: total,
     );
   }
 }

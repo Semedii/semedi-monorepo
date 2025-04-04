@@ -3,7 +3,7 @@ import 'package:semedi/models/order.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class OrderItem extends StatelessWidget {
-  final Order order;
+  final OrderModel order;
   const OrderItem({super.key, required this.order});
 
   @override

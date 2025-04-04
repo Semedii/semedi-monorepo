@@ -9,12 +9,13 @@ import 'package:semedi/utils/order_status_enum.dart';
 class HomePage extends StatelessWidget {
   HomePage({super.key});
 
-  final List<Order> _activeOrders = [
-    Order(
+  final List<OrderModel> _activeOrders = [
+    OrderModel(
       tableNumber: 21,
       items: {"Pizza": 2, "Shawarma": 1},
       itemDetails: {},
       status: OrderStatusEnum.ordered,
+      total: 12,
     )
   ];
 
