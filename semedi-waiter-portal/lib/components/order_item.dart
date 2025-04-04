@@ -12,7 +12,11 @@ class OrderItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         title: Text("Table: ${order.tableNumber}"),
-        subtitle: Text(order.items.keys.join(', ')),
+        subtitle: Text(
+          order.items.entries
+              .map((entry) => '${entry.value}x ${entry.key}')
+              .join(', '),
+        ),
         trailing: Chip(
           label: Text(
             order.status.name.toUpperCase(),

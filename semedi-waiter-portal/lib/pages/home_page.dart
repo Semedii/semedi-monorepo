@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
+import 'package:semedi/cubits/home/home_cubit.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
-import 'package:semedi/utils/order_status_enum.dart';
+import 'package:semedi/services/order_service.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
-
-  final List<OrderModel> _activeOrders = [
-    OrderModel(
-      tableNumber: 21,
-      items: {"Pizza": 2, "Shawarma": 1},
-      itemDetails: {},
-      status: OrderStatusEnum.ordered,
-      total: 12,
-      waiter: 'abdi',
-    )
-  ];
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Waiter Portal')),
-      body: Column(
-        children: [
-          _buildActionButtons(context),
-          const Divider(),
-          _buildActiveOrders(context),
-        ],
+      body: BlocProvider(
+        create: (context) =>
+            HomeCubit(orderService: OrderService())..listenToOrders(),
+        child: BlocBuilder<HomeCubit, HomeState>(
+          builder: (context, state) {
+            if (state is HomeLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is HomeError) {
+              return Center(child: Text(state.message));
+            }
+
+            if (state is HomeLoaded) {
+              return Column(
+                children: [
+                  _buildActionButtons(context),
+                  const Divider(),
+                  _buildActiveOrders(context, state.orders),
+                ],
+              );
+            }
+            return Container();
+          },
+        ),
       ),
     );
   }
@@ -62,13 +72,16 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveOrders(BuildContext context) {
+  Widget _buildActiveOrders(
+    BuildContext context,
+    List<OrderModel> activeOrders,
+  ) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * .65,
       child: Column(
         children: [
           _buildActiveOrdersTitle(),
-          _buildActiveOrdersList(),
+          _buildActiveOrdersList(activeOrders),
         ],
       ),
     );
@@ -82,11 +95,11 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _buildActiveOrdersList() {
+  Expanded _buildActiveOrdersList(List<OrderModel> activeOrders) {
     return Expanded(
       child: ListView.builder(
-        itemCount: _activeOrders.length,
-        itemBuilder: (_, index) => OrderItem(order: _activeOrders[index]),
+        itemCount: activeOrders.length,
+        itemBuilder: (_, index) => OrderItem(order: activeOrders[index]),
       ),
     );
   }

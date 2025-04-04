@@ -70,12 +70,13 @@ class OrderService {
     );
   }
 
-  Stream<List<OrderModel>> getAllOrders() {
+  Stream<List<OrderModel>> getActiveOrders() {
     return db
         .collection('shops')
         .doc('Barkulan')
         .collection('orders')
-        .orderBy('timestamp', descending: true) // Newest orders first
+        .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
+        .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
           fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
           toFirestore: (order, _) => order.toFirestore(),

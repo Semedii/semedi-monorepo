@@ -45,15 +45,15 @@ class OrderModel {
     return OrderModel(
       tableNumber: data['tableNumber'],
       items: Map<String, int>.from(data['items']),
-      itemDetails: Map<String, dynamic>.from(data['itemDetails']),
+      itemDetails: Map<String, dynamic>.from(data['prices']),
       status: OrderStatusEnum.values.firstWhere(
         (e) => e.name == data['status'],
         orElse: () => OrderStatusEnum.ordered,
       ),
       note: data['note'],
       timestamp: (data['timestamp'] as Timestamp).toDate(),
-      total: data['total'],
-      waiter: data['waiter'],
+      total: data['total'] ?? 0,
+      waiter: data['waiter'] ?? "unknown",
     );
   }
 
