@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/menu_item_card.dart';
+import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/utils/app_colors.dart';
@@ -33,7 +34,7 @@ class OrderPage extends StatelessWidget {
                 _buildSelectedItemsSection(state.selectedItems),
                 Divider(thickness: 2, color: AppColors.deepBlue),
                 _buildMenuSection(state, context),
-                _buildSubmitButton(context)
+                _buildSubmitButton(context, state)
               ],
             );
           },
@@ -92,7 +93,11 @@ class OrderPage extends StatelessWidget {
       child: ListView.builder(
         itemCount: selectedItems.length,
         itemBuilder: (context, index) {
-          return _buildSelectedItemTile(context, selectedItems, index);
+          final item = selectedItems[index];
+          final orderCubit = BlocProvider.of<OrderCubit>(context);
+          final quantity = orderCubit.getQuantityForItem(item);
+
+          return _buildSelectedItemTile(context, item, quantity);
         },
       ),
     );
@@ -100,16 +105,32 @@ class OrderPage extends StatelessWidget {
 
   Widget _buildSelectedItemTile(
     BuildContext context,
-    List<MenuItem> selectedItems,
-    int index,
+    MenuItem item,
+    int quantity,
   ) {
-    final item = selectedItems[index];
-    return ListTile(
-      leading: Text('\$${item.price.toStringAsFixed(2)}'),
-      title: Text(item.name),
-      trailing: IconButton(
-        icon: const Icon(Icons.remove_circle, color: Colors.red),
-        onPressed: () => context.read<OrderCubit>().onRemoveItem(index),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.deepBlue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '$quantity x',
+              style: TextStyle(
+                color: AppColors.deepBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(item.name)),
+        ],
       ),
     );
   }
@@ -184,14 +205,28 @@ class OrderPage extends StatelessWidget {
           );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
+  Widget _buildSubmitButton(BuildContext context, OrderIdle state) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: AppButton(
           text: 'Submit order',
-          onPressed: () =>
-              BlocProvider.of<OrderCubit>(context).submitOrder(tableNumber)),
+          onPressed: () => showConfirmOrderDialog(context, state)),
     );
+  }
+
+  void showConfirmOrderDialog(BuildContext context, OrderIdle state) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    final orderItemsWithQuantity = cubit.getOrderItemQuantity();
+    final total = cubit.getTotalPrice();
+
+    showDialog(
+        context: context,
+        builder: (context) => OrderConfirmDialog(
+              orderItemsWithQuantity: orderItemsWithQuantity,
+              tableNumber: tableNumber,
+              total: total,
+              submitOrder: () => cubit.submitOrder(tableNumber),
+            ));
   }
 
   _getListener(context, state) {

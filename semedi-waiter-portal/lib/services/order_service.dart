@@ -10,7 +10,7 @@ class OrderService {
   submitOrder(List<MenuItem> selectedItems, int tableNumber) async {
     String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
     if (existingOrderNumber != null) {
-      await addItemsToExistingOrder(
+      return await addItemsToExistingOrder(
         orderNumber: existingOrderNumber,
         newItems: selectedItems,
       );
@@ -143,7 +143,7 @@ class OrderService {
     }
   }
 
-  Future<void> addItemsToExistingOrder({
+  addItemsToExistingOrder({
     required String orderNumber,
     required List<MenuItem> newItems,
   }) async {
@@ -164,6 +164,7 @@ class OrderService {
       final updatedOrder = _updateOrderWithNewItems(currentOrder, newItems);
 
       await orderRef.update(updatedOrder.toFirestore());
+      return currentOrder.orderNumber;
     } catch (e) {
       throw Exception("Failed to update order: $e");
     }

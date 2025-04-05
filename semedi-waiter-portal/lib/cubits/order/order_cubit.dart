@@ -51,6 +51,28 @@ class OrderCubit extends Cubit<OrderState> {
     ));
   }
 
+  getOrderItemQuantity() {
+    var currentState = state as OrderIdle;
+    final itemsWithQuantity =
+        currentState.selectedItems.fold<Map<String, int>>({}, (map, item) {
+      map[item.name] = (map[item.name] ?? 0) + 1;
+      return map;
+    });
+    return itemsWithQuantity;
+  }
+
+  int getQuantityForItem(MenuItem item) {
+    var currentState = state as OrderIdle;
+    return currentState.selectedItems.where((i) => i.name == item.name).length;
+  }
+
+  getTotalPrice() {
+    var currentState = state as OrderIdle;
+    final total = currentState.selectedItems
+        .fold<double>(0, (sum, item) => sum + item.price);
+    return total;
+  }
+
   submitOrder(int tableNumber) async {
     var currentState = state as OrderIdle;
     try {
