@@ -6,7 +6,8 @@ import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderItem extends StatelessWidget {
   final OrderModel order;
-  const OrderItem({super.key, required this.order});
+  final Function()? onDeliver;
+  const OrderItem({super.key, required this.order, this.onDeliver});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class OrderItem extends StatelessWidget {
               _buildNote(),
             },
             const SizedBox(height: 12),
-            _buildTimestamp(),
+            _buildTimestampAndDeliverButton(),
           ],
         ),
       ),
@@ -144,12 +145,39 @@ class OrderItem extends StatelessWidget {
     );
   }
 
+  _buildTimestampAndDeliverButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildTimestamp(),
+        if (order.status == OrderStatusEnum.ready) _buildDeliverButton()
+      ],
+    );
+  }
+
   Text _buildTimestamp() {
+    String text =
+        order.status == OrderStatusEnum.delivered ? 'Delivered' : 'Ordered';
     return Text(
-      'Ordered at ${_getTimeFromDateTime(order.timestamp)}',
+      '$text at ${_getTimeFromDateTime(order.timestamp)}',
       style: TextStyle(
         color: AppColors.darkGrey,
         fontSize: 12,
+      ),
+    );
+  }
+
+  _buildDeliverButton() {
+    return GestureDetector(
+      onTap: onDeliver,
+      child: Chip(
+        elevation: 8,
+        shadowColor: AppColors.deepBlue,
+        label: Text(
+          'Deliver',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        backgroundColor: AppColors.deepBlue,
       ),
     );
   }
@@ -167,7 +195,8 @@ class OrderItem extends StatelessWidget {
     }
   }
 
-  String _getTimeFromDateTime(DateTime timestamp) {
+  String? _getTimeFromDateTime(DateTime? timestamp) {
+    if (timestamp == null) return null;
     return DateFormat('h:mm a').format(timestamp);
   }
 }

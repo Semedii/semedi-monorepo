@@ -217,4 +217,23 @@ class OrderService {
       waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
     );
   }
+
+  Future<void> updateOrderStatus({
+    required String orderNumber,
+    required OrderStatusEnum newStatus,
+  }) async {
+    try {
+      await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .update({
+        'status': newStatus.name,
+        'timestamp': FieldValue.serverTimestamp(), // Update timestamp
+      });
+    } catch (e) {
+      throw Exception('Failed to update status: ${e.toString()}');
+    }
+  }
 }

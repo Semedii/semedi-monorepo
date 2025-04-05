@@ -62,6 +62,15 @@ class HomeCubit extends Cubit<HomeState> {
     return currentState.orders.any((order) => order.tableNumber == tableNumber);
   }
 
+  onDeliverOrder(String? orderNumber) {
+    if (orderNumber != null) {
+      _orderService.updateOrderStatus(
+        orderNumber: orderNumber,
+        newStatus: OrderStatusEnum.delivered,
+      );
+    }
+  }
+
   @override
   Future<void> close() {
     _ordersSubscription?.cancel();

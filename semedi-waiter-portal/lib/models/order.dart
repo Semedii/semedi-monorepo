@@ -62,7 +62,9 @@ class OrderModel {
         orElse: () => OrderStatusEnum.ordered,
       ),
       note: data['note'],
-      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      timestamp: data['timestamp'] != null
+          ? (data['timestamp'] as Timestamp).toDate()
+          : null,
       total: (data['total'] as num?)?.toDouble() ?? 0,
       waiter: data['waiter'] ?? "unknown",
     );

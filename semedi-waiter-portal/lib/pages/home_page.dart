@@ -15,7 +15,10 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Waiter Portal')),
+      appBar: AppBar(
+        title: const Text('Waiter Portal'),
+        centerTitle: true,
+      ),
       body: BlocProvider(
         create: (context) =>
             HomeCubit(orderService: OrderService())..listenToOrders(),
@@ -82,7 +85,7 @@ class HomePage extends StatelessWidget {
       child: Column(
         children: [
           _buildActiveOrdersTitle(),
-          _buildActiveOrdersList(activeOrders),
+          _buildActiveOrdersList(context, activeOrders),
         ],
       ),
     );
@@ -96,11 +99,17 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _buildActiveOrdersList(List<OrderModel> activeOrders) {
+  Expanded _buildActiveOrdersList(
+      BuildContext context, List<OrderModel> activeOrders) {
+    final cubit = BlocProvider.of<HomeCubit>(context);
     return Expanded(
       child: ListView.builder(
         itemCount: activeOrders.length,
-        itemBuilder: (_, index) => OrderItem(order: activeOrders[index]),
+        itemBuilder: (_, index) => OrderItem(
+          order: activeOrders[index],
+          onDeliver: () =>
+              cubit.onDeliverOrder(activeOrders[index].orderNumber),
+        ),
       ),
     );
   }
