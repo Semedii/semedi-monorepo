@@ -4,11 +4,13 @@ import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/login/login_cubit.dart';
 import 'package:semedi/services/auth_service.dart';
+import 'package:semedi/utils/text_validators.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   final AuthService _authService = AuthService();
+  final _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -90,18 +92,21 @@ class LoginPage extends StatelessWidget {
   Padding _buildLoginForm(LoginCubit cubit) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 24),
-          _buildWelcomeAndSignInText(),
-          const SizedBox(height: 32),
-          _buildEmailField(cubit),
-          const SizedBox(height: 16),
-          _buildPasswordField(cubit),
-          const SizedBox(height: 32),
-          _buildLoginButton(cubit)
-        ],
+      child: Form(
+        key: _formkey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 24),
+            _buildWelcomeAndSignInText(),
+            const SizedBox(height: 32),
+            _buildEmailField(cubit),
+            const SizedBox(height: 16),
+            _buildPasswordField(cubit),
+            const SizedBox(height: 32),
+            _buildLoginButton(cubit)
+          ],
+        ),
       ),
     );
   }
@@ -140,6 +145,7 @@ class LoginPage extends StatelessWidget {
       labelText: "Enter Email",
       prefixIcon: const Icon(Icons.email),
       onChanged: cubit.onEmailChanged,
+      validator: TextValidators.fieldRequired,
     );
   }
 
@@ -149,13 +155,17 @@ class LoginPage extends StatelessWidget {
       labelText: "Enter Password",
       prefixIcon: const Icon(Icons.lock_outline),
       onChanged: cubit.onPasswordChanged,
+      validator: TextValidators.fieldRequired,
     );
   }
 
   AppButton _buildLoginButton(LoginCubit cubit) {
     return AppButton(
-      text: "Sign in",
-      onPressed: cubit.onLoginPressed,
-    );
+        text: "Sign in",
+        onPressed: () {
+          if (_formkey.currentState!.validate()) {
+            cubit.onLoginPressed();
+          }
+        });
   }
 }

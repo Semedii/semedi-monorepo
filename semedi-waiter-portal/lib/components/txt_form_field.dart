@@ -7,6 +7,7 @@ class TxtFormField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.onChanged,
+    this.validator,
     super.key,
   });
   final String? labelText;
@@ -14,6 +15,7 @@ class TxtFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final Widget? prefixIcon;
   final Function(String)? onChanged;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class TxtFormField extends StatelessWidget {
         ),
       ),
       onChanged: onChanged,
+      validator: validator,
     );
   }
 }
