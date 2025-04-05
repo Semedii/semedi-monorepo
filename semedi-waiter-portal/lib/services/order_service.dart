@@ -7,22 +7,30 @@ import 'package:semedi/utils/order_status_enum.dart';
 class OrderService {
   final db = FirebaseFirestore.instance;
 
-  submitOrder(List<MenuItem> selectedItems, int tableNumber) async {
+  submitOrder(
+    List<MenuItem> selectedItems,
+    int tableNumber,
+    String? note,
+  ) async {
     String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
     if (existingOrderNumber != null) {
       return await addItemsToExistingOrder(
-        orderNumber: existingOrderNumber,
-        newItems: selectedItems,
-      );
+          orderNumber: existingOrderNumber,
+          newItems: selectedItems,
+          note: note);
     } else {
-      return await addNewOrder(selectedItems, tableNumber);
+      return await addNewOrder(selectedItems, tableNumber, note);
     }
   }
 
-  addNewOrder(List<MenuItem> selectedItems, int tableNumber) async {
+  addNewOrder(
+    List<MenuItem> selectedItems,
+    int tableNumber,
+    String? note,
+  ) async {
     try {
       int orderNumber = await _getLastOrderNumber();
-      OrderModel order = _prepareOrderData(selectedItems, tableNumber);
+      OrderModel order = _prepareOrderData(selectedItems, tableNumber, note);
       final orderRef = db
           .collection('shops')
           .doc('Barkulan')
@@ -66,7 +74,11 @@ class OrderService {
     }
   }
 
-  OrderModel _prepareOrderData(List<MenuItem> selectedItems, int tableNumber) {
+  OrderModel _prepareOrderData(
+    List<MenuItem> selectedItems,
+    int tableNumber,
+    String? note,
+  ) {
     final items = <String, int>{};
     final itemDetails = <String, dynamic>{};
     double total = 0.0;
@@ -84,6 +96,7 @@ class OrderService {
 
     return OrderModel(
       tableNumber: tableNumber,
+      note: note,
       items: items,
       itemDetails: itemDetails,
       status: OrderStatusEnum.ordered,
@@ -146,6 +159,7 @@ class OrderService {
   addItemsToExistingOrder({
     required String orderNumber,
     required List<MenuItem> newItems,
+    String? note,
   }) async {
     try {
       final orderRef = db
@@ -161,7 +175,8 @@ class OrderService {
 
       final currentOrder = OrderModel.fromFirestore(docSnapshot);
 
-      final updatedOrder = _updateOrderWithNewItems(currentOrder, newItems);
+      final updatedOrder =
+          _updateOrderWithNewItems(currentOrder, newItems, note);
 
       await orderRef.update(updatedOrder.toFirestore());
       return currentOrder.orderNumber;
@@ -173,6 +188,7 @@ class OrderService {
   OrderModel _updateOrderWithNewItems(
     OrderModel currentOrder,
     List<MenuItem> newItems,
+    String? note,
   ) {
     final updatedItems = Map<String, int>.from(currentOrder.items);
     final updatedItemDetails =
@@ -193,6 +209,7 @@ class OrderService {
 
     return currentOrder.copyWithItem(
       items: updatedItems,
+      note: note,
       itemDetails: updatedItemDetails,
       status: OrderStatusEnum.ordered,
       total: updatedTotal,
