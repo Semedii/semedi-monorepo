@@ -26,19 +26,30 @@ class LoginPage extends StatelessWidget {
               );
             }
           },
-          builder: (context, state) {
-            state as LoginInitial;
-            final cubit = BlocProvider.of<LoginCubit>(context);
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildHeaderSection(context),
-                  _buildLoginForm(cubit),
-                ],
-              ),
-            );
-          },
+          builder: _mapStateToWidget,
         ),
+      ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, LoginState state) {
+    if (state is LoginInitial) {
+      return _buildPageBody(context);
+    }
+    if (state is LoginLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return const SizedBox.shrink();
+  }
+
+  _buildPageBody(BuildContext context) {
+    final cubit = BlocProvider.of<LoginCubit>(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeaderSection(context),
+          _buildLoginForm(cubit),
+        ],
       ),
     );
   }
