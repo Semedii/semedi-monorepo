@@ -6,6 +6,7 @@ import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class OrderPage extends StatelessWidget {
@@ -27,22 +28,19 @@ class OrderPage extends StatelessWidget {
         appBar: _buildAppBar(),
         body: BlocConsumer<OrderCubit, OrderState>(
           listener: _getListener,
-          builder: (context, state) {
-            state as OrderIdle;
-            return Column(
-              children: [
-                _buildSearchBar(context),
-                _buildSelectedItemsSection(state.selectedItems),
-                Divider(thickness: 2, color: AppColors.deepBlue),
-                _buildMenuSection(state, context),
-                _buildNoteField(context),
-                _buildSubmitButton(context, state),
-              ],
-            );
-          },
+          builder: _mapStateToWidget,
         ),
       ),
     );
+  }
+
+  Widget _mapStateToWidget(context, OrderState state) {
+    if (state is OrderIdle) {
+      return _buildPageBody(context, state);
+    } else if (state is OrderLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return const SizedBox.shrink();
   }
 
   AppBar _buildAppBar() {
@@ -56,6 +54,19 @@ class OrderPage extends StatelessWidget {
       centerTitle: true,
       backgroundColor: AppColors.deepBlue,
       iconTheme: IconThemeData(color: AppColors.offWhite),
+    );
+  }
+
+  Widget _buildPageBody(BuildContext context, OrderIdle state) {
+    return Column(
+      children: [
+        _buildSearchBar(context),
+        _buildSelectedItemsSection(state.selectedItems),
+        Divider(thickness: 2, color: AppColors.deepBlue),
+        _buildMenuSection(state, context),
+        _buildNoteField(context),
+        _buildSubmitButton(context, state),
+      ],
     );
   }
 
@@ -258,8 +269,11 @@ class OrderPage extends StatelessWidget {
         content: Text("Order: ${state.orderNumber} created successfully"),
       ),
     );
-    Navigator.pop(context);
-    Navigator.pop(context);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+      (route) => false,
+    );
   }
 
   _getOrderFailureListener(BuildContext context, OrderFailure state) {

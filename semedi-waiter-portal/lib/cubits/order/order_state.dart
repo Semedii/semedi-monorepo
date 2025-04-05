@@ -39,6 +39,8 @@ final class OrderIdle extends OrderState {
   }
 }
 
+class OrderLoading extends OrderState {}
+
 class OrderSuccess extends OrderState {
   final String orderNumber;
 

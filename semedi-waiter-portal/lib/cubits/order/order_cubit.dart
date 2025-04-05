@@ -80,6 +80,7 @@ class OrderCubit extends Cubit<OrderState> {
 
   submitOrder(int tableNumber) async {
     var currentState = state as OrderIdle;
+    emit(OrderLoading());
     try {
       var orderNumber = await _orderService.submitOrder(
         currentState.selectedItems,
@@ -89,6 +90,7 @@ class OrderCubit extends Cubit<OrderState> {
       emit(OrderSuccess(orderNumber: orderNumber.toString()));
     } catch (e) {
       emit(OrderFailure(error: e.toString()));
+      emit(currentState);
     }
   }
 }
