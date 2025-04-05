@@ -8,6 +8,7 @@ class OrderConfirmDialog extends StatelessWidget {
     required this.tableNumber,
     required this.total,
     required this.submitOrder,
+    this.note,
     super.key,
   });
 
@@ -15,6 +16,7 @@ class OrderConfirmDialog extends StatelessWidget {
   final int tableNumber;
   final double total;
   final Function() submitOrder;
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,18 @@ class OrderConfirmDialog extends StatelessWidget {
             _buildTableInfo(),
             const SizedBox(height: 16),
             _buildOrderItemList(),
+            if (note?.isNotEmpty ?? false)
+              Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Special Requests:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(note!),
+                  ],
+                ),
+              ),
             const Divider(height: 24),
             _buildTotalPrice(),
             const SizedBox(height: 24),

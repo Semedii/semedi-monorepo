@@ -27,6 +27,11 @@ class OrderCubit extends Cubit<OrderState> {
     ));
   }
 
+  void onNoteChanged(String? note) {
+    var currentState = state as OrderIdle;
+    emit(currentState.copyWith(note: note));
+  }
+
   void onRemoveItem(int index) {
     var currentState = state as OrderIdle;
     final newItems = List<MenuItem>.from(currentState.selectedItems);

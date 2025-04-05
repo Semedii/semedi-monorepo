@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/menu_item_card.dart';
 import 'package:semedi/components/order_confirm_dialog.dart';
+import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/utils/app_colors.dart';
@@ -34,7 +35,8 @@ class OrderPage extends StatelessWidget {
                 _buildSelectedItemsSection(state.selectedItems),
                 Divider(thickness: 2, color: AppColors.deepBlue),
                 _buildMenuSection(state, context),
-                _buildSubmitButton(context, state)
+                _buildNoteField(context),
+                _buildSubmitButton(context, state),
               ],
             );
           },
@@ -205,6 +207,16 @@ class OrderPage extends StatelessWidget {
           );
   }
 
+  _buildNoteField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TxtFormField(
+        labelText: 'Special note (modifications...)',
+        onChanged: BlocProvider.of<OrderCubit>(context).onNoteChanged,
+      ),
+    );
+  }
+
   Widget _buildSubmitButton(BuildContext context, OrderIdle state) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -226,6 +238,7 @@ class OrderPage extends StatelessWidget {
               tableNumber: tableNumber,
               total: total,
               submitOrder: () => cubit.submitOrder(tableNumber),
+              note: state.note,
             ));
   }
 
