@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/services/order_service.dart';
+import 'package:semedi/utils/order_status_enum.dart';
 
 part 'home_state.dart';
 
@@ -13,20 +15,45 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit({required OrderService orderService})
       : _orderService = orderService,
         super(const HomeInitial());
-
+  final AudioPlayer _audioPlayer = AudioPlayer();
   void listenToOrders() {
     emit(const HomeLoading());
+    List<OrderModel> previousOrders = [];
 
     _ordersSubscription?.cancel();
 
     _ordersSubscription = _orderService.getActiveOrders().listen(
       (orders) {
+        if (_shouldPlaySound(previousOrders, orders)) {
+          _playNotificationSound();
+        }
+
+        previousOrders = orders;
         emit(HomeLoaded(orders));
       },
       onError: (error) {
         emit(HomeError('Failed to load orders: $error'));
       },
     );
+  }
+
+  bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
+    final prevReadyIds = prev
+        .where((order) => order.status == OrderStatusEnum.ready)
+        .map((order) => order.orderNumber)
+        .toList();
+
+    return current.any((order) =>
+        order.status == OrderStatusEnum.ready &&
+        !prevReadyIds.contains(order.orderNumber));
+  }
+
+  Future<void> _playNotificationSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('sounds/notification.mp3'));
+    } catch (e) {
+      print('Error playing sound: $e');
+    }
   }
 
   bool isTableOccupied(int tableNumber) {
