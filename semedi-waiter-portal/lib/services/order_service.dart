@@ -174,9 +174,13 @@ class OrderService {
       }
 
       final currentOrder = OrderModel.fromFirestore(docSnapshot);
+      String? prevNote = (docSnapshot.data() as Map<String, dynamic>)['note'];
+      String? newNote = (prevNote != null && prevNote.isNotEmpty)
+          ? "$prevNote, \n $note"
+          : note;
 
       final updatedOrder =
-          _updateOrderWithNewItems(currentOrder, newItems, note);
+          _updateOrderWithNewItems(currentOrder, newItems, newNote);
 
       await orderRef.update(updatedOrder.toFirestore());
       return currentOrder.orderNumber;
