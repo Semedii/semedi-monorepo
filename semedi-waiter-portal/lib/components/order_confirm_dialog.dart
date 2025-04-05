@@ -24,38 +24,35 @@ class OrderConfirmDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.offWhite,
-          borderRadius: BorderRadius.circular(16),
+      insetPadding: const EdgeInsets.all(20),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(context),
-            const Divider(height: 24),
-            _buildTableInfo(),
-            const SizedBox(height: 16),
-            _buildOrderItemList(),
-            if (note?.isNotEmpty ?? false)
-              Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Special Requests:',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(note!),
-                  ],
-                ),
-              ),
-            const Divider(height: 24),
-            _buildTotalPrice(),
-            const SizedBox(height: 24),
-            _buildActionButtons(context),
-          ],
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.offWhite,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(context),
+                const Divider(height: 24),
+                _buildTableInfo(),
+                const SizedBox(height: 16),
+                _buildOrderItemList(),
+                if (note?.isNotEmpty ?? false) _buildSpecialNote(),
+                const Divider(height: 24),
+                _buildTotalPrice(),
+                const SizedBox(height: 24),
+                _buildActionButtons(context),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -127,6 +124,26 @@ class OrderConfirmDialog extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildSpecialNote() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Special Requests:',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 100),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Text(note!),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
