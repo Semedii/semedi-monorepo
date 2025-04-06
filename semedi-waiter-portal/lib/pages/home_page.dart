@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
@@ -12,6 +13,12 @@ import 'package:semedi/utils/app_colors.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+  Future<String> _getAppBaritle() async {
+    const storage = FlutterSecureStorage();
+    String? restaurantName =
+        await storage.read(key: 'restaurant'); // Read from secure storage
+    return "$restaurantName Waiter Portal";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +27,15 @@ class HomePage extends StatelessWidget {
         leading: IconButton(
             onPressed: () => _buildLogoutSecion(context),
             icon: const Icon(Icons.menu)),
-        title: const Text('Waiter Portal'),
+        title: FutureBuilder(
+          future: _getAppBaritle(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text('Loading...');
+            }
+            return Text(snapshot.data ?? 'Waiter Portal');
+          },
+        ),
         centerTitle: true,
       ),
       body: BlocProvider(

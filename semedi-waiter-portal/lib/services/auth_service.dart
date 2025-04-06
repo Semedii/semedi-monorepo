@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:semedi/models/waiter.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 
 class AuthService {
@@ -18,6 +20,9 @@ class AuthService {
       final String? token = await userCredential.user?.getIdToken();
 
       if (token != null) {
+        Waiter waiter = await _getUserFromWaiterList();
+        await _secureStorage.write('waiter_name', waiter.name);
+        await _secureStorage.write('restaurant', waiter.restaurant);
         return token;
       } else {
         throw Exception("failed to get token");
@@ -31,12 +36,29 @@ class AuthService {
     }
   }
 
+  Future<Waiter> _getUserFromWaiterList() async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    final db = FirebaseFirestore.instance;
+    final querySnapshot = await db
+        .collection('users')
+        .doc('waiterRoot')
+        .collection('waiters')
+        .where('email', isEqualTo: email)
+        .withConverter<Waiter>(
+          fromFirestore: (snapshot, _) => Waiter.fromFirestore(snapshot),
+          toFirestore: (_, __) => throw UnimplementedError(
+              "Writing isn't allowed in user collection"),
+        )
+        .get();
+    return querySnapshot.docs.first.data();
+  }
+
   Future<User?> getCurrentUser() async {
     return FirebaseAuth.instance.currentUser;
   }
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    await _secureStorage.delete('auth_token');
+    await _secureStorage.clear();
   }
 }
