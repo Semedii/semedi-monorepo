@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
+import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
@@ -12,14 +12,18 @@ class OrderService {
     int tableNumber,
     String? note,
   ) async {
+    final storage = SecureStorageService();
+    String? waiter = await storage.read('waiter_name');
     String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
     if (existingOrderNumber != null) {
       return await addItemsToExistingOrder(
-          orderNumber: existingOrderNumber,
-          newItems: selectedItems,
-          note: note);
+        orderNumber: existingOrderNumber,
+        newItems: selectedItems,
+        note: note,
+        waiter: waiter,
+      );
     } else {
-      return await addNewOrder(selectedItems, tableNumber, note);
+      return await addNewOrder(selectedItems, tableNumber, note, waiter);
     }
   }
 
@@ -27,10 +31,12 @@ class OrderService {
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
+    String? waiter,
   ) async {
     try {
       int orderNumber = await _getLastOrderNumber();
-      OrderModel order = _prepareOrderData(selectedItems, tableNumber, note);
+      OrderModel order =
+          _prepareOrderData(selectedItems, tableNumber, note, waiter);
       final orderRef = db
           .collection('shops')
           .doc('Barkulan')
@@ -78,6 +84,7 @@ class OrderService {
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
+    String? waiter,
   ) {
     final items = <String, int>{};
     final itemDetails = <String, dynamic>{};
@@ -102,7 +109,7 @@ class OrderService {
       status: OrderStatusEnum.ordered,
       timestamp: DateTime.now(),
       total: total,
-      waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
+      waiter: waiter ?? "unknown",
     );
   }
 
@@ -160,6 +167,7 @@ class OrderService {
     required String orderNumber,
     required List<MenuItem> newItems,
     String? note,
+    String? waiter,
   }) async {
     try {
       final orderRef = db
@@ -180,7 +188,7 @@ class OrderService {
           : note;
 
       final updatedOrder =
-          _updateOrderWithNewItems(currentOrder, newItems, newNote);
+          _updateOrderWithNewItems(currentOrder, newItems, newNote, waiter);
 
       await orderRef.update(updatedOrder.toFirestore());
       return currentOrder.orderNumber;
@@ -193,6 +201,7 @@ class OrderService {
     OrderModel currentOrder,
     List<MenuItem> newItems,
     String? note,
+    String? waiter,
   ) {
     final updatedItems = Map<String, int>.from(currentOrder.items);
     final updatedItemDetails =
@@ -218,7 +227,7 @@ class OrderService {
       status: OrderStatusEnum.ordered,
       total: updatedTotal,
       timestamp: DateTime.now(),
-      waiter: FirebaseAuth.instance.currentUser?.email ?? "unknown",
+      waiter: waiter ?? "unknown",
     );
   }
 

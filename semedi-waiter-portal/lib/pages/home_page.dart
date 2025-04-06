@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
@@ -9,14 +9,14 @@ import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
+import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   Future<String> _getAppBaritle() async {
-    const storage = FlutterSecureStorage();
-    String? restaurantName =
-        await storage.read(key: 'restaurant'); // Read from secure storage
+    final storage = SecureStorageService();
+    String? restaurantName = await storage.read('restaurant');
     return "$restaurantName Waiter Portal";
   }
 
