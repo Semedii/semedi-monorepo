@@ -4,6 +4,9 @@ import 'package:semedi/services/secure_storage_service.dart';
 class AuthService {
   final SecureStorageService _secureStorage = SecureStorageService();
 
+  Stream<User?> get authStateChanges =>
+      FirebaseAuth.instance.authStateChanges();
+
   signInWithEmailAndPassword(String email, String password) async {
     try {
       final UserCredential userCredential =

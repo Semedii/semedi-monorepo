@@ -6,6 +6,7 @@ import 'package:semedi/cubits/home/home_cubit.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
+import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/utils/app_colors.dart';
 
@@ -16,6 +17,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () => _buildLogoutSecion(context),
+            icon: const Icon(Icons.menu)),
         title: const Text('Waiter Portal'),
         centerTitle: true,
       ),
@@ -158,5 +162,32 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _buildLogoutSecion(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Logout?".toUpperCase(),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const SizedBox(height: 16),
+                AppButton(
+                    text: "Confirm Logout",
+                    onPressed: () {
+                      AuthService().logout();
+                      Navigator.pop(context);
+                    })
+              ],
+            ),
+          );
+        });
   }
 }

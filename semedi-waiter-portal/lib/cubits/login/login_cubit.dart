@@ -22,17 +22,22 @@ class LoginCubit extends Cubit<LoginState> {
   void onLoginPressed() async {
     var currentState = state as LoginInitial;
     emit(LoginLoading());
-    String? token = await _authService.signInWithEmailAndPassword(
-      currentState.email!,
-      currentState.password!,
-    );
+    try {
+      String? token = await _authService.signInWithEmailAndPassword(
+        currentState.email!,
+        currentState.password!,
+      );
 
-    if (token != null) {
-      await _secureStorage.write('auth_token', token);
-      emit(LoginSuccess(token: token));
-      emit(LoginInitial());
-    } else {
-      emit(LoginFailure(message: "Login failed, token not received."));
+      if (token != null) {
+        await _secureStorage.write('auth_token', token);
+        emit(LoginSuccess(token: token));
+        emit(LoginInitial());
+      } else {
+        emit(LoginFailure(message: "Login failed"));
+        emit(LoginInitial());
+      }
+    } catch (e) {
+      emit(LoginFailure(message: e.toString()));
       emit(LoginInitial());
     }
   }
