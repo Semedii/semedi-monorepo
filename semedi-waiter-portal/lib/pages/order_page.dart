@@ -22,7 +22,7 @@ class OrderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => OrderCubit()..initPage(menuItems),
+      create: (context) => OrderCubit()..initPage(),
       child: Scaffold(
         backgroundColor: AppColors.offWhite,
         appBar: _buildAppBar(),

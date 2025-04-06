@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
@@ -7,15 +8,17 @@ part 'order_state.dart';
 
 class OrderCubit extends Cubit<OrderState> {
   final OrderService _orderService = OrderService();
+  final MenuService _menuService = MenuService();
 
   OrderCubit() : super(OrderInitial());
 
-  void initPage(List<MenuItem> menuItems) {
+  void initPage() async {
+    List<MenuItem> allMenuItems = await _menuService.getMenu();
     emit(
       OrderIdle(
         selectedItems: [],
-        allMenuItems: menuItems,
-        filteredMenuItems: menuItems,
+        allMenuItems: allMenuItems,
+        filteredMenuItems: allMenuItems,
       ),
     );
   }
