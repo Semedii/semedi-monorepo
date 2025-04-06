@@ -11,11 +11,9 @@ import 'package:semedi/utils/app_colors.dart';
 
 class OrderPage extends StatelessWidget {
   final int tableNumber;
-  final List<MenuItem> menuItems;
 
   const OrderPage({
     required this.tableNumber,
-    required this.menuItems,
     super.key,
   });
 

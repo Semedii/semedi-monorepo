@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
-import 'package:semedi/models/menu.dart';
+
 import 'package:semedi/models/order.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
@@ -164,13 +164,6 @@ class HomePage extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => OrderPage(
                   tableNumber: index + 1,
-                  menuItems: [
-                    MenuItem(name: 'Shawarma', isAvailable: false, price: 1),
-                    MenuItem(name: 'Pizza', price: 12),
-                    MenuItem(name: 'Burger', price: 12),
-                    MenuItem(name: 'Sandwich', price: 12),
-                    MenuItem(name: 'Chicken', price: 12),
-                  ],
                 ),
               ),
             );
