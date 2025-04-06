@@ -36,6 +36,10 @@ class OrderItem extends StatelessWidget {
             },
             const SizedBox(height: 12),
             _buildTimestampAndDeliverButton(),
+            Text(
+              order.waiter,
+              style: TextStyle(color: AppColors.deepBlue),
+            ),
           ],
         ),
       ),
