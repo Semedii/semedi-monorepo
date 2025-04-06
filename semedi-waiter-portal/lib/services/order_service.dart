@@ -249,4 +249,30 @@ class OrderService {
       throw Exception('Failed to update status: ${e.toString()}');
     }
   }
+
+  Future<void> cancelOrder(String orderNumber) async {
+    try {
+      var orderDoc = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .get();
+
+      if (!orderDoc.exists) {
+        print("Order not found.");
+        return;
+      }
+
+      await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .delete();
+      print("Order has been canceled and deleted successfully.");
+    } catch (e) {
+      print("Failed to cancel order: ${e.toString()}");
+    }
+  }
 }

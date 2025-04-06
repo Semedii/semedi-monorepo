@@ -71,6 +71,14 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+  onCancelOrder(String? orderNumber) {
+    if (orderNumber != null) {
+      _orderService.cancelOrder(
+        orderNumber,
+      );
+    }
+  }
+
   @override
   Future<void> close() {
     _ordersSubscription?.cancel();

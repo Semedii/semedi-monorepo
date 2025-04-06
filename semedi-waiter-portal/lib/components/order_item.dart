@@ -7,7 +7,13 @@ import 'package:semedi/utils/order_status_enum.dart';
 class OrderItem extends StatelessWidget {
   final OrderModel order;
   final Function()? onDeliver;
-  const OrderItem({super.key, required this.order, this.onDeliver});
+  final Function()? onCancel;
+  const OrderItem({
+    super.key,
+    required this.order,
+    this.onCancel,
+    this.onDeliver,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +41,8 @@ class OrderItem extends StatelessWidget {
               _buildNote(),
             },
             const SizedBox(height: 12),
-            _buildTimestampAndDeliverButton(),
-            Text(
-              order.waiter,
-              style: TextStyle(color: AppColors.deepBlue),
-            ),
+            _buildTimestamp(),
+            _buildWaiterAndActionButton(),
           ],
         ),
       ),
@@ -149,16 +152,6 @@ class OrderItem extends StatelessWidget {
     );
   }
 
-  _buildTimestampAndDeliverButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildTimestamp(),
-        if (order.status == OrderStatusEnum.ready) _buildDeliverButton()
-      ],
-    );
-  }
-
   Text _buildTimestamp() {
     String text =
         order.status == OrderStatusEnum.delivered ? 'Delivered' : 'Ordered';
@@ -171,10 +164,41 @@ class OrderItem extends StatelessWidget {
     );
   }
 
+  Row _buildWaiterAndActionButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          order.waiter,
+          style: TextStyle(color: AppColors.deepBlue),
+        ),
+        if (order.status == OrderStatusEnum.ready) _buildDeliverButton(),
+        if (order.status == OrderStatusEnum.ordered) _buildCancelButton()
+      ],
+    );
+  }
+
+  _buildCancelButton() {
+    return GestureDetector(
+      onTap: onCancel,
+      child: Chip(
+        side: BorderSide(color: AppColors.softRed),
+        elevation: 8,
+        shadowColor: AppColors.softRed,
+        label: Text(
+          'Cancel',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        backgroundColor: AppColors.softRed,
+      ),
+    );
+  }
+
   _buildDeliverButton() {
     return GestureDetector(
       onTap: onDeliver,
       child: Chip(
+        side: BorderSide(color: AppColors.deepBlue),
         elevation: 8,
         shadowColor: AppColors.deepBlue,
         label: Text(
