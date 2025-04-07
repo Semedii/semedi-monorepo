@@ -6,6 +6,7 @@ import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
 
 import 'package:semedi/models/order.dart';
+import 'package:semedi/pages/login_page.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
@@ -201,7 +202,11 @@ class HomePage extends StatelessWidget {
                     text: "Confirm Logout",
                     onPressed: () {
                       AuthService().logout();
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        (route) => false,
+                      );
                     })
               ],
             ),
