@@ -69,11 +69,6 @@ class OrderCubit extends Cubit<OrderState> {
     return itemsWithQuantity;
   }
 
-  int getQuantityForItem(MenuItem item) {
-    var currentState = state as OrderIdle;
-    return currentState.selectedItems.where((i) => i.name == item.name).length;
-  }
-
   getTotalPrice() {
     var currentState = state as OrderIdle;
     final total = currentState.selectedItems

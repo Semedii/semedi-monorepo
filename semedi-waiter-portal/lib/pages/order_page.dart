@@ -59,7 +59,7 @@ class OrderPage extends StatelessWidget {
     return Column(
       children: [
         _buildSearchBar(context),
-        _buildSelectedItemsSection(state.selectedItems),
+        _buildSelectedItemsSection(context, state.selectedItems),
         Divider(thickness: 2, color: AppColors.deepBlue),
         _buildMenuSection(state, context),
         _buildNoteField(context),
@@ -79,11 +79,14 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedItemsSection(List<MenuItem> selectedItems) {
+  Widget _buildSelectedItemsSection(
+    BuildContext context,
+    List<MenuItem> selectedItems,
+  ) {
     if (selectedItems.isEmpty) {
       return _buildNoSelectedItemsText();
     }
-    return _buildSelectedItemsList(selectedItems);
+    return _buildSelectedItemsList(context);
   }
 
   Widget _buildNoSelectedItemsText() {
@@ -98,51 +101,38 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedItemsList(List<MenuItem> selectedItems) {
-    return Expanded(
-      flex: 2,
-      child: ListView.builder(
-        itemCount: selectedItems.length,
-        itemBuilder: (context, index) {
-          final item = selectedItems[index];
-          final orderCubit = BlocProvider.of<OrderCubit>(context);
-          final quantity = orderCubit.getQuantityForItem(item);
+  Widget _buildSelectedItemsList(BuildContext context) {
+    final orderCubit = BlocProvider.of<OrderCubit>(context);
+    final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
 
-          return _buildSelectedItemTile(context, item, quantity);
-        },
-      ),
-    );
-  }
-
-  Widget _buildSelectedItemTile(
-    BuildContext context,
-    MenuItem item,
-    int quantity,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.deepBlue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              '$quantity x',
-              style: TextStyle(
-                color: AppColors.deepBlue,
-                fontWeight: FontWeight.bold,
+    return Column(
+      children: orderItemsWithQuantity.entries.map<Widget>((entry) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.deepBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${entry.value}x',
+                  style: TextStyle(
+                    color: AppColors.deepBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(entry.key)),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(item.name)),
-        ],
-      ),
+        );
+      }).toList(),
     );
   }
 
