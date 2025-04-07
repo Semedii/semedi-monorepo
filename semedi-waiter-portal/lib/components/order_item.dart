@@ -50,6 +50,8 @@ class OrderItem extends StatelessWidget {
   }
 
   Column _buildOrderAndTableNumber() {
+    String tableInfo =
+        order.tableNumber == 10001 ? 'Take Away' : "Table ${order.tableNumber}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -62,7 +64,7 @@ class OrderItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Table ${order.tableNumber}',
+          tableInfo,
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 14,

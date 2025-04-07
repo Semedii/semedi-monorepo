@@ -79,6 +79,7 @@ class OrderConfirmDialog extends StatelessWidget {
   }
 
   Container _buildTableInfo() {
+    String info = tableNumber == 10001 ? 'Take Away' : 'Table $tableNumber';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
@@ -86,7 +87,7 @@ class OrderConfirmDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        'Table $tableNumber',
+        info,
         style: TextStyle(
           fontWeight: FontWeight.w500,
           color: AppColors.deepBlue,

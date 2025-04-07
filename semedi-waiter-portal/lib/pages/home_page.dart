@@ -91,7 +91,16 @@ class HomePage extends StatelessWidget {
     return AppButton(
       isOutlined: true,
       text: "TAKEAWAY",
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OrderPage(
+              tableNumber: 10001,
+            ),
+          ),
+        );
+      },
     );
   }
 

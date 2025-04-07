@@ -42,9 +42,11 @@ class OrderPage extends StatelessWidget {
   }
 
   AppBar _buildAppBar() {
+    String title =
+        tableNumber == 10001 ? 'Take Away Order' : "Table $tableNumber - Order";
     return AppBar(
       title: Text(
-        "Table $tableNumber - Order",
+        title,
         style: TextStyle(
           color: AppColors.offWhite,
         ),
