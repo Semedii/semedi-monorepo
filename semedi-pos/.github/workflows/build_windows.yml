@@ -2,14 +2,14 @@ name: Build Windows App
 
 on:
   push:
-    branches: [ main ]  # Trigger on push to main branch
+    branches: [ main, master ]  # Runs on push to main/master
   pull_request:
-    branches: [ main ]  # Optional: Run on PRs
+    branches: [ main, master ]  # Optional: Runs on PRs
 
 jobs:
   build:
-    runs-on: windows-latest  # Windows VM provided by GitHub
-    
+    runs-on: windows-latest  # Windows runner
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,15 +17,15 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable  # or 'beta' if needed
+          channel: stable
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Windows app
+      - name: Build Windows (Release)
         run: flutter build windows --release
 
-      - name: Upload artifact (optional)
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Windows-App
