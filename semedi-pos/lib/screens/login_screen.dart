@@ -114,7 +114,7 @@ class LoginScreen extends StatelessWidget {
     return TxtFormField(
       labelText: 'Email',
       prefixIcon: Icon(
-        Icons.badge,
+        Icons.email_outlined,
         color: AppColors.darkGrey.withOpacity(0.6),
       ),
       onChanged: cubit.onEmailChanged,
