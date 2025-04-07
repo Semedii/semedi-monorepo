@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
             if (state is HomeLoaded) {
               return Column(
                 children: [
-                  _buildActionButtons(context),
+                  _buildActionButtons(context, state),
                   const Divider(),
                   _buildActiveOrders(context, state.orders),
                 ],
@@ -67,12 +67,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, HomeLoaded state) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          _buildDineInButton(context),
+          _buildDineInButton(context, state),
           const SizedBox(height: 12),
           _buildTakeAwayButton(context),
         ],
@@ -80,10 +80,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  AppButton _buildDineInButton(BuildContext context) {
+  AppButton _buildDineInButton(BuildContext context, HomeLoaded state) {
     return AppButton(
       text: "DINE-IN",
-      onPressed: () => _showTableSelection(context),
+      onPressed: () => _showTableSelection(context, state),
     );
   }
 
@@ -134,7 +134,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _showTableSelection(BuildContext context) {
+  void _showTableSelection(BuildContext context, HomeLoaded state) {
     final cubit = BlocProvider.of<HomeCubit>(context);
     showModalBottomSheet(
       context: context,
@@ -146,7 +146,7 @@ class HomePage extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
         ),
-        itemCount: 12,
+        itemCount: state.totalTables,
         itemBuilder: (ctx, index) => ElevatedButton(
           style: ButtonStyle(
             side: cubit.isTableOccupied(index + 1)

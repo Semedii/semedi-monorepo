@@ -14,8 +14,9 @@ class HomeLoading extends HomeState {
 
 class HomeLoaded extends HomeState {
   final List<OrderModel> orders;
+  final int totalTables;
 
-  const HomeLoaded(this.orders);
+  const HomeLoaded(this.orders, this.totalTables);
 }
 
 class HomeError extends HomeState {
