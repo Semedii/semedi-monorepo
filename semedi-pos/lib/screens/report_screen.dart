@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -16,7 +19,7 @@ class ReportScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildTable(),
             const SizedBox(height: 16),
-            _buildFooterButtons(),
+            _buildFooterButtons(context),
           ],
         ),
       ),
@@ -100,7 +103,7 @@ class ReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterButtons() {
+  Widget _buildFooterButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -120,7 +123,9 @@ class ReportScreen extends StatelessWidget {
             'EXPORT PDF',
             style: TextStyle(color: Colors.white),
           ),
-          onPressed: () {},
+          onPressed: () {
+            _generatePdf(context);
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.deepBlue,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -190,4 +195,35 @@ class ReportScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _generatePdf(BuildContext context) async {
+  final pdf = pw.Document();
+
+  pdf.addPage(pw.Page(
+    build: (pw.Context context) {
+      return pw.Column(
+        children: [
+          pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
+          pw.SizedBox(height: 12),
+          pw.Text(
+            'SALES SUMMARY REPORT (07/04/2025 - 07/04/2025)',
+            style: pw.TextStyle(fontSize: 16),
+          ),
+          pw.SizedBox(height: 24),
+          pw.Table.fromTextArray(
+            context: context,
+            data: <List<String>>[
+              ['Particulars', 'Dine In', 'Take Away', 'Total'],
+              ['Sales', '\$10,200.00', '\$5,120.00', '\$15,320.00'],
+              ['VAT 5%', '\$510.00', '\$256.00', '\$766.00'],
+              ['Net Sales', '\$9,690.00', '\$4,864.00', '\$14,554.00'],
+            ],
+          ),
+        ],
+      );
+    },
+  ));
+  await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save());
 }
