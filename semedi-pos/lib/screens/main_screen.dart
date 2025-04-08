@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/screens/management/management_screen.dart';
+import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
@@ -39,7 +41,7 @@ class MainScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: Column(
         children: [
           _buildStatsHeader(),
@@ -47,7 +49,13 @@ class MainScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ManagementScreen(),
+            ),
+          );
+        },
         icon: const Icon(Icons.settings),
         label: const Text('MANAGE'),
         backgroundColor: AppColors.deepBlue,
@@ -56,7 +64,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       title: const Text('ACTIVE ORDERS', style: TextStyle(letterSpacing: 1.5)),
       backgroundColor: AppColors.deepBlue,
@@ -65,8 +73,20 @@ class MainScreen extends StatelessWidget {
       centerTitle: true,
       actions: [
         IconButton(
+          icon: const Icon(Icons.calendar_today_sharp),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const ReportScreen(),
+              ),
+            );
+          },
+          tooltip: 'End of Day Report',
+        ),
+        IconButton(
           icon: const Icon(Icons.refresh),
           onPressed: () {},
+          tooltip: 'Refresh',
         ),
       ],
     );
