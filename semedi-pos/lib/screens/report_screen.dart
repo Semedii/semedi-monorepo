@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -224,6 +222,4 @@ Future<void> _generatePdf(BuildContext context) async {
       );
     },
   ));
-  await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save());
 }
