@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => LoginCubit()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: StreamBuilder<User?>(
           stream: AuthService().authStateChanges,
           builder: (context, snapshot) {

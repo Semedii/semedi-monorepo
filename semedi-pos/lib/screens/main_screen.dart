@@ -3,6 +3,7 @@ import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
+import 'package:semedi_pos/service/auth_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
@@ -87,6 +88,27 @@ class MainScreen extends StatelessWidget {
           icon: const Icon(Icons.refresh),
           onPressed: () {},
           tooltip: 'Refresh',
+        ),
+        PopupMenuButton<String>(
+          position: PopupMenuPosition.under,
+          color: AppColors.deepBlue,
+          offset: const Offset(0, 12),
+          icon: const Icon(Icons.account_circle),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'logout',
+              child: Text(
+                'Logout',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+          ],
+          onSelected: (value) {
+            if (value == 'logout') {
+              AuthService().logout();
+            }
+          },
+          tooltip: 'Logout',
         ),
       ],
     );
