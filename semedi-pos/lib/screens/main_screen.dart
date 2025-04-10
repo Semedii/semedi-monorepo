@@ -15,15 +15,37 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          OrderCubit(orderService: OrderService())..listenToOrders(),
+      child: BlocBuilder<OrderCubit, OrderState>(
+        builder: _mapStateToWidget,
+      ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, OrderState state) {
+    if (state is OrderLoaded) {
+      return _buildScreenBody(context, state);
+    }
+    if (state is OrderLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (state is OrderLoadingFailed) {
+      return Scaffold(body: Center(child: Text(state.message)));
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildScreenBody(BuildContext context, OrderLoaded state) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
-      appBar: _buildAppBar(context),
-      body: BlocProvider(
-        create: (context) =>
-            OrderCubit(orderService: OrderService())..listenToOrders(),
-        child: BlocBuilder<OrderCubit, OrderState>(
-          builder: _mapStateToWidget,
-        ),
+      appBar: _buildAppBar(context, state),
+      body: Column(
+        children: [
+          _buildStatsHeader(state),
+          _buildOrderGrid(state.activeOrders),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -41,29 +63,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _mapStateToWidget(BuildContext context, OrderState state) {
-    if (state is OrderLoaded) {
-      return _buildScreenBody(context, state);
-    }
-    if (state is OrderLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (state is OrderLoadingFailed) {
-      return Center(child: Text(state.message));
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildScreenBody(BuildContext context, OrderLoaded state) {
-    return Column(
-      children: [
-        _buildStatsHeader(state),
-        _buildOrderGrid(state.activeOrders),
-      ],
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, OrderLoaded state) {
     return AppBar(
       title: const Text('ACTIVE ORDERS', style: TextStyle(letterSpacing: 1.5)),
       backgroundColor: AppColors.deepBlue,
@@ -76,7 +76,9 @@ class MainScreen extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const ReportScreen(),
+                builder: (context) => ReportScreen(
+                  paidOrders: state.paidOrders ?? [],
+                ),
               ),
             );
           },
@@ -137,7 +139,7 @@ class MainScreen extends StatelessWidget {
             const SizedBox(width: 24),
             _buildStatCard(
               title: 'Paid Orders',
-              value: state.numberOfPaidOrders.toString(),
+              value: state.paidOrders?.length.toString() ?? '0',
               icon: Icons.check_circle,
               color: AppColors.green,
             ),

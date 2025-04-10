@@ -6,23 +6,23 @@ final class OrderInitial extends OrderState {}
 
 final class OrderLoaded extends OrderState {
   final List<OrderModel>? activeOrders;
-  final int? numberOfPaidOrders;
+  final List<OrderModel>? paidOrders;
   final double totalRevenue;
 
   OrderLoaded({
     required this.activeOrders,
-    required this.numberOfPaidOrders,
+    required this.paidOrders,
     required this.totalRevenue,
   });
 
   OrderLoaded copyWith({
     List<OrderModel>? activeOrders,
-    int? numberOfPaidOrders,
+    List<OrderModel>? paidOrders,
     double? totalRevenue,
   }) {
     return OrderLoaded(
       activeOrders: activeOrders ?? this.activeOrders,
-      numberOfPaidOrders: numberOfPaidOrders ?? this.numberOfPaidOrders,
+      paidOrders: paidOrders ?? this.paidOrders,
       totalRevenue: totalRevenue ?? this.totalRevenue,
     );
   }

@@ -31,7 +31,7 @@ class OrderCubit extends Cubit<OrderState> {
       (orders) {
         emit(OrderLoaded(
             activeOrders: orders,
-            numberOfPaidOrders: paidOrders.length,
+            paidOrders: paidOrders,
             totalRevenue: totalRevenue));
       },
       onError: (error) {

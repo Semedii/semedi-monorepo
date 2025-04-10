@@ -1,27 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen({super.key});
+  const ReportScreen({required this.paidOrders, super.key});
+
+  final List<OrderModel> paidOrders;
+
+  Map<String, double> _calculateSales() {
+    double dineInTotal = 0;
+    double takeAwayTotal = 0;
+
+    for (final order in paidOrders) {
+      if (order.tableNumber > 1000) {
+        takeAwayTotal += order.total;
+      } else {
+        dineInTotal += order.total;
+      }
+    }
+
+    final dineInVat = dineInTotal * 0.05;
+    final takeAwayVat = takeAwayTotal * 0.05;
+    final dineInNetSales = dineInTotal - dineInVat;
+    final takeAwayNetSales = takeAwayTotal - takeAwayVat;
+
+    return {
+      'dineIn': dineInTotal,
+      'takeAway': takeAwayTotal,
+      'totalSales': dineInTotal + takeAwayTotal,
+      'dineInVat': dineInVat,
+      'takeAwayVat': takeAwayVat,
+      'totalVat': dineInVat + takeAwayVat,
+      'dineInNet': dineInNetSales,
+      'takeAwayNet': takeAwayNetSales,
+      'totalNet': dineInNetSales + takeAwayNetSales,
+    };
+  }
+
+  String _formatCurrency(double amount) {
+    return '\$${amount.toStringAsFixed(2).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        )}';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final salesData = _calculateSales();
+    final formattedDate = _getFormattedDate();
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            _buildTitleSection(),
+            _buildTitleSection(formattedDate),
             const SizedBox(height: 24),
-            _buildTable(),
+            _buildTable(salesData),
             const SizedBox(height: 16),
-            _buildFooterButtons(context),
+            _buildFooterButtons(context, salesData, formattedDate),
           ],
         ),
       ),
     );
+  }
+
+  String _getFormattedDate() {
+    final now = DateTime.now();
+    return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   }
 
   AppBar _buildAppBar() {
@@ -37,23 +85,23 @@ class ReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleSection() {
-    return const Column(
+  Widget _buildTitleSection(String formattedDate) {
+    return Column(
       children: [
-        Text(
+        const Text(
           "Barkulan Restaurant",
           style: TextStyle(fontSize: 40),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
-          "SALES SUMMARY REPORT (07/04/2025 - 07/04/2025)",
-          style: TextStyle(fontSize: 24),
+          "SALES SUMMARY REPORT ($formattedDate)",
+          style: const TextStyle(fontSize: 24),
         ),
       ],
     );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(Map<String, double> salesData) {
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
@@ -81,16 +129,21 @@ class ReportScreen extends StatelessWidget {
                 _buildTableHeader(),
                 _buildTableRow(
                   'Sales',
-                  '\$10,200.00',
-                  '\$5,120.00',
-                  '\$15,320.00',
+                  _formatCurrency(salesData['dineIn']!),
+                  _formatCurrency(salesData['takeAway']!),
+                  _formatCurrency(salesData['totalSales']!),
                 ),
-                _buildTableRow('VAT 5%', '\$510.00', '\$256.00', '\$766.00'),
+                _buildTableRow(
+                  'VAT 5%',
+                  _formatCurrency(salesData['dineInVat']!),
+                  _formatCurrency(salesData['takeAwayVat']!),
+                  _formatCurrency(salesData['totalVat']!),
+                ),
                 _buildTableRow(
                   'Net Sales',
-                  '\$9,690.00',
-                  '\$4,864.00',
-                  '\$14,554.00',
+                  _formatCurrency(salesData['dineInNet']!),
+                  _formatCurrency(salesData['takeAwayNet']!),
+                  _formatCurrency(salesData['totalNet']!),
                   isFooter: true,
                 ),
               ],
@@ -101,7 +154,8 @@ class ReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterButtons(BuildContext context) {
+  Widget _buildFooterButtons(BuildContext context,
+      Map<String, double> salesData, String formattedDate) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -122,7 +176,7 @@ class ReportScreen extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           ),
           onPressed: () {
-            _generatePdf(context);
+            _generatePdf(context, salesData, formattedDate);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.deepBlue,
@@ -195,7 +249,8 @@ class ReportScreen extends StatelessWidget {
   }
 }
 
-Future<void> _generatePdf(BuildContext context) async {
+Future<void> _generatePdf(BuildContext context, Map<String, double> salesData,
+    String formattedDate) async {
   final pdf = pw.Document();
 
   pdf.addPage(pw.Page(
@@ -205,7 +260,7 @@ Future<void> _generatePdf(BuildContext context) async {
           pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
           pw.SizedBox(height: 12),
           pw.Text(
-            'SALES SUMMARY REPORT (07/04/2025 - 07/04/2025)',
+            'SALES SUMMARY REPORT ($formattedDate - $formattedDate)',
             style: pw.TextStyle(fontSize: 16),
           ),
           pw.SizedBox(height: 24),
@@ -213,13 +268,32 @@ Future<void> _generatePdf(BuildContext context) async {
             context: context,
             data: <List<String>>[
               ['Particulars', 'Dine In', 'Take Away', 'Total'],
-              ['Sales', '\$10,200.00', '\$5,120.00', '\$15,320.00'],
-              ['VAT 5%', '\$510.00', '\$256.00', '\$766.00'],
-              ['Net Sales', '\$9,690.00', '\$4,864.00', '\$14,554.00'],
+              [
+                'Sales',
+                '\$${salesData['dineIn']!.toStringAsFixed(2)}',
+                '\$${salesData['takeAway']!.toStringAsFixed(2)}',
+                '\$${salesData['totalSales']!.toStringAsFixed(2)}',
+              ],
+              [
+                'VAT 5%',
+                '\$${salesData['dineInVat']!.toStringAsFixed(2)}',
+                '\$${salesData['takeAwayVat']!.toStringAsFixed(2)}',
+                '\$${salesData['totalVat']!.toStringAsFixed(2)}',
+              ],
+              [
+                'Net Sales',
+                '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
+                '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
+                '\$${salesData['totalNet']!.toStringAsFixed(2)}',
+              ],
             ],
           ),
         ],
       );
     },
   ));
+
+  // Add your PDF saving/sharing logic here
+  // For example using the printing package:
+  // await Printing.sharePdf(bytes: await pdf.save(), filename: 'sales-report.pdf');
 }
