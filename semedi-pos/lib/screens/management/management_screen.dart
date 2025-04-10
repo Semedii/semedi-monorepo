@@ -43,12 +43,9 @@ class ManagementScreen extends StatelessWidget {
                 children: [
                   MenuManagementTab(
                     menuItems: state.menuList,
-                    onDelete: (menu) => cubit.onDeleteMenu(menu),
-                    onAdd: (menu) => cubit.onAddMenu(menu),
-                    onEdit: (newMenu, oldMenu) => cubit.onEditMenu(
-                      newMenu: newMenu,
-                      oldMenu: oldMenu,
-                    ),
+                    onDelete: cubit.onDeleteMenu,
+                    onAdd: cubit.onAddMenu,
+                    onEdit: cubit.onEditMenu,
                   ),
                   TableManagementTab(totalTableNumber: state.totalTableNumber),
                   WaiterManagementTab(waiterList: state.waiterList),
