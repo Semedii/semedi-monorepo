@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class MenuManagementTab extends StatelessWidget {
-  const MenuManagementTab({required this.menuItems, super.key});
+  const MenuManagementTab({
+    required this.menuItems,
+    required this.onDelete,
+    super.key,
+  });
   final List<MenuItem> menuItems;
+  final Function(MenuItem menu) onDelete;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -86,7 +92,7 @@ class MenuManagementTab extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildEditButton(context, menuItems, index),
-        _buildDisableToggle(menuItems, index),
+        _buildDeleteIcon(context, menuItems[index]),
       ],
     );
   }
@@ -108,13 +114,72 @@ class MenuManagementTab extends StatelessWidget {
     );
   }
 
-  Switch _buildDisableToggle(List<MenuItem> menuItems, int index) {
-    return Switch(
-      value: menuItems[index].isAvailable,
-      activeColor: AppColors.green,
-      onChanged: (value) {
-        debugPrint('Toggled ${menuItems[index].name} to $value');
-      },
+  Widget _buildDeleteIcon(BuildContext context, MenuItem menu) {
+    return IconButton(
+        onPressed: () {
+          _onDeleteTap(context, menu);
+        },
+        icon: Icon(
+          Icons.delete,
+          color: Colors.red.shade400,
+        ));
+  }
+
+  _onDeleteTap(BuildContext context, MenuItem menu) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+              child: Container(
+            width: MediaQuery.of(context).size.width * .5,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              _buildDeleteDialogTitle(),
+              const SizedBox(height: 16),
+              _buildDeleteDialogText(),
+              const SizedBox(height: 24),
+              _buildDeleteDialogButtons(context, menu),
+            ]),
+          ));
+        });
+  }
+
+  Text _buildDeleteDialogTitle() {
+    return const Text(
+      "Confirm Delete",
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1e78c1),
+      ),
+    );
+  }
+
+  Text _buildDeleteDialogText() {
+    return Text(
+      "Are you sure you want to delete this Menu?",
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.grey[700],
+      ),
+    );
+  }
+
+  Row _buildDeleteDialogButtons(BuildContext context, MenuItem menu) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        AppButton(
+            isOutlined: true,
+            text: "Cancel",
+            onPressed: () {
+              Navigator.pop(context);
+            }),
+        AppButton(
+          text: "Delete",
+          onPressed: () => onDelete(menu),
+        )
+      ],
     );
   }
 

@@ -21,4 +21,10 @@ class ManagementCubit extends Cubit<ManagementState> {
       totalTableNumber: totalTableNumber,
     ));
   }
+
+  onDeleteMenu(MenuItem menu) async {
+    emit(ManagementLoading());
+    await _managementService.deleteMenu(menu);
+    initPage();
+  }
 }

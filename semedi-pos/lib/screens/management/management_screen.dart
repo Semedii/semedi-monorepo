@@ -37,10 +37,14 @@ class ManagementScreen extends StatelessWidget {
           create: (context) => ManagementCubit(_managementService)..initPage(),
           child: BlocBuilder<ManagementCubit, ManagementState>(
               builder: (context, state) {
+            final cubit = BlocProvider.of<ManagementCubit>(context);
             if (state is ManagementLoaded) {
               return TabBarView(
                 children: [
-                  MenuManagementTab(menuItems: state.menuList),
+                  MenuManagementTab(
+                    menuItems: state.menuList,
+                    onDelete: (menu) => cubit.onDeleteMenu(menu),
+                  ),
                   TableManagementTab(totalTableNumber: state.totalTableNumber),
                   WaiterManagementTab(waiterList: state.waiterList),
                 ],

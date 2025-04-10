@@ -4,8 +4,8 @@ import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 
 class ManagementService {
+  final db = FirebaseFirestore.instance;
   Future<List<MenuItem>> getMenuList() async {
-    final db = FirebaseFirestore.instance;
     final querySnapshot = await db
         .collection('shops')
         .doc('Barkulan')
@@ -20,7 +20,6 @@ class ManagementService {
   }
 
   getTotalTableNumber() async {
-    final db = FirebaseFirestore.instance;
     final querySnapshot = await db
         .collection('shops')
         .doc('Barkulan')
@@ -32,7 +31,6 @@ class ManagementService {
   }
 
   Future<List<Waiter>> getWaitersList() async {
-    final db = FirebaseFirestore.instance;
     final querySnapshot = await db
         .collection('users')
         .doc('waiterRoot')
@@ -44,5 +42,19 @@ class ManagementService {
         )
         .get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<void> deleteMenu(MenuItem menu) async {
+    var menuQuery = await db
+        .collection('shops')
+        .doc('Barkulan')
+        .collection('menu')
+        .where('name', isEqualTo: menu.name)
+        .get();
+
+    if (menuQuery.docs.isEmpty) {
+      return;
+    }
+    await menuQuery.docs.first.reference.delete();
   }
 }

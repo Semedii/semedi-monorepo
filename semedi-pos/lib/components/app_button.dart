@@ -7,6 +7,7 @@ class AppButton extends StatelessWidget {
     this.color,
     this.onPressed,
     this.isOutlined = false,
+    this.isSmall = true,
     super.key,
   });
 
@@ -14,11 +15,12 @@ class AppButton extends StatelessWidget {
   final Color? color;
   final bool isOutlined;
   final Function()? onPressed;
+  final bool isSmall;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
+      width: isSmall ? 200 : double.infinity,
       height: 50,
       child: ElevatedButton(
         onPressed: onPressed,
