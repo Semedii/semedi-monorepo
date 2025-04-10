@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:semedi_pos/components/txt_form_field.dart';
+import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class TableManagementTab extends StatelessWidget {
-  const TableManagementTab({required this.totalTableNumber, super.key});
+  const TableManagementTab({
+    required this.totalTableNumber,
+    required this.onAdd,
+    super.key,
+  });
   final int totalTableNumber;
+  final Function() onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +28,18 @@ class TableManagementTab extends StatelessWidget {
   Widget _buildAddTableButton(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () => _showAddTableDialog(context),
-        icon: const Icon(Icons.add),
-        label: const Text('ADD TABLE'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.deepBlue,
-          foregroundColor: Colors.white,
+      child: AppButton(
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.add, color: Colors.white),
+            Text(
+              "ADD NEW TABLE",
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
         ),
+        onPressed: () => _showAddTableDialog(context),
       ),
     );
   }
@@ -63,23 +72,60 @@ class TableManagementTab extends StatelessWidget {
 
   void _showAddTableDialog(BuildContext context) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Table'),
-        content: const TxtFormField(labelText: 'Table Number'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
+        context: context,
+        builder: (context) => Dialog(
+                child: Container(
+              width: MediaQuery.of(context).size.width * .5,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                _buildAddDialogTitle(),
+                const SizedBox(height: 16),
+                _buildAddDialogText(),
+                const SizedBox(height: 24),
+                _buildAddDialogButtons(context),
+              ]),
+            )));
+  }
+
+  Text _buildAddDialogTitle() {
+    return const Text(
+      "Confirm Add",
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1e78c1),
+      ),
+    );
+  }
+
+  Text _buildAddDialogText() {
+    return Text(
+      "Are you sure you want to increase your tables to ${totalTableNumber + 1}?",
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.grey[700],
+      ),
+    );
+  }
+
+  Row _buildAddDialogButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        AppButton(
+            isOutlined: true,
+            text: "Cancel",
             onPressed: () {
               Navigator.pop(context);
-            },
-            child: const Text('ADD'),
-          ),
-        ],
-      ),
+            }),
+        AppButton(
+          text: "Yes",
+          onPressed: () {
+            onAdd();
+            Navigator.pop(context);
+          },
+        )
+      ],
     );
   }
 }

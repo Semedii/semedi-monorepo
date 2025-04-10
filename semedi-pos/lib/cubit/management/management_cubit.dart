@@ -39,4 +39,10 @@ class ManagementCubit extends Cubit<ManagementState> {
     await _managementService.deleteMenu(menu);
     initPage();
   }
+
+  onAddTable() async {
+    emit(ManagementLoading());
+    await _managementService.incrementTotalTables();
+    initPage();
+  }
 }

@@ -104,4 +104,21 @@ class ManagementService {
       rethrow;
     }
   }
+
+  Future<void> incrementTotalTables() async {
+    try {
+      final docRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('metadata')
+          .doc('totalTables');
+
+      await docRef.update({
+        'totalTables': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Error incrementing total tables: $e');
+      rethrow;
+    }
+  }
 }
