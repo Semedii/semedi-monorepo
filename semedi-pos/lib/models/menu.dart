@@ -22,4 +22,11 @@ class MenuItem {
       isAvailable: data['isAvailable'],
     );
   }
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'price': price,
+      'isAvailable': isAvailable,
+    };
+  }
 }

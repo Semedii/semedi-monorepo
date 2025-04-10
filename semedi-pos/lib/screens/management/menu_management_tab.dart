@@ -8,10 +8,12 @@ class MenuManagementTab extends StatelessWidget {
   const MenuManagementTab({
     required this.menuItems,
     required this.onDelete,
+    required this.onEdit,
     super.key,
   });
   final List<MenuItem> menuItems;
   final Function(MenuItem menu) onDelete;
+  final Function(MenuItem newMenu, MenuItem oldMenu) onEdit;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -177,7 +179,10 @@ class MenuManagementTab extends StatelessWidget {
             }),
         AppButton(
           text: "Delete",
-          onPressed: () => onDelete(menu),
+          onPressed: () {
+            onDelete(menu);
+            Navigator.pop(context);
+          },
         )
       ],
     );
@@ -230,36 +235,48 @@ class MenuManagementTab extends StatelessWidget {
   }
 
   void _showEditItemDialog(BuildContext context, MenuItem item) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+    nameController.text = item.name;
+    priceController.text = item.price.toString();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Menu Item'),
-        content: const Column(
+        title: Text('Edit ${item.name}'),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TxtFormField(
+              controller: nameController,
               labelText: 'Item Name',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TxtFormField(
+              controller: priceController,
               labelText: 'Price',
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.warmOrange,
-            ),
+          AppButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text('UPDATE'),
+            isOutlined: true,
+            text: "Cancel",
           ),
+          const SizedBox(width: 24),
+          AppButton(
+            onPressed: () {
+              MenuItem newMenu = MenuItem(
+                name: nameController.text,
+                price: double.parse(priceController.text),
+              );
+              onEdit(newMenu, item);
+              Navigator.pop(context);
+            },
+            text: "Edit",
+          )
         ],
       ),
     );

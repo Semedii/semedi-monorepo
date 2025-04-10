@@ -22,6 +22,12 @@ class ManagementCubit extends Cubit<ManagementState> {
     ));
   }
 
+  onEditMenu({required MenuItem newMenu, required MenuItem oldMenu}) async {
+    emit(ManagementLoading());
+    await _managementService.updateMenu(oldItem: oldMenu, newItem: newMenu);
+    initPage();
+  }
+
   onDeleteMenu(MenuItem menu) async {
     emit(ManagementLoading());
     await _managementService.deleteMenu(menu);

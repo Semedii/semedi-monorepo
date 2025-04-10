@@ -8,6 +8,7 @@ class TxtFormField extends StatelessWidget {
     this.suffixIcon,
     this.onChanged,
     this.validator,
+    this.controller,
     super.key,
   });
   final String? labelText;
@@ -16,10 +17,12 @@ class TxtFormField extends StatelessWidget {
   final Widget? prefixIcon;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       obscureText: isTextObscure,
       decoration: InputDecoration(
         prefixIcon: prefixIcon,

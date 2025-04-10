@@ -57,4 +57,27 @@ class ManagementService {
     }
     await menuQuery.docs.first.reference.delete();
   }
+
+  Future<void> updateMenu({
+    required MenuItem oldItem,
+    required MenuItem newItem,
+  }) async {
+    try {
+      final menuQuery = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('menu')
+          .where('name', isEqualTo: oldItem.name)
+          .get();
+
+      if (menuQuery.docs.isEmpty) {
+        throw Exception('Menu item not found');
+      }
+
+      await menuQuery.docs.first.reference.update(newItem.toFirestore());
+    } catch (e) {
+      print('Error updating menu: $e');
+      rethrow;
+    }
+  }
 }
