@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MenuItem {
   final String name;
   final double price;
@@ -11,13 +13,13 @@ class MenuItem {
     this.searchKeywords = const [],
   });
 
-  // factory MenuItem.fromFirestore(DocumentSnapshot doc) {
-  //   final data = doc.data() as Map<String, dynamic>;
+  factory MenuItem.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
-  //   return MenuItem(
-  //     name: data['name'],
-  //     price: double.parse(data['price'].toString()),
-  //     isAvailable: data['isAvailable'],
-  //   );
-  // }
+    return MenuItem(
+      name: data['name'],
+      price: double.parse(data['price'].toString()),
+      isAvailable: data['isAvailable'],
+    );
+  }
 }

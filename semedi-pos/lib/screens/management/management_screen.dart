@@ -1,12 +1,17 @@
 // management_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_pos/cubit/management/management_cubit.dart';
 import 'package:semedi_pos/screens/management/menu_management_tab.dart';
 import 'package:semedi_pos/screens/management/table_management_tab.dart';
 import 'package:semedi_pos/screens/management/waiter_management_tab.dart';
+import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class ManagementScreen extends StatelessWidget {
-  const ManagementScreen({super.key});
+  ManagementScreen({super.key});
+
+  final ManagementService _managementService = ManagementService();
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +33,21 @@ class ManagementScreen extends StatelessWidget {
             indicatorColor: Colors.white,
           ),
         ),
-        body: const TabBarView(
-          children: [
-            MenuManagementTab(),
-            TableManagementTab(),
-            WaiterManagementTab(),
-          ],
+        body: BlocProvider(
+          create: (context) => ManagementCubit(_managementService)..initPage(),
+          child: BlocBuilder<ManagementCubit, ManagementState>(
+              builder: (context, state) {
+            if (state is ManagementLoaded) {
+              return TabBarView(
+                children: [
+                  MenuManagementTab(menuItems: state.menuList),
+                  TableManagementTab(totalTableNumber: state.totalTableNumber),
+                  WaiterManagementTab(waiterList: state.waiterList),
+                ],
+              );
+            }
+            return const Center(child: CircularProgressIndicator());
+          }),
         ),
       ),
     );

@@ -3,7 +3,8 @@ import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class TableManagementTab extends StatelessWidget {
-  const TableManagementTab({super.key});
+  const TableManagementTab({required this.totalTableNumber, super.key});
+  final int totalTableNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,7 @@ class TableManagementTab extends StatelessWidget {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: 12, // Replace with real data
+        itemCount: totalTableNumber,
         itemBuilder: (context, index) => Card(
           color: AppColors.offWhite,
           child: Center(

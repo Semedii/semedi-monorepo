@@ -4,28 +4,10 @@ import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class MenuManagementTab extends StatelessWidget {
-  const MenuManagementTab({super.key});
-
+  const MenuManagementTab({required this.menuItems, super.key});
+  final List<MenuItem> menuItems;
   @override
   Widget build(BuildContext context) {
-    // Mock data - replace with your real data source
-    final List<MenuItem> menuItems = [
-      MenuItem(name: 'Sauteed Liver', price: 6, isAvailable: false),
-      MenuItem(name: 'Muqmad', price: 6),
-      MenuItem(name: 'Beans', price: 5),
-      MenuItem(name: 'French Toast', price: 5),
-      MenuItem(name: 'English Breakfast', price: 8),
-      MenuItem(name: 'Toast and Butter', price: 4),
-      MenuItem(name: 'Egg & Roll', price: 5),
-      MenuItem(name: 'Cambabur', price: 4),
-      MenuItem(name: 'Shakshoka', price: 4),
-      MenuItem(name: 'Spanish Omelette', price: 5),
-      MenuItem(name: 'Scrambled Eggs', price: 5),
-      MenuItem(name: 'Porridge', price: 4),
-      MenuItem(name: 'Fruit Salad', price: 4),
-      MenuItem(name: 'Pancakes', price: 4)
-    ];
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(

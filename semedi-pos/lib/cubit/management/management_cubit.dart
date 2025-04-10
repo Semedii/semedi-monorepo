@@ -1,0 +1,24 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/waiter.dart';
+import 'package:semedi_pos/service/management_service.dart';
+
+part 'management_state.dart';
+
+class ManagementCubit extends Cubit<ManagementState> {
+  final ManagementService _managementService;
+  ManagementCubit(this._managementService) : super(ManagementInitial());
+
+  initPage() async {
+    emit(ManagementLoading());
+    final List<MenuItem> menuList = await _managementService.getMenuList();
+    final List<Waiter> waiterList = await _managementService.getWaitersList();
+    final int totalTableNumber = await _managementService.getTotalTableNumber();
+
+    emit(ManagementLoaded(
+      menuList: menuList,
+      waiterList: waiterList,
+      totalTableNumber: totalTableNumber,
+    ));
+  }
+}

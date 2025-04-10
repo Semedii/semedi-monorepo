@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
+import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class WaiterManagementTab extends StatelessWidget {
-  const WaiterManagementTab({super.key});
+  const WaiterManagementTab({required this.waiterList, super.key});
+
+  final List<Waiter> waiterList;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +40,13 @@ class WaiterManagementTab extends StatelessWidget {
   Expanded _buildWaitersList() {
     return Expanded(
       child: ListView.builder(
-        itemCount: 5,
+        itemCount: waiterList.length,
         itemBuilder: (context, index) => Card(
           child: ListTile(
             leading: CircleAvatar(
               child: Text('${index + 1}'),
             ),
-            title: Text('Waiter ${index + 1}'),
+            title: Text(waiterList[index].name),
             trailing: IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () {},
