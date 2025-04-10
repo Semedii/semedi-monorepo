@@ -9,10 +9,12 @@ class MenuManagementTab extends StatelessWidget {
     required this.menuItems,
     required this.onDelete,
     required this.onEdit,
+    required this.onAdd,
     super.key,
   });
   final List<MenuItem> menuItems;
   final Function(MenuItem menu) onDelete;
+  final Function(MenuItem menu) onAdd;
   final Function(MenuItem newMenu, MenuItem oldMenu) onEdit;
   @override
   Widget build(BuildContext context) {
@@ -31,14 +33,18 @@ class MenuManagementTab extends StatelessWidget {
   Align _buildAddItemButton(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () => _showAddItemDialog(context),
-        icon: const Icon(Icons.add),
-        label: const Text('ADD ITEM'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.deepBlue,
-          foregroundColor: Colors.white,
+      child: AppButton(
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(Icons.add, color: Colors.white),
+            Text(
+              "ADD NEW MENU",
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
         ),
+        onPressed: () => _showAddItemDialog(context),
       ),
     );
   }
@@ -198,19 +204,25 @@ class MenuManagementTab extends StatelessWidget {
         title: const Text('Add New Menu Item'),
         content: _buildAddItemDialog(nameController, priceController),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.deepBlue,
-            ),
+          AppButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text('ADD'),
+            isOutlined: true,
+            text: "Cancel",
           ),
+          const SizedBox(width: 24),
+          AppButton(
+            onPressed: () {
+              MenuItem newMenu = MenuItem(
+                name: nameController.text,
+                price: double.parse(priceController.text),
+              );
+              onAdd(newMenu);
+              Navigator.pop(context);
+            },
+            text: "Add",
+          )
         ],
       ),
     );
@@ -220,14 +232,16 @@ class MenuManagementTab extends StatelessWidget {
     TextEditingController nameController,
     TextEditingController priceController,
   ) {
-    return const Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         TxtFormField(
+          controller: nameController,
           labelText: 'Item Name',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         TxtFormField(
+          controller: priceController,
           labelText: 'Price',
         ),
       ],

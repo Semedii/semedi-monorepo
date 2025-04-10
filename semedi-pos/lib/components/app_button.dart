@@ -3,7 +3,8 @@ import 'package:semedi_pos/utils/app_colors.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
-    required this.text,
+    this.text,
+    this.child,
     this.color,
     this.onPressed,
     this.isOutlined = false,
@@ -11,8 +12,9 @@ class AppButton extends StatelessWidget {
     super.key,
   });
 
-  final String text;
+  final String? text;
   final Color? color;
+  final Widget? child;
   final bool isOutlined;
   final Function()? onPressed;
   final bool isSmall;
@@ -30,10 +32,11 @@ class AppButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: AppColors.deepBlue)),
         ),
-        child: Text(
-          text.toUpperCase(),
-          style: TextStyle(color: isOutlined ? Colors.black : Colors.white),
-        ),
+        child: child ??
+            Text(
+              "${text?.toUpperCase()}",
+              style: TextStyle(color: isOutlined ? Colors.black : Colors.white),
+            ),
       ),
     );
   }

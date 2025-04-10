@@ -44,6 +44,30 @@ class ManagementService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
+  Future<void> addMenu(MenuItem newItem) async {
+    try {
+      final existingItem = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('menu')
+          .where('name', isEqualTo: newItem.name)
+          .get();
+
+      if (existingItem.docs.isNotEmpty) {
+        throw Exception('Menu item with this name already exists');
+      }
+
+      await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('menu')
+          .add(newItem.toFirestore());
+    } catch (e) {
+      print('Error adding menu item: $e');
+      rethrow;
+    }
+  }
+
   Future<void> deleteMenu(MenuItem menu) async {
     var menuQuery = await db
         .collection('shops')

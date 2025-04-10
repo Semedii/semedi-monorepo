@@ -44,6 +44,7 @@ class ManagementScreen extends StatelessWidget {
                   MenuManagementTab(
                     menuItems: state.menuList,
                     onDelete: (menu) => cubit.onDeleteMenu(menu),
+                    onAdd: (menu) => cubit.onAddMenu(menu),
                     onEdit: (newMenu, oldMenu) => cubit.onEditMenu(
                       newMenu: newMenu,
                       oldMenu: oldMenu,
