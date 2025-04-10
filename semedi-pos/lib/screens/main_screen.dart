@@ -1,53 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
+import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
+import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class MainScreen extends StatelessWidget {
-  final List<OrderModel> orders = [
-    OrderModel(
-      tableNumber: 5,
-      items: {'Burger': 2, 'Coke': 1},
-      itemDetails: {
-        'Burger': {'price': 250.0},
-        'Coke': {'price': 120.0}
-      },
-      status: OrderStatusEnum.delivered,
-      total: 620.0,
-      waiter: 'Juan Dela Cruz',
-    ),
-    OrderModel(
-      tableNumber: 2,
-      items: {'Pizza': 3, 'Beer': 2},
-      itemDetails: {
-        'Pizza': {'price': 300.0},
-        'Beer': {'price': 170.0}
-      },
-      status: OrderStatusEnum.delivered,
-      total: 1240.0,
-      waiter: 'Maria Santos',
-    ),
-    // Add more orders as needed...
-  ];
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final deliveredOrders = orders
-        .where((order) => order.status == OrderStatusEnum.delivered)
-        .toList();
-
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          _buildStatsHeader(),
-          _buildOrderGrid(deliveredOrders),
-        ],
+      body: BlocProvider(
+        create: (context) =>
+            OrderCubit(orderService: OrderService())..listenToOrders(),
+        child: BlocBuilder<OrderCubit, OrderState>(
+          builder: _mapStateToWidget,
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -62,6 +38,28 @@ class MainScreen extends StatelessWidget {
         backgroundColor: AppColors.deepBlue,
         foregroundColor: Colors.white,
       ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, OrderState state) {
+    if (state is OrderLoaded) {
+      return _buildScreenBody(context, state);
+    }
+    if (state is OrderLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state is OrderLoadingFailed) {
+      return Center(child: Text(state.message));
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildScreenBody(BuildContext context, OrderLoaded state) {
+    return Column(
+      children: [
+        _buildStatsHeader(state),
+        _buildOrderGrid(state.activeOrders),
+      ],
     );
   }
 
@@ -114,7 +112,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsHeader() {
+  Widget _buildStatsHeader(OrderLoaded state) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: BoxDecoration(
@@ -133,24 +131,20 @@ class MainScreen extends StatelessWidget {
           children: [
             _buildStatCard(
               title: 'Active Orders',
-              value: orders.length.toString(),
+              value: state.activeOrders!.length.toString(),
               icon: Icons.receipt_long,
             ),
             const SizedBox(width: 24),
             _buildStatCard(
               title: 'Paid Orders',
-              value: orders
-                  .where((o) => o.status == OrderStatusEnum.paid)
-                  .length
-                  .toString(),
+              value: state.numberOfPaidOrders.toString(),
               icon: Icons.check_circle,
               color: AppColors.green,
             ),
             const SizedBox(width: 24),
             _buildStatCard(
               title: 'Total Revenue',
-              value:
-                  '\$${orders.fold(0.0, (sum, order) => sum + order.total).toStringAsFixed(2)}',
+              value: state.totalRevenue.toStringAsFixed(2),
               icon: Icons.attach_money,
               color: AppColors.deepBlue,
             ),
@@ -210,7 +204,17 @@ class MainScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildOrderGrid(List<OrderModel> orders) {
+  Widget _buildOrderGrid(List<OrderModel>? orders) {
+    if (orders == null || orders.isEmpty) {
+      return const Expanded(
+        child: Center(
+          child: Text(
+            'No orders available',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ),
+      );
+    }
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -222,13 +226,16 @@ class MainScreen extends StatelessWidget {
             childAspectRatio: 1.2,
           ),
           itemCount: orders.length,
-          itemBuilder: (context, index) => _buildOrderCard(orders[index]),
+          itemBuilder: (context, index) => _buildOrderCard(
+            context,
+            orders[index],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(OrderModel order) {
+  Widget _buildOrderCard(BuildContext context, OrderModel order) {
     return Container(
       decoration: _getOrderCardDecoration(),
       child: Column(
@@ -236,7 +243,7 @@ class MainScreen extends StatelessWidget {
         children: [
           _buildOrderCardHeader(order),
           _buildOrderCardBody(order),
-          _buildOrderCardFooter(order),
+          _buildOrderCardFooter(context, order),
         ],
       ),
     );
@@ -362,15 +369,16 @@ class MainScreen extends StatelessWidget {
   }
 
   Text _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
+    final price = order.itemDetails[item.key] ?? 0.0;
     return Text(
-      '\$${order.itemDetails[item.key]!['price']!.toStringAsFixed(2)}',
+      '\$ $price',
       style: TextStyle(
         color: AppColors.darkGrey.withOpacity(0.7),
       ),
     );
   }
 
-  Widget _buildOrderCardFooter(OrderModel order) {
+  Widget _buildOrderCardFooter(BuildContext context, OrderModel order) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -378,7 +386,7 @@ class MainScreen extends StatelessWidget {
         children: [
           _buildWaiterName(order),
           const SizedBox(height: 12),
-          _buildMarkPaidButton(),
+          _buildMarkPaidButton(context, order.orderNumber!),
         ],
       ),
     );
@@ -394,10 +402,11 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  AppButton _buildMarkPaidButton() {
+  AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
       text: 'Mark as paid',
-      onPressed: () {},
+      onPressed: () =>
+          BlocProvider.of<OrderCubit>(context).markOrderPaid(orderNumber),
     );
   }
 

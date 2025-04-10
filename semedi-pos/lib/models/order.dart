@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class OrderModel {
@@ -36,38 +37,41 @@ class OrderModel {
   //     'waiter': waiter,
   //   };
   // }
+  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
-  // factory OrderModel.fromFirestore(DocumentSnapshot doc) {
-  //   final data = doc.data() as Map<String, dynamic>;
-  //   final rawDetails = data['itemDetails'] ?? {};
-  //   final itemDetails = <String, dynamic>{};
+    // Extract prices from Firestore
+    final rawPrices = data['prices'] ?? {};
+    final itemDetails = <String, double>{};
 
-  //   if (rawDetails is Map) {
-  //     rawDetails.forEach((key, value) {
-  //       if (value is Map) {
-  //         itemDetails[key] = value;
-  //       } else if (value is num) {
-  //         itemDetails[key] = {'price': value.toDouble()};
-  //       }
-  //     });
-  //   }
-  //   return OrderModel(
-  //     orderNumber: doc.id,
-  //     tableNumber: data['tableNumber'],
-  //     items: Map<String, int>.from(data['items'] ?? {}),
-  //     itemDetails: itemDetails,
-  //     status: OrderStatusEnum.values.firstWhere(
-  //       (e) => e.name == data['status'],
-  //       orElse: () => OrderStatusEnum.ordered,
-  //     ),
-  //     note: data['note'],
-  //     timestamp: data['timestamp'] != null
-  //         ? (data['timestamp'] as Timestamp).toDate()
-  //         : null,
-  //     total: (data['total'] as num?)?.toDouble() ?? 0,
-  //     waiter: data['waiter'] ?? "unknown",
-  //   );
-  // }
+    if (rawPrices is Map) {
+      rawPrices.forEach((itemName, priceData) {
+        if (priceData is Map) {
+          itemDetails[itemName] =
+              (priceData['price'] as num?)?.toDouble() ?? 0.0;
+        } else if (priceData is num) {
+          itemDetails[itemName] = priceData.toDouble();
+        }
+      });
+    }
+
+    return OrderModel(
+      orderNumber: doc.id,
+      tableNumber: data['tableNumber'] ?? 'Unknown table', // Added fallback
+      items: Map<String, int>.from(data['items'] ?? {}),
+      itemDetails: itemDetails,
+      status: OrderStatusEnum.values.firstWhere(
+        (e) => e.name == (data['status'] ?? 'ordered'), // Added fallback
+        orElse: () => OrderStatusEnum.ordered,
+      ),
+      note: data['note'] ?? '', // Added fallback
+      timestamp: data['timestamp'] != null
+          ? (data['timestamp'] as Timestamp).toDate()
+          : DateTime.now(), // Added fallback
+      total: (data['total'] as num?)?.toDouble() ?? 0,
+      waiter: data['waiter'] ?? "unknown",
+    );
+  }
 
   // // Add/modify items
   // OrderModel copyWithItem({
