@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/services/secure_storage_service.dart';
+import 'package:semedi/services/service_locator.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
@@ -12,8 +13,8 @@ class OrderService {
     int tableNumber,
     String? note,
   ) async {
-    final storage = SecureStorageService();
-    String? waiter = await storage.read('waiter_name');
+    final secureStorageService = getIt<SecureStorageService>();
+    String? waiter = await secureStorageService.read('waiter_name');
     String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
     if (existingOrderNumber != null) {
       return await addItemsToExistingOrder(

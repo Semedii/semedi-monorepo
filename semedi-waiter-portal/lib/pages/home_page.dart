@@ -4,23 +4,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
+import 'package:semedi/main.dart';
 
 import 'package:semedi/models/order.dart';
-import 'package:semedi/pages/login_page.dart';
+
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
+import 'package:semedi/services/service_locator.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
   Future<String> _getAppBaritle() async {
-    final storage = SecureStorageService();
-    String? restaurantName = await storage.read('restaurant');
+    final secureStorageService = getIt<SecureStorageService>();
+    String? restaurantName = await secureStorageService.read('restaurant');
     return "$restaurantName Waiter Portal";
   }
 
+  final authService = getIt<AuthService>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,10 +204,9 @@ class HomePage extends StatelessWidget {
                 AppButton(
                     text: "Confirm Logout",
                     onPressed: () {
-                      AuthService().logout();
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      authService.logout();
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const MyApp()),
                         (route) => false,
                       );
                     })

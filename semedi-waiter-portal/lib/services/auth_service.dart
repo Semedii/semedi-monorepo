@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:semedi/models/waiter.dart';
 import 'package:semedi/services/secure_storage_service.dart';
+import 'package:semedi/services/service_locator.dart';
 
 class AuthService {
-  final SecureStorageService _secureStorage = SecureStorageService();
+  final secureStorageService = getIt<SecureStorageService>();
 
   Stream<User?> get authStateChanges =>
       FirebaseAuth.instance.authStateChanges();
@@ -21,8 +22,8 @@ class AuthService {
 
       if (token != null) {
         Waiter waiter = await _getUserFromWaiterList();
-        await _secureStorage.write('waiter_name', waiter.name);
-        await _secureStorage.write('restaurant', waiter.restaurant);
+        await secureStorageService.write('waiter_name', waiter.name);
+        await secureStorageService.write('restaurant', waiter.restaurant);
         return token;
       } else {
         throw Exception("failed to get token");
@@ -59,6 +60,6 @@ class AuthService {
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    await _secureStorage.clear();
+    await secureStorageService.clear();
   }
 }

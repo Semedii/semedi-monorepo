@@ -4,12 +4,15 @@ import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/login/login_cubit.dart';
 import 'package:semedi/services/auth_service.dart';
+import 'package:semedi/services/secure_storage_service.dart';
+import 'package:semedi/services/service_locator.dart';
 import 'package:semedi/utils/text_validators.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
-  final AuthService _authService = AuthService();
+  final authService = getIt<AuthService>();
+  final secureStorageService = getIt<SecureStorageService>();
   final _formkey = GlobalKey<FormState>();
 
   @override
@@ -17,14 +20,14 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: BlocProvider(
-        create: (context) => LoginCubit(_authService),
+        create: (context) => LoginCubit(authService, secureStorageService),
         child: BlocConsumer<LoginCubit, LoginState>(
           listener: (context, state) {
             if (state is LoginFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
-              AuthService().logout();
+              authService.logout();
             }
           },
           builder: _mapStateToWidget,

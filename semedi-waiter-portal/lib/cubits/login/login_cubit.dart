@@ -6,8 +6,8 @@ part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   final AuthService _authService;
-  final SecureStorageService _secureStorage = SecureStorageService();
-  LoginCubit(this._authService) : super(LoginInitial());
+  final SecureStorageService _secureStorage;
+  LoginCubit(this._authService, this._secureStorage) : super(LoginInitial());
 
   void onEmailChanged(String? email) {
     var currentState = state as LoginInitial;
