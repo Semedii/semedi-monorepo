@@ -26,7 +26,7 @@ class AuthService {
         await secureStorageService.write('restaurant', waiter.restaurant);
         return token;
       } else {
-        throw Exception("failed to get token");
+        throw Exception("Failed to get token");
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

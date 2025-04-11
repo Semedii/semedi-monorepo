@@ -7,8 +7,8 @@ final getIt = GetIt.instance;
 
 class ServiceLocator {
   static void setup() {
+    getIt.registerSingleton<SecureStorageService>(SecureStorageService());
     getIt.registerSingleton<AuthService>(AuthService());
     getIt.registerSingleton<OrderService>(OrderService());
-    getIt.registerSingleton<SecureStorageService>(SecureStorageService());
   }
 }

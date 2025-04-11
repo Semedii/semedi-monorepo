@@ -5,33 +5,37 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
+import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final OrderService _orderService;
+  final SecureStorageService _secureStorageService;
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
 
-  HomeCubit({required OrderService orderService})
+  HomeCubit(OrderService orderService, this._secureStorageService)
       : _orderService = orderService,
         super(const HomeInitial());
   final AudioPlayer _audioPlayer = AudioPlayer();
   void listenToOrders() async {
     emit(const HomeLoading());
     final int totalTables = await MenuService().getTotalTableNumber();
+
     List<OrderModel> previousOrders = [];
 
     _ordersSubscription?.cancel();
 
     _ordersSubscription = _orderService.getActiveOrders().listen(
-      (orders) {
+      (orders) async {
         if (_shouldPlaySound(previousOrders, orders)) {
           _playNotificationSound();
         }
 
         previousOrders = orders;
-        emit(HomeLoaded(orders, totalTables));
+        String? restaurantName = await _secureStorageService.read('restaurant');
+        emit(HomeLoaded(orders, totalTables, restaurantName));
       },
       onError: (error) {
         emit(HomeError('Failed to load orders: $error'));

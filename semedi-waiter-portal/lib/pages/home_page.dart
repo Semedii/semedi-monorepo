@@ -17,56 +17,45 @@ import 'package:semedi/utils/app_colors.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
-  Future<String> _getAppBaritle() async {
-    final secureStorageService = getIt<SecureStorageService>();
-    String? restaurantName = await secureStorageService.read('restaurant');
-    return "$restaurantName Waiter Portal";
-  }
+  final secureStorageService = getIt<SecureStorageService>();
 
   final authService = getIt<AuthService>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => _buildLogoutSecion(context),
-            icon: const Icon(Icons.menu)),
-        title: FutureBuilder(
-          future: _getAppBaritle(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Text('Loading...');
-            }
-            return Text(snapshot.data ?? 'Waiter Portal');
-          },
-        ),
-        centerTitle: true,
-      ),
-      body: BlocProvider(
-        create: (context) =>
-            HomeCubit(orderService: OrderService())..listenToOrders(),
-        child: BlocBuilder<HomeCubit, HomeState>(
-          builder: (context, state) {
-            if (state is HomeLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return BlocProvider(
+      create: (context) =>
+          HomeCubit(OrderService(), secureStorageService)..listenToOrders(),
+      child: BlocBuilder<HomeCubit, HomeState>(
+        builder: (context, state) {
+          if (state is HomeLoading) {
+            return const Scaffold(
+                body: Center(child: CircularProgressIndicator()));
+          }
 
-            if (state is HomeError) {
-              return Center(child: Text(state.message));
-            }
+          if (state is HomeError) {
+            return Scaffold(body: Center(child: Text(state.message)));
+          }
 
-            if (state is HomeLoaded) {
-              return Column(
+          if (state is HomeLoaded) {
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                    onPressed: () => _buildLogoutSecion(context),
+                    icon: const Icon(Icons.menu)),
+                title: Text("${state.restaurantName} Waiter Portal"),
+                centerTitle: true,
+              ),
+              body: Column(
                 children: [
                   _buildActionButtons(context, state),
                   const Divider(),
                   _buildActiveOrders(context, state.orders),
                 ],
-              );
-            }
-            return Container();
-          },
-        ),
+              ),
+            );
+          }
+          return Container();
+        },
       ),
     );
   }
