@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/utils/order_status_enum.dart';
 
 part 'order_state.dart';
 
@@ -40,9 +41,10 @@ class OrderCubit extends Cubit<OrderState> {
     );
   }
 
-  void markOrderPaid(String orderNumber) async {
+  void changeOrderStatus(String orderNumber, OrderStatusEnum status) async {
     try {
-      await _orderService.markOrderPaid(orderNumber: orderNumber);
+      await _orderService.changeOrderStatus(
+          orderNumber: orderNumber, status: status);
       listenToOrders();
     } catch (e) {
       emit(OrderLoadingFailed(

@@ -389,6 +389,8 @@ class MainScreen extends StatelessWidget {
           _buildWaiterName(order),
           const SizedBox(height: 12),
           _buildMarkPaidButton(context, order.orderNumber!),
+          const SizedBox(height: 12),
+          _buildUnPaidButton(context, order.orderNumber!),
         ],
       ),
     );
@@ -406,11 +408,27 @@ class MainScreen extends StatelessWidget {
 
   AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
+      color: AppColors.green,
       isSmall: false,
       text: 'Mark as paid',
-      onPressed: () =>
-          BlocProvider.of<OrderCubit>(context).markOrderPaid(orderNumber),
+      onPressed: () => BlocProvider.of<OrderCubit>(context).changeOrderStatus(
+        orderNumber,
+        OrderStatusEnum.paid,
+      ),
     );
+  }
+
+  AppButton _buildUnPaidButton(BuildContext context, String orderNumber) {
+    return AppButton(
+        onPressed: () {
+          BlocProvider.of<OrderCubit>(context).changeOrderStatus(
+            orderNumber,
+            OrderStatusEnum.unpaid,
+          );
+        },
+        color: AppColors.warmOrange,
+        isSmall: false,
+        text: "Unpaid");
   }
 
   Color _getStatusColor(OrderStatusEnum status) {

@@ -46,8 +46,9 @@ class OrderService {
     return orders;
   }
 
-  Future<void> markOrderPaid({
+  Future<void> changeOrderStatus({
     required String orderNumber,
+    required OrderStatusEnum status,
   }) async {
     try {
       await db
@@ -56,7 +57,7 @@ class OrderService {
           .collection('orders')
           .doc(orderNumber)
           .update({
-        'status': OrderStatusEnum.paid.name,
+        'status': status.name,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {

@@ -4,4 +4,5 @@ enum OrderStatusEnum {
   ready,
   delivered,
   paid,
+  unpaid,
 }
