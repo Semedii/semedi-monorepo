@@ -43,7 +43,15 @@ class MainScreen extends StatelessWidget {
       appBar: _buildAppBar(context, state),
       body: Column(
         children: [
-          _buildStatsHeader(state),
+          Row(
+            children: [
+              Expanded(child: Center(child: _buildStatsHeader(state))),
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: _buildTakeAwayButton(),
+              )
+            ],
+          ),
           _buildOrderGrid(state.activeOrders),
         ],
       ),
@@ -430,6 +438,26 @@ class MainScreen extends StatelessWidget {
         color: AppColors.warmOrange,
         isSmall: false,
         text: "Unpaid");
+  }
+
+  AppButton _buildTakeAwayButton() {
+    return AppButton(
+      onPressed: () {},
+      isSmall: true,
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          Text(
+            "Take Away Order",
+            style: TextStyle(color: Colors.white),
+          )
+        ],
+      ),
+    );
   }
 
   Color _getStatusColor(OrderStatusEnum status) {
