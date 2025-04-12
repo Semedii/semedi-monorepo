@@ -106,9 +106,13 @@ class OrderPage extends StatelessWidget {
   Widget _buildSelectedItemsList(BuildContext context) {
     final orderCubit = BlocProvider.of<OrderCubit>(context);
     final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
+    final itemList = orderItemsWithQuantity.entries.toList();
 
     return Column(
-      children: orderItemsWithQuantity.entries.map<Widget>((entry) {
+      children: itemList.asMap().entries.map<Widget>((indexedEntry) {
+        final index = indexedEntry.key;
+        final entry = indexedEntry.value;
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
@@ -131,6 +135,13 @@ class OrderPage extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(child: Text(entry.key)),
+              IconButton(
+                onPressed: () => orderCubit.onRemoveItem(index),
+                icon: Icon(
+                  Icons.remove_circle,
+                  color: AppColors.softRed,
+                ),
+              ),
             ],
           ),
         );
