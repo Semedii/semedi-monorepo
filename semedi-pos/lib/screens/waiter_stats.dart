@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
+import 'package:semedi_pos/cubit/waiterStat/waiter_stat_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
+import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class WaiterStats extends StatelessWidget {
-  const WaiterStats({required this.waitersPerfomance, super.key});
+  WaiterStats({required this.waitersPerfomance, super.key});
+
+  final OrderService _orderService = OrderService();
 
   final WaitersPerfomance waitersPerfomance;
 
@@ -17,12 +21,32 @@ class WaiterStats extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       appBar: _buildAppBar(context, waitersPerfomance),
-      body: Column(
-        children: [
-          _buildStatsHeader(waitersPerfomance),
-          // _buildOrderGrid(),
-        ],
+      body: BlocProvider(
+        create: (context) =>
+            WaiterStatCubit(_orderService)..initPage(waitersPerfomance.name),
+        child: BlocBuilder<WaiterStatCubit, WaiterStatState>(
+          builder: _mapStateToWidget,
+        ),
       ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, WaiterStatState state) {
+    if (state is WaiterStatLoaded) {
+      return _buildScreenBody(state.waitersOrders);
+    }
+    if (state is WaiterStatLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return const SizedBox.shrink();
+  }
+
+  Column _buildScreenBody(List<OrderModel>? waitersOrders) {
+    return Column(
+      children: [
+        _buildStatsHeader(waitersPerfomance),
+        _buildOrderGrid(waitersOrders),
+      ],
     );
   }
 
@@ -75,7 +99,7 @@ class WaiterStats extends StatelessWidget {
               _buildStatCard(
                 title: 'Total Orders',
                 value: waitersPerfomance.totalOrders.toString(),
-                icon: Icons.numbers,
+                icon: Icons.food_bank,
                 color: AppColors.deepBlue,
               ),
             ],
@@ -174,7 +198,6 @@ class WaiterStats extends StatelessWidget {
         children: [
           _buildOrderCardHeader(order),
           _buildOrderCardBody(order),
-          _buildOrderCardFooter(context, order),
         ],
       ),
     );
@@ -362,12 +385,10 @@ class WaiterStats extends StatelessWidget {
 
   Color _getStatusColor(OrderStatusEnum status) {
     switch (status) {
-      case OrderStatusEnum.ready:
+      case OrderStatusEnum.paid:
         return AppColors.green;
-      case OrderStatusEnum.ordered:
+      case OrderStatusEnum.unpaid:
         return AppColors.warmOrange;
-      case OrderStatusEnum.delivered:
-        return AppColors.deepBlue; // Changed to match your primary color
       default:
         return Colors.grey;
     }

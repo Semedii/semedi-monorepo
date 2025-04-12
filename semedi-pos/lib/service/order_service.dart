@@ -46,6 +46,26 @@ class OrderService {
     return orders;
   }
 
+  Future<List<OrderModel>?> getOrdersByWaiter(String waiterName) async {
+    final querySnapshot = await db
+        .collection('shops')
+        .doc('Barkulan')
+        .collection('orders')
+        .where('waiter', isEqualTo: waiterName)
+        .orderBy('status')
+        .orderBy('timestamp', descending: true)
+        .withConverter<OrderModel>(
+          fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
+          toFirestore: (order, _) =>
+              throw UnimplementedError("Adding order not allowed"),
+        )
+        .get();
+
+    final orders = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    return orders;
+  }
+
   Future<List<OrderModel>?> getPaidAndUnpaidOrders() async {
     final querySnapshot = await db
         .collection('shops')
