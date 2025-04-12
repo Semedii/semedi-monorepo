@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/waitersPerfomance/waiters_perfomance_cubit.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
+import 'package:semedi_pos/screens/waiter_stats.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
@@ -35,7 +36,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   Widget _mapStateToWidget(BuildContext context, WaitersPerfomanceState state) {
     if (state is WaitersPerfomanceLoaded) {
-      return _buildPageBody(state.waitersPerfomance);
+      return _buildPageBody(context, state.waitersPerfomance);
     }
     if (state is WaitersPerfomanceLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -43,7 +44,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Padding _buildPageBody(List<WaitersPerfomance> waitersPerfomance) {
+  Padding _buildPageBody(
+      BuildContext context, List<WaitersPerfomance> waitersPerfomance) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -54,7 +56,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
               decoration: _buildBoxDecoration(),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: _buildDataTable(waitersPerfomance),
+                child: _buildDataTable(context, waitersPerfomance),
               ),
             ),
           ),
@@ -72,7 +74,10 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  DataTable _buildDataTable(List<WaitersPerfomance> waitersPerfomance) {
+  DataTable _buildDataTable(
+    BuildContext context,
+    List<WaitersPerfomance> waitersPerfomance,
+  ) {
     return DataTable(
       headingRowColor: WidgetStatePropertyAll<Color>(
         AppColors.deepBlue.withOpacity(0.05),
@@ -85,7 +90,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         _buildDataColumn("total sales"),
         _buildDataColumn("view"),
       ],
-      rows: _buildDataRow(waitersPerfomance).toList(),
+      rows: _buildDataRow(context, waitersPerfomance).toList(),
     );
   }
 
@@ -98,7 +103,10 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  Iterable<DataRow> _buildDataRow(List<WaitersPerfomance> waitersPerfomance) {
+  _buildDataRow(
+    BuildContext context,
+    List<WaitersPerfomance> waitersPerfomance,
+  ) {
     return waitersPerfomance.map((waiter) {
       return DataRow(
         cells: [
@@ -113,7 +121,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
           ),
           _buildDataCell(waiter.totalOrders.toString()),
           _buildDataCell('\$${waiter.totalSales.toStringAsFixed(2)}'),
-          _buildVIewButton(),
+          _buildVIewButton(context, waiter),
         ],
       );
     });
@@ -131,13 +139,22 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  DataCell _buildVIewButton() {
+  DataCell _buildVIewButton(
+    BuildContext context,
+    WaitersPerfomance waiterPerfomance,
+  ) {
     return DataCell(
       IconButton(
         icon: const Icon(Icons.visibility),
         color: AppColors.deepBlue,
         onPressed: () {
-          // View detailed report
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  WaiterStats(waitersPerfomance: waiterPerfomance),
+            ),
+          );
         },
       ),
     );
