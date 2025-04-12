@@ -78,6 +78,7 @@ class MainScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => ReportScreen(
                   paidOrders: state.paidOrders ?? [],
+                  unPaidOrders: state.unPaidOrders ?? [],
                 ),
               ),
             );

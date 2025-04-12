@@ -26,12 +26,12 @@ class OrderService {
     });
   }
 
-  Future<List<OrderModel>?> getPaidOrders() async {
+  Future<List<OrderModel>?> getOrdersByStatus(OrderStatusEnum status) async {
     final querySnapshot = await db
         .collection('shops')
         .doc('Barkulan')
         .collection('orders')
-        .where('status', isEqualTo: OrderStatusEnum.paid.name)
+        .where('status', isEqualTo: status.name)
         .orderBy('status')
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(

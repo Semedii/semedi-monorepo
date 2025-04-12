@@ -4,13 +4,18 @@ import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen({required this.paidOrders, super.key});
+  const ReportScreen(
+      {required this.paidOrders, required this.unPaidOrders, super.key});
 
   final List<OrderModel> paidOrders;
+  final List<OrderModel> unPaidOrders;
 
   Map<String, double> _calculateSales() {
     double dineInTotal = 0;
     double takeAwayTotal = 0;
+    double unPaidTotal = 0;
+    double unPaidDineIn = 0;
+    double unPaidTakeAway = 0;
 
     for (final order in paidOrders) {
       if (order.tableNumber > 1000) {
@@ -18,6 +23,18 @@ class ReportScreen extends StatelessWidget {
       } else {
         dineInTotal += order.total;
       }
+    }
+
+    for (final order in unPaidOrders) {
+      if (order.tableNumber > 1000) {
+        unPaidTakeAway += order.total;
+      } else {
+        unPaidDineIn += order.total;
+      }
+    }
+
+    for (final order in unPaidOrders) {
+      unPaidTotal += order.total;
     }
 
     final dineInVat = dineInTotal * 0.05;
@@ -35,6 +52,9 @@ class ReportScreen extends StatelessWidget {
       'dineInNet': dineInNetSales,
       'takeAwayNet': takeAwayNetSales,
       'totalNet': dineInNetSales + takeAwayNetSales,
+      'unPaidTotal': unPaidTotal,
+      'unPaidDineIn': unPaidDineIn,
+      'unPaidTakeAway': unPaidTakeAway,
     };
   }
 
@@ -138,6 +158,12 @@ class ReportScreen extends StatelessWidget {
                   _formatCurrency(salesData['dineInVat']!),
                   _formatCurrency(salesData['takeAwayVat']!),
                   _formatCurrency(salesData['totalVat']!),
+                ),
+                _buildTableRow(
+                  'Unpaid Orders',
+                  _formatCurrency(salesData['unPaidDineIn']!),
+                  _formatCurrency(salesData['unPaidTakeAway']!),
+                  _formatCurrency(salesData['unPaidTotal']!),
                 ),
                 _buildTableRow(
                   'Net Sales',
