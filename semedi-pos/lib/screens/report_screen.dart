@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/screens/waiters_perfomance_screen.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -71,7 +72,7 @@ class ReportScreen extends StatelessWidget {
     final formattedDate = _getFormattedDate();
 
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -92,7 +93,7 @@ class ReportScreen extends StatelessWidget {
     return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: const Text(
         "END OF DAY REPORT",
@@ -102,6 +103,16 @@ class ReportScreen extends StatelessWidget {
       elevation: 0,
       backgroundColor: AppColors.deepBlue,
       foregroundColor: Colors.white,
+      actions: [
+        IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => WaitersPerfomanceScreen()));
+            },
+            icon: const Icon(Icons.table_chart))
+      ],
     );
   }
 
