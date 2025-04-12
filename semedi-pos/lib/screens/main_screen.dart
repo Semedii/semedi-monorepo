@@ -323,7 +323,7 @@ class MainScreen extends StatelessWidget {
   Expanded _buildItemList(OrderModel order) {
     return Expanded(
       child: ListView(
-        children: order.items.entries
+        children: order.itemsWithQuantity.entries
             .map((item) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
@@ -371,7 +371,7 @@ class MainScreen extends StatelessWidget {
   }
 
   Text _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
-    final price = order.itemDetails[item.key] ?? 0.0;
+    final price = order.itemsWithPrices[item.key] ?? 0.0;
     return Text(
       '\$ $price',
       style: TextStyle(
@@ -406,6 +406,7 @@ class MainScreen extends StatelessWidget {
 
   AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
+      isSmall: false,
       text: 'Mark as paid',
       onPressed: () =>
           BlocProvider.of<OrderCubit>(context).markOrderPaid(orderNumber),
