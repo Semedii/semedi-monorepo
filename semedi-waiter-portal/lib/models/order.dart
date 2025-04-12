@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class OrderModel {
   String? orderNumber;
   final int tableNumber;
-  final Map<String, int> items;
-  final Map<String, dynamic> itemDetails;
+  final Map<String, int> itemsWithQuantity;
+  final Map<String, double> itemsWithPrices;
   final OrderStatusEnum status;
   final String? note;
   final DateTime timestamp;
@@ -14,8 +14,8 @@ class OrderModel {
 
   OrderModel({
     required this.tableNumber,
-    required this.items,
-    required this.itemDetails,
+    required this.itemsWithQuantity,
+    required this.itemsWithPrices,
     required this.status,
     required this.total,
     required this.waiter,
@@ -28,8 +28,8 @@ class OrderModel {
   Map<String, dynamic> toFirestore() {
     return {
       'tableNumber': tableNumber,
-      'items': items,
-      'prices': itemDetails,
+      'itemsWithQuantity': itemsWithQuantity,
+      'itemsWithPrices': itemsWithPrices,
       'status': status.name,
       'note': note,
       'timestamp': Timestamp.fromDate(timestamp),
@@ -40,23 +40,11 @@ class OrderModel {
 
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    final rawDetails = data['itemDetails'] ?? {};
-    final itemDetails = <String, dynamic>{};
-
-    if (rawDetails is Map) {
-      rawDetails.forEach((key, value) {
-        if (value is Map) {
-          itemDetails[key] = value;
-        } else if (value is num) {
-          itemDetails[key] = {'price': value.toDouble()};
-        }
-      });
-    }
     return OrderModel(
       orderNumber: doc.id,
       tableNumber: data['tableNumber'],
-      items: Map<String, int>.from(data['items'] ?? {}),
-      itemDetails: itemDetails,
+      itemsWithQuantity: Map<String, int>.from(data['itemsWithQuantity'] ?? {}),
+      itemsWithPrices: Map<String, double>.from(data['itemsWithPrices'] ?? {}),
       status: OrderStatusEnum.values.firstWhere(
         (e) => e.name == data['status'],
         orElse: () => OrderStatusEnum.ordered,
@@ -72,8 +60,8 @@ class OrderModel {
 
   // Add/modify items
   OrderModel copyWithItem({
-    required Map<String, int> items,
-    required Map<String, dynamic> itemDetails,
+    required Map<String, int> itemsWithQuantity,
+    required Map<String, double> itemsWithPrices,
     required OrderStatusEnum status,
     String? note,
     required DateTime timestamp,
@@ -82,8 +70,8 @@ class OrderModel {
   }) {
     return OrderModel(
       tableNumber: tableNumber,
-      items: items,
-      itemDetails: itemDetails,
+      itemsWithQuantity: itemsWithQuantity,
+      itemsWithPrices: itemsWithPrices,
       status: status,
       note: note ?? '',
       timestamp: timestamp,

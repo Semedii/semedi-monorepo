@@ -95,8 +95,9 @@ class OrderItem extends StatelessWidget {
   Column _buildItemList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children:
-          order.items.entries.map((entry) => _buildItemCard(entry)).toList(),
+      children: order.itemsWithQuantity.entries
+          .map((entry) => _buildItemCard(entry))
+          .toList(),
     );
   }
 

@@ -87,26 +87,24 @@ class OrderService {
     String? note,
     String? waiter,
   ) {
-    final items = <String, int>{};
-    final itemDetails = <String, dynamic>{};
+    final itemsWithQuantity = <String, int>{};
+    final itemsWithPrices = <String, double>{};
     double total = 0.0;
 
     for (final item in selectedItems) {
-      final quantity = (items[item.name] ?? 0) + 1;
-      items[item.name] = quantity;
+      final quantity = (itemsWithQuantity[item.name] ?? 0) + 1;
+      itemsWithQuantity[item.name] = quantity;
       final itemTotal = item.price * quantity;
-      itemDetails[item.name] = {
-        'price': itemTotal,
-        'name': item.name,
-      };
+      itemsWithPrices[item.name] = itemTotal;
+
       total += item.price;
     }
 
     return OrderModel(
       tableNumber: tableNumber,
       note: note,
-      items: items,
-      itemDetails: itemDetails,
+      itemsWithQuantity: itemsWithQuantity,
+      itemsWithPrices: itemsWithPrices,
       status: OrderStatusEnum.ordered,
       timestamp: DateTime.now(),
       total: total,
@@ -204,29 +202,27 @@ class OrderService {
     String? note,
     String? waiter,
   ) {
-    final updatedItems = Map<String, int>.from(currentOrder.items);
-    final updatedItemDetails =
-        Map<String, dynamic>.from(currentOrder.itemDetails);
-    double updatedTotal = currentOrder.total;
+    final itemsWithQuantity =
+        Map<String, int>.from(currentOrder.itemsWithQuantity);
+    final itemsWithPrices =
+        Map<String, double>.from(currentOrder.itemsWithPrices);
+    double total = currentOrder.total;
 
     for (final item in newItems) {
-      final newQuantity = (updatedItems[item.name] ?? 0) + 1;
-      updatedItems[item.name] = newQuantity;
+      final newQuantity = (itemsWithQuantity[item.name] ?? 0) + 1;
+      itemsWithQuantity[item.name] = newQuantity;
 
-      updatedItemDetails[item.name] = {
-        'price': item.price * newQuantity,
-        'name': item.name,
-      };
+      itemsWithPrices[item.name] = item.price * newQuantity;
 
-      updatedTotal += item.price;
+      total += item.price;
     }
 
     return currentOrder.copyWithItem(
-      items: updatedItems,
+      itemsWithQuantity: itemsWithQuantity,
       note: note,
-      itemDetails: updatedItemDetails,
+      itemsWithPrices: itemsWithPrices,
       status: OrderStatusEnum.ordered,
-      total: updatedTotal,
+      total: total,
       timestamp: DateTime.now(),
       waiter: waiter ?? "unknown",
     );
