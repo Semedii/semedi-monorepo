@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/cubit/waiterStat/waiter_stat_cubit.dart';
@@ -198,6 +199,16 @@ class WaiterStats extends StatelessWidget {
         children: [
           _buildOrderCardHeader(order),
           _buildOrderCardBody(order),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              "Ordered at: ${DateFormat.jm().format(order.timestamp)}",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 12,
+              ),
+            ),
+          )
         ],
       ),
     );
