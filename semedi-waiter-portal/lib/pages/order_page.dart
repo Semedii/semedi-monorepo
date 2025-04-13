@@ -58,14 +58,35 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildPageBody(BuildContext context, OrderIdle state) {
-    return Column(
+    return Stack(
       children: [
-        _buildSearchBar(context),
-        _buildSelectedItemsSection(context, state.selectedItems),
-        Divider(thickness: 2, color: AppColors.deepBlue),
-        _buildMenuSection(state, context),
-        _buildNoteField(context),
-        _buildSubmitButton(context, state),
+        SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 120),
+          child: Column(
+            children: [
+              _buildSearchBar(context),
+              _buildSelectedItemsSection(context, state.selectedItems),
+              Divider(thickness: 2, color: AppColors.deepBlue),
+              _buildMenuSection(state, context),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            color: AppColors.offWhite,
+            child: Column(
+              children: [
+                _buildNoteField(context),
+                const SizedBox(height: 12),
+                _buildSubmitButton(context, state),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -82,24 +103,19 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildSelectedItemsSection(
-    BuildContext context,
-    List<MenuItem> selectedItems,
-  ) {
-    if (selectedItems.isEmpty) {
-      return _buildNoSelectedItemsText();
-    }
-    return _buildSelectedItemsList(context);
+      BuildContext context, List<MenuItem> selectedItems) {
+    return SizedBox(
+      height: selectedItems.isEmpty ? 60 : 200, // Dynamic height
+      child: selectedItems.isEmpty
+          ? _buildNoSelectedItemsText()
+          : _buildSelectedItemsList(context),
+    );
   }
 
   Widget _buildNoSelectedItemsText() {
-    return const Expanded(
-      flex: 2,
-      child: Center(
-        child: Text(
-          'No items selected yet',
-          style: TextStyle(color: Colors.grey),
-        ),
-      ),
+    return const Text(
+      'No items selected yet',
+      style: TextStyle(color: Colors.grey),
     );
   }
 
@@ -108,50 +124,55 @@ class OrderPage extends StatelessWidget {
     final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
     final itemList = orderItemsWithQuantity.entries.toList();
 
-    return Column(
-      children: itemList.asMap().entries.map<Widget>((indexedEntry) {
-        final index = indexedEntry.key;
-        final entry = indexedEntry.value;
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * .25,
+      child: SingleChildScrollView(
+        child: Column(
+          children: itemList.asMap().entries.map<Widget>((indexedEntry) {
+            final index = indexedEntry.key;
+            final entry = indexedEntry.value;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.deepBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '${entry.value}x',
-                  style: TextStyle(
-                    color: AppColors.deepBlue,
-                    fontWeight: FontWeight.bold,
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.deepBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${entry.value}x',
+                      style: TextStyle(
+                        color: AppColors.deepBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(entry.key)),
+                  IconButton(
+                    onPressed: () => orderCubit.onRemoveItem(index),
+                    icon: Icon(
+                      Icons.remove_circle,
+                      color: AppColors.softRed,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(entry.key)),
-              IconButton(
-                onPressed: () => orderCubit.onRemoveItem(index),
-                icon: Icon(
-                  Icons.remove_circle,
-                  color: AppColors.softRed,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
-  Expanded _buildMenuSection(OrderIdle state, BuildContext context) {
-    return Expanded(
-      flex: 3,
+  Widget _buildMenuSection(OrderIdle state, BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.5,
       child: state.searchQuery.isEmpty
           ? _buildMenuGrid(context, state.filteredMenuItems)
           : _buildSearchResultList(context, state.filteredMenuItems),
