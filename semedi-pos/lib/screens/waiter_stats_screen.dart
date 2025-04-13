@@ -10,8 +10,8 @@ import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
-class WaiterStats extends StatelessWidget {
-  WaiterStats({required this.waitersPerfomance, super.key});
+class WaiterStatsScreen extends StatelessWidget {
+  WaiterStatsScreen({required this.waitersPerfomance, super.key});
 
   final OrderService _orderService = OrderService();
 

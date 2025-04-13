@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/waitersPerfomance/waiters_perfomance_cubit.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
-import 'package:semedi_pos/screens/waiter_stats.dart';
+import 'package:semedi_pos/screens/waiter_stats_screen.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:path/path.dart' as path;
@@ -159,7 +159,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  WaiterStats(waitersPerfomance: waiterPerfomance),
+                  WaiterStatsScreen(waitersPerfomance: waiterPerfomance),
             ),
           );
         },
