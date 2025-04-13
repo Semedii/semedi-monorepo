@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/waitersPerfomance/waiters_perfomance_cubit.dart';
@@ -5,6 +8,8 @@ import 'package:semedi_pos/models/waiters_perfomance.dart';
 import 'package:semedi_pos/screens/waiter_stats.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
+import 'package:path/path.dart' as path;
+import 'package:pdf/widgets.dart' as pw;
 
 class WaitersPerfomanceScreen extends StatelessWidget {
   final OrderService _orderService = OrderService();
@@ -45,7 +50,9 @@ class WaitersPerfomanceScreen extends StatelessWidget {
   }
 
   Padding _buildPageBody(
-      BuildContext context, List<WaitersPerfomance> waitersPerfomance) {
+    BuildContext context,
+    List<WaitersPerfomance> waitersPerfomance,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -61,7 +68,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildPrintAndExportButtons(),
+          _buildSavePdfButton(context, waitersPerfomance),
         ],
       ),
     );
@@ -160,38 +167,98 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  Row _buildPrintAndExportButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        _buildPrintButton(),
-        const SizedBox(width: 16),
-        _buildExportButton(),
-      ],
-    );
-  }
-
-  OutlinedButton _buildPrintButton() {
-    return OutlinedButton.icon(
-      icon: const Icon(Icons.print),
-      label: const Text('PRINT REPORT'),
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        side: BorderSide(color: AppColors.deepBlue),
+  Widget _buildSavePdfButton(
+    BuildContext context,
+    List<WaitersPerfomance> waiterPerfomanceList,
+  ) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: ElevatedButton.icon(
+        icon: Icon(
+          Icons.picture_as_pdf,
+          color: AppColors.offWhite,
+        ),
+        label: Text(
+          'Save PDF',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        onPressed: () => _generatePdf(context, waiterPerfomanceList),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.deepBlue,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        ),
       ),
     );
   }
 
-  ElevatedButton _buildExportButton() {
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.picture_as_pdf),
-      label: const Text('EXPORT'),
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.deepBlue,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+  Future<void> _generatePdf(
+    BuildContext context,
+    List<WaitersPerfomance> waiterPerfomanceList,
+  ) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
+              pw.SizedBox(height: 12),
+              pw.Text(
+                'WAITERS PERFOMANCE REPORT (${_getFormattedDate()})',
+                style: pw.TextStyle(fontSize: 16),
+              ),
+              pw.SizedBox(height: 24),
+              pw.Table.fromTextArray(context: context, data: <List<String>>[
+                [
+                  "Waiter",
+                  "Paid Orders",
+                  "Unpaid Orders",
+                  "Total Orders",
+                  "Total Sales",
+                ],
+                ...waiterPerfomanceList.map((waiterPerfomance) {
+                  return [
+                    waiterPerfomance.name,
+                    waiterPerfomance.noOfPaidOrders.toString(),
+                    waiterPerfomance.noOfUnpaidOrders.toString(),
+                    waiterPerfomance.totalOrders.toString(),
+                    waiterPerfomance.totalSales.toString(),
+                  ];
+                })
+              ]),
+            ],
+          );
+        },
       ),
     );
+
+    final String? outputPath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save PDF Report',
+      fileName: 'waiters_perfomance(${_getFormattedDate()}).pdf',
+    );
+
+    if (outputPath != null) {
+      final file = File(outputPath);
+      await file.writeAsBytes(await pdf.save());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF saved to ${path.basename(outputPath)}'),
+          backgroundColor: AppColors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Saving canceled'),
+          backgroundColor: AppColors.softRed,
+        ),
+      );
+    }
   }
+}
+
+String _getFormattedDate() {
+  final now = DateTime.now();
+  return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 }
