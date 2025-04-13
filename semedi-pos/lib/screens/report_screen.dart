@@ -3,6 +3,9 @@ import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/waiters_perfomance_screen.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as path;
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen(
@@ -75,14 +78,17 @@ class ReportScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildTitleSection(formattedDate),
-            const SizedBox(height: 24),
-            _buildTable(salesData),
-            const SizedBox(height: 16),
-            _buildFooterButtons(context, salesData, formattedDate),
-          ],
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildTitleSection(formattedDate),
+              const SizedBox(height: 24),
+              _buildTable(salesData),
+              const SizedBox(height: 16),
+              _buildSaveButtons(context, salesData, formattedDate),
+            ],
+          ),
         ),
       ),
     );
@@ -191,25 +197,17 @@ class ReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterButtons(BuildContext context,
-      Map<String, double> salesData, String formattedDate) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        OutlinedButton.icon(
-          icon: const Icon(Icons.print),
-          label: const Text('PRINT REPORT'),
-          onPressed: () {},
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            side: BorderSide(color: AppColors.deepBlue),
-          ),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton.icon(
+  Widget _buildSaveButtons(
+    BuildContext context,
+    Map<String, double> salesData,
+    String formattedDate,
+  ) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: ElevatedButton.icon(
           icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
           label: const Text(
-            'EXPORT PDF',
+            'Save PDF',
             style: TextStyle(color: Colors.white),
           ),
           onPressed: () {
@@ -218,9 +216,7 @@ class ReportScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.deepBlue,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          ),
-        ),
-      ],
+          )),
     );
   }
 
@@ -290,47 +286,68 @@ Future<void> _generatePdf(BuildContext context, Map<String, double> salesData,
     String formattedDate) async {
   final pdf = pw.Document();
 
-  pdf.addPage(pw.Page(
-    build: (pw.Context context) {
-      return pw.Column(
-        children: [
-          pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
-          pw.SizedBox(height: 12),
-          pw.Text(
-            'SALES SUMMARY REPORT ($formattedDate - $formattedDate)',
-            style: pw.TextStyle(fontSize: 16),
-          ),
-          pw.SizedBox(height: 24),
-          pw.Table.fromTextArray(
-            context: context,
-            data: <List<String>>[
-              ['Particulars', 'Dine In', 'Take Away', 'Total'],
-              [
-                'Sales',
-                '\$${salesData['dineIn']!.toStringAsFixed(2)}',
-                '\$${salesData['takeAway']!.toStringAsFixed(2)}',
-                '\$${salesData['totalSales']!.toStringAsFixed(2)}',
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          children: [
+            pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
+            pw.SizedBox(height: 12),
+            pw.Text(
+              'SALES SUMMARY REPORT ($formattedDate - $formattedDate)',
+              style: pw.TextStyle(fontSize: 16),
+            ),
+            pw.SizedBox(height: 24),
+            pw.Table.fromTextArray(
+              context: context,
+              data: <List<String>>[
+                ['Particulars', 'Dine In', 'Take Away', 'Total'],
+                [
+                  'Sales',
+                  '\$${salesData['dineIn']!.toStringAsFixed(2)}',
+                  '\$${salesData['takeAway']!.toStringAsFixed(2)}',
+                  '\$${salesData['totalSales']!.toStringAsFixed(2)}',
+                ],
+                [
+                  'VAT 5%',
+                  '\$${salesData['dineInVat']!.toStringAsFixed(2)}',
+                  '\$${salesData['takeAwayVat']!.toStringAsFixed(2)}',
+                  '\$${salesData['totalVat']!.toStringAsFixed(2)}',
+                ],
+                [
+                  'Net Sales',
+                  '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
+                  '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
+                  '\$${salesData['totalNet']!.toStringAsFixed(2)}',
+                ],
               ],
-              [
-                'VAT 5%',
-                '\$${salesData['dineInVat']!.toStringAsFixed(2)}',
-                '\$${salesData['takeAwayVat']!.toStringAsFixed(2)}',
-                '\$${salesData['totalVat']!.toStringAsFixed(2)}',
-              ],
-              [
-                'Net Sales',
-                '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
-                '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
-                '\$${salesData['totalNet']!.toStringAsFixed(2)}',
-              ],
-            ],
-          ),
-        ],
-      );
-    },
-  ));
+            ),
+          ],
+        );
+      },
+    ),
+  );
 
-  // Add your PDF saving/sharing logic here
-  // For example using the printing package:
-  // await Printing.sharePdf(bytes: await pdf.save(), filename: 'sales-report.pdf');
+  final String? outputPath = await FilePicker.platform.saveFile(
+    dialogTitle: 'Save PDF Report',
+    fileName: 'sales_report_$formattedDate.pdf',
+  );
+
+  if (outputPath != null) {
+    final file = File(outputPath);
+    await file.writeAsBytes(await pdf.save());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('PDF saved to ${path.basename(outputPath)}'),
+        backgroundColor: AppColors.green,
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Saving canceled'),
+        backgroundColor: AppColors.softRed,
+      ),
+    );
+  }
 }
