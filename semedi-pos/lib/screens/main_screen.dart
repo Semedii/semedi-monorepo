@@ -7,6 +7,7 @@ import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
@@ -252,7 +253,7 @@ class MainScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildOrderCardHeader(order),
+          _buildOrderCardHeader(context, order),
           _buildOrderCardBody(order),
           _buildOrderCardFooter(context, order),
         ],
@@ -274,7 +275,7 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCardHeader(OrderModel order) {
+  Widget _buildOrderCardHeader(BuildContext context, OrderModel order) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -284,25 +285,25 @@ class MainScreen extends StatelessWidget {
           topRight: Radius.circular(12),
         ),
       ),
-      child: _buildOrderTableAndTotal(order),
+      child: _buildOrderTableAndTotal(context, order),
     );
   }
 
-  Row _buildOrderTableAndTotal(OrderModel order) {
+  Row _buildOrderTableAndTotal(BuildContext context, OrderModel order) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildOrderTable(order),
+        _buildOrderTable(context, order),
         _buildOrderTotal(order),
       ],
     );
   }
 
-  Widget _buildOrderTable(OrderModel order) {
+  Widget _buildOrderTable(BuildContext context, OrderModel order) {
     return Row(
       children: [
         IconButton(
-          onPressed: () {},
+          onPressed: () => _generateAndOpenReceipt(context, order),
           icon: Icon(
             Icons.print,
             color: AppColors.offWhite,
@@ -483,6 +484,29 @@ class MainScreen extends StatelessWidget {
         return AppColors.deepBlue; // Changed to match your primary color
       default:
         return Colors.grey;
+    }
+  }
+
+  Future<void> _generateAndOpenReceipt(
+    BuildContext context,
+    OrderModel order,
+  ) async {
+    try {
+      final receiptFile = await ThermalReceiptService.generateOrderReceipt(
+        orderNumber: order.orderNumber ?? 'N/A',
+        tableNumber: order.tableNumber.toString(),
+        waiter: order.waiter,
+        items: order.itemsWithQuantity,
+        prices: order.itemsWithPrices,
+        total: order.total,
+        dateTime: order.timestamp,
+      );
+
+      await ThermalReceiptService.openFile(receiptFile);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error generating receipt: ${e.toString()}')),
+      );
     }
   }
 }
