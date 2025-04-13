@@ -99,7 +99,6 @@ class OrderService {
           .doc(orderNumber)
           .update({
         'status': status.name,
-        'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');
