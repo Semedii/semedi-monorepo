@@ -298,14 +298,27 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Text _buildOrderTable(OrderModel order) {
-    return Text(
-      'TABLE ${order.tableNumber}',
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
-      ),
+  Widget _buildOrderTable(OrderModel order) {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(
+            Icons.print,
+            color: AppColors.offWhite,
+          ),
+          tooltip: 'Print Reciept',
+        ),
+        const SizedBox(width: 4),
+        Text(
+          'TABLE ${order.tableNumber}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+      ],
     );
   }
 
