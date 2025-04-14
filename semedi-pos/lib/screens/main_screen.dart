@@ -301,6 +301,9 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildOrderTable(BuildContext context, OrderModel order) {
+    String tableOrName = order.tableNumber != null
+        ? "TABLE ${order.tableNumber}"
+        : "Take Away: ${order.customerName}";
     return Row(
       children: [
         IconButton(
@@ -313,7 +316,7 @@ class MainScreen extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Text(
-          'TABLE ${order.tableNumber}',
+          tableOrName,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -410,7 +413,7 @@ class MainScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildWaiterName(order),
+          _buildWaiterNameAndCancel(context, order),
           const SizedBox(height: 12),
           _buildMarkPaidButton(context, order.orderNumber!),
           const SizedBox(height: 12),
@@ -420,13 +423,22 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Text _buildWaiterName(OrderModel order) {
-    return Text(
-      'Waiter: ${order.waiter}',
-      style: TextStyle(
-        color: AppColors.darkGrey.withOpacity(0.6),
-        fontSize: 12,
-      ),
+  Widget _buildWaiterNameAndCancel(BuildContext context, OrderModel order) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Waiter: ${order.waiter}',
+          style: TextStyle(
+            color: AppColors.darkGrey.withOpacity(0.6),
+            fontSize: 12,
+          ),
+        ),
+        if (order.tableNumber == null &&
+            order.status == OrderStatusEnum.ordered) ...{
+          _buildCancelButton(context, order.orderNumber),
+        }
+      ],
     );
   }
 
@@ -474,6 +486,23 @@ class MainScreen extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           )
         ],
+      ),
+    );
+  }
+
+  _buildCancelButton(BuildContext context, String? orderNumber) {
+    return GestureDetector(
+      onTap: () =>
+          BlocProvider.of<OrderCubit>(context).onCancelOrder(orderNumber),
+      child: Chip(
+        side: BorderSide(color: AppColors.softRed),
+        elevation: 8,
+        shadowColor: AppColors.softRed,
+        label: Text(
+          'Cancel',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        backgroundColor: AppColors.softRed,
       ),
     );
   }

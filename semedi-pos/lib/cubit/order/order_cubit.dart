@@ -60,4 +60,12 @@ class OrderCubit extends Cubit<OrderState> {
       listenToOrders();
     }
   }
+
+  onCancelOrder(String? orderNumber) {
+    if (orderNumber != null) {
+      _orderService.cancelOrder(
+        orderNumber,
+      );
+    }
+  }
 }

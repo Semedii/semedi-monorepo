@@ -30,7 +30,9 @@ class OrderService {
         .collection('shops')
         .doc('Barkulan')
         .collection('orders')
-        .where('status', isEqualTo: OrderStatusEnum.delivered.name)
+        .where(Filter.or(
+            Filter('status', isEqualTo: OrderStatusEnum.delivered.name),
+            Filter("waiter", isEqualTo: "Cashier")))
         .orderBy('status')
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
@@ -146,6 +148,32 @@ class OrderService {
       return orderNumber;
     } catch (e) {
       throw Exception(e);
+    }
+  }
+
+  Future<void> cancelOrder(String orderNumber) async {
+    try {
+      var orderDoc = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .get();
+
+      if (!orderDoc.exists) {
+        print("Order not found.");
+        return;
+      }
+
+      await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .delete();
+      print("Order has been canceled and deleted successfully.");
+    } catch (e) {
+      print("Failed to cancel order: ${e.toString()}");
     }
   }
 }
