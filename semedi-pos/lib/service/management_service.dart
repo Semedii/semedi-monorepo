@@ -78,23 +78,26 @@ class ManagementService {
           .collection('menu')
           .add(newItem.toFirestore());
     } catch (e) {
-      print('Error adding menu item: $e');
-      rethrow;
+      throw Exception(e);
     }
   }
 
   Future<void> deleteMenu(MenuItem menu) async {
-    var menuQuery = await db
-        .collection('shops')
-        .doc('Barkulan')
-        .collection('menu')
-        .where('name', isEqualTo: menu.name)
-        .get();
+    try {
+      var menuQuery = await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('menu')
+          .where('name', isEqualTo: menu.name)
+          .get();
 
-    if (menuQuery.docs.isEmpty) {
-      return;
+      if (menuQuery.docs.isEmpty) {
+        return;
+      }
+      await menuQuery.docs.first.reference.delete();
+    } catch (e) {
+      throw Exception(e);
     }
-    await menuQuery.docs.first.reference.delete();
   }
 
   Future<void> updateMenu({
@@ -115,8 +118,7 @@ class ManagementService {
 
       await menuQuery.docs.first.reference.update(newItem.toFirestore());
     } catch (e) {
-      print('Error updating menu: $e');
-      rethrow;
+      throw Exception(e);
     }
   }
 
@@ -132,8 +134,7 @@ class ManagementService {
         'totalTables': FieldValue.increment(1),
       });
     } catch (e) {
-      print('Error incrementing total tables: $e');
-      rethrow;
+      throw Exception(e);
     }
   }
 }

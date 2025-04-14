@@ -24,25 +24,41 @@ class ManagementCubit extends Cubit<ManagementState> {
 
   onAddMenu(MenuItem newMenu) async {
     emit(ManagementLoading());
-    await _managementService.addMenu(newMenu);
+    try {
+      await _managementService.addMenu(newMenu);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
     initPage();
   }
 
   onEditMenu(MenuItem newMenu, MenuItem oldMenu) async {
     emit(ManagementLoading());
-    await _managementService.updateMenu(oldItem: oldMenu, newItem: newMenu);
+    try {
+      await _managementService.updateMenu(oldItem: oldMenu, newItem: newMenu);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
     initPage();
   }
 
   onDeleteMenu(MenuItem menu) async {
     emit(ManagementLoading());
-    await _managementService.deleteMenu(menu);
+    try {
+      await _managementService.deleteMenu(menu);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
     initPage();
   }
 
   onAddTable() async {
     emit(ManagementLoading());
-    await _managementService.incrementTotalTables();
+    try {
+      await _managementService.incrementTotalTables();
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
     initPage();
   }
 
