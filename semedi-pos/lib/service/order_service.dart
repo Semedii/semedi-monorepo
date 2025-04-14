@@ -5,6 +5,26 @@ import 'package:semedi_pos/utils/order_status_enum.dart';
 class OrderService {
   final db = FirebaseFirestore.instance;
 
+  addTakeAwayOrder(OrderModel order) async {
+    try {
+      final orderNumber = await _getLastOrderNumber();
+      final orderRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber.toString().padLeft(4, '0'));
+
+      orderRef
+          .withConverter<OrderModel>(
+              fromFirestore: (snapshot, _) =>
+                  OrderModel.fromFirestore(snapshot),
+              toFirestore: (order, _) => order.toFirestore())
+          .set(order);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Stream<List<OrderModel>> getActiveOrders() {
     return db
         .collection('shops')
@@ -102,6 +122,30 @@ class OrderService {
       });
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');
+    }
+  }
+
+  Future<int> _getLastOrderNumber() async {
+    try {
+      final orderNumberRef = db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('metadata')
+          .doc('orderNumber');
+
+      var docSnapshot = await orderNumberRef.get();
+      int orderNumber;
+      if (docSnapshot.exists) {
+        await orderNumberRef.update({'lastNumber': FieldValue.increment(1)});
+        docSnapshot = await orderNumberRef.get();
+        orderNumber = docSnapshot['lastNumber'];
+      } else {
+        orderNumber = 1;
+        orderNumberRef.set({'lastNumber': orderNumber});
+      }
+      return orderNumber;
+    } catch (e) {
+      throw Exception(e);
     }
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/service/management_service.dart';
+import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/utils/order_status_enum.dart';
 part 'take_away_state.dart';
 
 class TakeAwayCubit extends Cubit<TakeAwayState> {
@@ -57,9 +60,33 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
     return total;
   }
 
-  onSubmit() {
-    var currentState = state as TakeAwayStateInitial;
-    print(
-        "aaa ${currentState.customerName}, ${currentState.note}, ${currentState.selectedItems}, ");
+  onSubmit() async {
+    final currentState = state as TakeAwayStateInitial;
+
+    final selectedItems = currentState.selectedItems ?? {};
+    final menuList = currentState.menuList ?? [];
+
+    final itemsWithQuantity = {
+      for (var entry in selectedItems.entries) entry.key.name: entry.value,
+    };
+
+    final itemsWithPrices = {
+      for (var item in menuList) item.name: item.price,
+    };
+
+    final newOrder = OrderModel(
+      customerName: currentState.customerName,
+      itemsWithQuantity: itemsWithQuantity,
+      itemsWithPrices: itemsWithPrices,
+      status: OrderStatusEnum.ordered,
+      total: getTotalPrice(),
+      waiter: "Cashier",
+    );
+    try {
+      await OrderService().addTakeAwayOrder(newOrder);
+      emit(TakeAwayStateSuccess());
+    } catch (e) {
+      emit(TakeAwayStateFailure(message: e.toString()));
+    }
   }
 }

@@ -17,25 +17,56 @@ class TakeAwayOrderScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => TakeAwayCubit()..initPage(),
-      child:
-          BlocBuilder<TakeAwayCubit, TakeAwayState>(builder: (context, state) {
-        state as TakeAwayStateInitial;
+      child: BlocConsumer<TakeAwayCubit, TakeAwayState>(
+        listener: (context, state) {
+          if (state is TakeAwayStateSuccess) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text("Submited Successfully"),
+                backgroundColor: AppColors.green,
+              ),
+            );
+          }
+          if (state is TakeAwayStateFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.softRed,
+              ),
+            );
+          }
+        },
+        builder: _mapStateToWidget,
+      ),
+    );
+  }
 
-        return Scaffold(
-          appBar: AppBar(
-            iconTheme: IconThemeData(color: AppColors.offWhite),
-            backgroundColor: AppColors.deepBlue,
-            title: _buildAppBarTitle(),
-          ),
-          body: Column(
-            children: [
-              const Divider(),
-              Expanded(child: _buildBody(context, state)),
-              _buildBottomActions(context, state),
-            ],
-          ),
-        );
-      }),
+  Widget _mapStateToWidget(BuildContext context, TakeAwayState state) {
+    if (state is TakeAwayStateInitial) {
+      return _buildScreenBody(context, state);
+    }
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Scaffold _buildScreenBody(BuildContext context, TakeAwayStateInitial state) {
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: AppColors.offWhite),
+        backgroundColor: AppColors.deepBlue,
+        title: _buildAppBarTitle(),
+      ),
+      body: Column(
+        children: [
+          const Divider(),
+          Expanded(child: _buildBody(context, state)),
+          _buildBottomActions(context, state),
+        ],
+      ),
     );
   }
 

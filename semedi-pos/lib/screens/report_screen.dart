@@ -22,7 +22,7 @@ class ReportScreen extends StatelessWidget {
     double unPaidTakeAway = 0;
 
     for (final order in paidOrders) {
-      if (order.tableNumber > 1000) {
+      if (order.tableNumber == null) {
         takeAwayTotal += order.total;
       } else {
         dineInTotal += order.total;
@@ -30,7 +30,7 @@ class ReportScreen extends StatelessWidget {
     }
 
     for (final order in unPaidOrders) {
-      if (order.tableNumber > 1000) {
+      if (order.tableNumber == null) {
         unPaidTakeAway += order.total;
       } else {
         unPaidDineIn += order.total;

@@ -36,3 +36,11 @@ class TakeAwayStateInitial extends TakeAwayState {
     );
   }
 }
+
+class TakeAwayStateSuccess extends TakeAwayState {}
+
+class TakeAwayStateFailure extends TakeAwayState {
+  final String message;
+
+  TakeAwayStateFailure({required this.message});
+}

@@ -3,7 +3,8 @@ import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class OrderModel {
   String? orderNumber;
-  final int tableNumber;
+  final int? tableNumber;
+  final String? customerName;
   final Map<String, int> itemsWithQuantity;
   final Map<String, double> itemsWithPrices;
   final OrderStatusEnum status;
@@ -13,7 +14,8 @@ class OrderModel {
   final String waiter;
 
   OrderModel({
-    required this.tableNumber,
+    this.tableNumber,
+    this.customerName,
     required this.itemsWithQuantity,
     required this.itemsWithPrices,
     required this.status,
@@ -27,6 +29,7 @@ class OrderModel {
   // Convert to Firestore format
   Map<String, dynamic> toFirestore() {
     return {
+      'customerName': customerName,
       'tableNumber': tableNumber,
       'itemsWithQuantity': itemsWithQuantity,
       'itemsWithPrices': itemsWithPrices,
@@ -42,6 +45,7 @@ class OrderModel {
     final data = doc.data() as Map<String, dynamic>;
     return OrderModel(
       orderNumber: doc.id,
+      customerName: data['customerName'],
       tableNumber: data['tableNumber'],
       itemsWithQuantity: Map<String, int>.from(data['itemsWithQuantity'] ?? {}),
       itemsWithPrices: Map<String, double>.from(data['itemsWithPrices'] ?? {}),
@@ -69,6 +73,7 @@ class OrderModel {
     required String waiter,
   }) {
     return OrderModel(
+      customerName: customerName,
       tableNumber: tableNumber,
       itemsWithQuantity: itemsWithQuantity,
       itemsWithPrices: itemsWithPrices,
