@@ -31,8 +31,12 @@ class OrderService {
         .doc('Barkulan')
         .collection('orders')
         .where(Filter.or(
-            Filter('status', isEqualTo: OrderStatusEnum.delivered.name),
-            Filter("waiter", isEqualTo: "Cashier")))
+          Filter.and(
+            Filter('status', isNotEqualTo: OrderStatusEnum.paid.name),
+            Filter('waiter', isEqualTo: 'Cashier'),
+          ),
+          Filter('status', isEqualTo: OrderStatusEnum.delivered.name),
+        ))
         .orderBy('status')
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
