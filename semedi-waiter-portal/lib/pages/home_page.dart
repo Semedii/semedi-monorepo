@@ -67,7 +67,7 @@ class HomePage extends StatelessWidget {
         children: [
           _buildDineInButton(context, state),
           const SizedBox(height: 12),
-          _buildTakeAwayButton(context),
+          //_buildTakeAwayButton(context),
         ],
       ),
     );
