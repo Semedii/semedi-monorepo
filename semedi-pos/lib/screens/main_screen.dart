@@ -509,12 +509,14 @@ class MainScreen extends StatelessWidget {
 
   Color _getStatusColor(OrderStatusEnum status) {
     switch (status) {
+      case OrderStatusEnum.ordered:
+        return AppColors.darkGrey;
+      case OrderStatusEnum.preparing:
+        return AppColors.warmOrange;
       case OrderStatusEnum.ready:
         return AppColors.green;
-      case OrderStatusEnum.ordered:
-        return AppColors.warmOrange;
       case OrderStatusEnum.delivered:
-        return AppColors.deepBlue; // Changed to match your primary color
+        return AppColors.deepBlue;
       default:
         return Colors.grey;
     }
