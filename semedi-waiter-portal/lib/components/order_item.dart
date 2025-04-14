@@ -42,7 +42,7 @@ class OrderItem extends StatelessWidget {
             },
             const SizedBox(height: 12),
             _buildTimestamp(),
-            _buildWaiterAndActionButton(),
+            if (order.tableNumber != null) _buildWaiterAndActionButton(),
           ],
         ),
       ),
@@ -50,8 +50,9 @@ class OrderItem extends StatelessWidget {
   }
 
   Column _buildOrderAndTableNumber() {
-    String tableInfo =
-        order.tableNumber == 10001 ? 'Take Away' : "Table ${order.tableNumber}";
+    String tableOrName = order.tableNumber != null
+        ? "TABLE ${order.tableNumber}"
+        : "Take Away: ${order.customerName}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,7 +65,7 @@ class OrderItem extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          tableInfo,
+          tableOrName,
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 14,
