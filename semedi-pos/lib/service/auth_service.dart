@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:semedi_pos/models/cashier.dart';
 import 'package:semedi_pos/service/secure_storage_service.dart';
 
 class AuthService {
@@ -51,6 +53,29 @@ class AuthService {
 
   Future<User?> getCurrentUser() async {
     return FirebaseAuth.instance.currentUser;
+  }
+
+  getUserFromCashierList() async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    final db = FirebaseFirestore.instance;
+    try {
+      final querySnapshot = await db
+          .collection('users')
+          .doc('cashierRoot')
+          .collection('cashiers')
+          .where('email', isEqualTo: email)
+          .withConverter<Cashier>(
+            fromFirestore: (snapshot, _) => Cashier.fromFirestore(snapshot),
+            toFirestore: (_, __) => throw UnimplementedError(
+                "Writing isn't allowed in user collection"),
+          )
+          .get();
+      Cashier cashier = querySnapshot.docs.first.data();
+      await SecureStorageService().write('restaurant', cashier.restaurant);
+      return querySnapshot.docs.first.data();
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<void> logout() async {

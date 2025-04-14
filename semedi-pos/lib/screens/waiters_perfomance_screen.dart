@@ -42,7 +42,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   Widget _mapStateToWidget(BuildContext context, WaitersPerfomanceState state) {
     if (state is WaitersPerfomanceLoaded) {
-      return _buildPageBody(context, state.waitersPerfomance);
+      return _buildPageBody(context, state);
     }
     if (state is WaitersPerfomanceLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -52,7 +52,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   Padding _buildPageBody(
     BuildContext context,
-    List<WaitersPerfomance> waitersPerfomance,
+    WaitersPerfomanceLoaded state,
   ) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -64,12 +64,12 @@ class WaitersPerfomanceScreen extends StatelessWidget {
               decoration: _buildBoxDecoration(),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: _buildDataTable(context, waitersPerfomance),
+                child: _buildDataTable(context, state),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          _buildSavePdfButton(context, waitersPerfomance),
+          _buildSavePdfButton(context, state),
         ],
       ),
     );
@@ -84,7 +84,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   DataTable _buildDataTable(
     BuildContext context,
-    List<WaitersPerfomance> waitersPerfomance,
+    WaitersPerfomanceLoaded state,
   ) {
     return DataTable(
       headingRowColor: WidgetStatePropertyAll<Color>(
@@ -98,7 +98,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         _buildDataColumn("total sales"),
         _buildDataColumn("view"),
       ],
-      rows: _buildDataRow(context, waitersPerfomance).toList(),
+      rows: _buildDataRow(context, state).toList(),
     );
   }
 
@@ -111,11 +111,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  _buildDataRow(
-    BuildContext context,
-    List<WaitersPerfomance> waitersPerfomance,
-  ) {
-    return waitersPerfomance.map((waiter) {
+  _buildDataRow(BuildContext context, WaitersPerfomanceLoaded state) {
+    return state.waitersPerfomance.map((waiter) {
       return DataRow(
         cells: [
           _buildDataCell(waiter.name),
@@ -170,7 +167,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   Widget _buildSavePdfButton(
     BuildContext context,
-    List<WaitersPerfomance> waiterPerfomanceList,
+    WaitersPerfomanceLoaded state,
   ) {
     return Align(
       alignment: Alignment.bottomRight,
@@ -183,7 +180,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
           'Save PDF',
           style: TextStyle(color: AppColors.offWhite),
         ),
-        onPressed: () => _generatePdf(context, waiterPerfomanceList),
+        onPressed: () => _generatePdf(context, state),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.deepBlue,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -194,7 +191,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   Future<void> _generatePdf(
     BuildContext context,
-    List<WaitersPerfomance> waiterPerfomanceList,
+    WaitersPerfomanceLoaded state,
   ) async {
     final pdf = pw.Document();
 
@@ -203,7 +200,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         build: (pw.Context context) {
           return pw.Column(
             children: [
-              pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
+              pw.Text('${state.restaurant} Restaurant',
+                  style: pw.TextStyle(fontSize: 40)),
               pw.SizedBox(height: 12),
               pw.Text(
                 'WAITERS PERFOMANCE REPORT (${_getFormattedDate()})',
@@ -218,7 +216,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
                   "Total Orders",
                   "Total Sales",
                 ],
-                ...waiterPerfomanceList.map((waiterPerfomance) {
+                ...state.waitersPerfomance.map((waiterPerfomance) {
                   return [
                     waiterPerfomance.name,
                     waiterPerfomance.noOfPaidOrders.toString(),

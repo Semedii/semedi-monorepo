@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
 import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 part 'waiters_perfomance_state.dart';
@@ -47,7 +48,15 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
     }
 
     final performanceList = performanceMap.values.toList();
+    String restaurant = await _getRestaurantName();
+    emit(WaitersPerfomanceLoaded(
+      waitersPerfomance: performanceList,
+      restaurant: restaurant,
+    ));
+  }
 
-    emit(WaitersPerfomanceLoaded(waitersPerfomance: performanceList));
+  _getRestaurantName() async {
+    String? restaurant = await SecureStorageService().read('restaurant');
+    return restaurant;
   }
 }

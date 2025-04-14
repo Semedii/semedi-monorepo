@@ -3,13 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/auth_service.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
   Future<List<MenuItem>> getMenuList() async {
+    String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurant)
         .collection('menu')
         .withConverter<MenuItem>(
           fromFirestore: (snapshot, _) => MenuItem.fromFirestore(snapshot),
@@ -21,9 +23,10 @@ class ManagementService {
   }
 
   getTotalTableNumber() async {
+    String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurant)
         .collection('metadata')
         .doc('totalTables')
         .get();
@@ -61,9 +64,10 @@ class ManagementService {
 
   Future<void> addMenu(MenuItem newItem) async {
     try {
+      String? restaurant = await _getRestaurantName();
       final existingItem = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('menu')
           .where('name', isEqualTo: newItem.name)
           .get();
@@ -74,7 +78,7 @@ class ManagementService {
 
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('menu')
           .add(newItem.toFirestore());
     } catch (e) {
@@ -84,9 +88,10 @@ class ManagementService {
 
   Future<void> deleteMenu(MenuItem menu) async {
     try {
+      String? restaurant = await _getRestaurantName();
       var menuQuery = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('menu')
           .where('name', isEqualTo: menu.name)
           .get();
@@ -105,9 +110,10 @@ class ManagementService {
     required MenuItem newItem,
   }) async {
     try {
+      String? restaurant = await _getRestaurantName();
       final menuQuery = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('menu')
           .where('name', isEqualTo: oldItem.name)
           .get();
@@ -124,9 +130,10 @@ class ManagementService {
 
   Future<void> incrementTotalTables() async {
     try {
+      String? restaurant = await _getRestaurantName();
       final docRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('metadata')
           .doc('totalTables');
 
@@ -136,5 +143,10 @@ class ManagementService {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  Future<String?> _getRestaurantName() async {
+    String? restaurant = await SecureStorageService().read('restaurant');
+    return restaurant;
   }
 }

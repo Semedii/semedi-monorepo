@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/management_service.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 
 part 'management_state.dart';
 
@@ -64,11 +65,12 @@ class ManagementCubit extends Cubit<ManagementState> {
 
   onAddNewWaiter(String name, String email, String password) async {
     emit(ManagementLoading());
+    String? restuarant = await SecureStorageService().read('restaurant');
     Waiter newWaiter = Waiter(
       name: name,
       isDisabled: false,
       email: email,
-      restaurant: 'Barkulan',
+      restaurant: restuarant!,
     );
     try {
       await _managementService.addNewWaiter(newWaiter, password);

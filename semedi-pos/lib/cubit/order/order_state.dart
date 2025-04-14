@@ -9,12 +9,14 @@ final class OrderLoaded extends OrderState {
   final List<OrderModel>? paidOrders;
   final List<OrderModel>? unPaidOrders;
   final double totalRevenue;
+  final String restaurant;
 
   OrderLoaded({
     required this.activeOrders,
     required this.paidOrders,
     required this.unPaidOrders,
     required this.totalRevenue,
+    required this.restaurant,
   });
 
   OrderLoaded copyWith({
@@ -28,6 +30,7 @@ final class OrderLoaded extends OrderState {
       paidOrders: paidOrders ?? this.paidOrders,
       unPaidOrders: unPaidOrders ?? this.unPaidOrders,
       totalRevenue: totalRevenue ?? this.totalRevenue,
+      restaurant: restaurant,
     );
   }
 }

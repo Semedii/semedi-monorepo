@@ -8,6 +8,8 @@ final class WaitersPerfomanceLoading extends WaitersPerfomanceState {}
 
 final class WaitersPerfomanceLoaded extends WaitersPerfomanceState {
   final List<WaitersPerfomance> waitersPerfomance;
+  final String restaurant;
 
-  WaitersPerfomanceLoaded({required this.waitersPerfomance});
+  WaitersPerfomanceLoaded(
+      {required this.waitersPerfomance, required this.restaurant});
 }

@@ -29,6 +29,8 @@ class LoginCubit extends Cubit<LoginState> {
         currentState.password!,
       );
 
+      await _authService.getUserFromCashierList();
+
       if (token != null) {
         await _secureStorage.write('auth_token', token);
         emit(LoginSuccess());
@@ -38,8 +40,11 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginInitial());
       }
     } catch (e) {
-      emit(LoginFailure(message: e.toString()));
-      emit(LoginInitial());
+      if (e is! StateError) {
+        _authService.logout();
+        emit(LoginFailure(message: e.toString()));
+        emit(LoginInitial());
+      }
     }
   }
 }

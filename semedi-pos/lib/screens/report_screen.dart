@@ -8,11 +8,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen(
-      {required this.paidOrders, required this.unPaidOrders, super.key});
+  const ReportScreen({
+    required this.paidOrders,
+    required this.unPaidOrders,
+    required this.restaurant,
+    super.key,
+  });
 
   final List<OrderModel> paidOrders;
   final List<OrderModel> unPaidOrders;
+  final String restaurant;
 
   Map<String, double> _calculateSales() {
     double dineInTotal = 0;
@@ -127,9 +132,9 @@ class ReportScreen extends StatelessWidget {
   Widget _buildTitleSection(String formattedDate) {
     return Column(
       children: [
-        const Text(
-          "Barkulan Restaurant",
-          style: TextStyle(fontSize: 40),
+        Text(
+          "$restaurant Restaurant",
+          style: const TextStyle(fontSize: 40),
         ),
         const SizedBox(height: 12),
         Text(
@@ -282,74 +287,75 @@ class ReportScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-Future<void> _generatePdf(BuildContext context, Map<String, double> salesData,
-    String formattedDate) async {
-  final pdf = pw.Document();
+  Future<void> _generatePdf(BuildContext context, Map<String, double> salesData,
+      String formattedDate) async {
+    final pdf = pw.Document();
 
-  pdf.addPage(
-    pw.Page(
-      build: (pw.Context context) {
-        return pw.Column(
-          children: [
-            pw.Text('Barkulan Restaurant', style: pw.TextStyle(fontSize: 40)),
-            pw.SizedBox(height: 12),
-            pw.Text(
-              'SALES SUMMARY REPORT ($formattedDate - $formattedDate)',
-              style: pw.TextStyle(fontSize: 16),
-            ),
-            pw.SizedBox(height: 24),
-            pw.Table.fromTextArray(
-              context: context,
-              data: <List<String>>[
-                ['Particulars', 'Dine In', 'Take Away', 'Total'],
-                [
-                  'Sales',
-                  '\$${salesData['dineIn']!.toStringAsFixed(2)}',
-                  '\$${salesData['takeAway']!.toStringAsFixed(2)}',
-                  '\$${salesData['totalSales']!.toStringAsFixed(2)}',
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Text('$restaurant Restaurant',
+                  style: pw.TextStyle(fontSize: 40)),
+              pw.SizedBox(height: 12),
+              pw.Text(
+                'SALES SUMMARY REPORT ($formattedDate - $formattedDate)',
+                style: pw.TextStyle(fontSize: 16),
+              ),
+              pw.SizedBox(height: 24),
+              pw.Table.fromTextArray(
+                context: context,
+                data: <List<String>>[
+                  ['Particulars', 'Dine In', 'Take Away', 'Total'],
+                  [
+                    'Sales',
+                    '\$${salesData['dineIn']!.toStringAsFixed(2)}',
+                    '\$${salesData['takeAway']!.toStringAsFixed(2)}',
+                    '\$${salesData['totalSales']!.toStringAsFixed(2)}',
+                  ],
+                  [
+                    'VAT 5%',
+                    '\$${salesData['dineInVat']!.toStringAsFixed(2)}',
+                    '\$${salesData['takeAwayVat']!.toStringAsFixed(2)}',
+                    '\$${salesData['totalVat']!.toStringAsFixed(2)}',
+                  ],
+                  [
+                    'Net Sales',
+                    '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
+                    '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
+                    '\$${salesData['totalNet']!.toStringAsFixed(2)}',
+                  ],
                 ],
-                [
-                  'VAT 5%',
-                  '\$${salesData['dineInVat']!.toStringAsFixed(2)}',
-                  '\$${salesData['takeAwayVat']!.toStringAsFixed(2)}',
-                  '\$${salesData['totalVat']!.toStringAsFixed(2)}',
-                ],
-                [
-                  'Net Sales',
-                  '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
-                  '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
-                  '\$${salesData['totalNet']!.toStringAsFixed(2)}',
-                ],
-              ],
-            ),
-          ],
-        );
-      },
-    ),
-  );
-
-  final String? outputPath = await FilePicker.platform.saveFile(
-    dialogTitle: 'Save PDF Report',
-    fileName: 'sales_report_$formattedDate.pdf',
-  );
-
-  if (outputPath != null) {
-    final file = File(outputPath);
-    await file.writeAsBytes(await pdf.save());
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('PDF saved to ${path.basename(outputPath)}'),
-        backgroundColor: AppColors.green,
+              ),
+            ],
+          );
+        },
       ),
     );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Saving canceled'),
-        backgroundColor: AppColors.softRed,
-      ),
+
+    final String? outputPath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save PDF Report',
+      fileName: 'sales_report_$formattedDate.pdf',
     );
+
+    if (outputPath != null) {
+      final file = File(outputPath);
+      await file.writeAsBytes(await pdf.save());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('PDF saved to ${path.basename(outputPath)}'),
+          backgroundColor: AppColors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Saving canceled'),
+          backgroundColor: AppColors.softRed,
+        ),
+      );
+    }
   }
 }

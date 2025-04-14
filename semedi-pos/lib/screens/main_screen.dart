@@ -89,6 +89,7 @@ class MainScreen extends StatelessWidget {
                 builder: (context) => ReportScreen(
                   paidOrders: state.paidOrders ?? [],
                   unPaidOrders: state.unPaidOrders ?? [],
+                  restaurant: state.restaurant,
                 ),
               ),
             );

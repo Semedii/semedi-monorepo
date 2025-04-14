@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 part 'order_state.dart';
@@ -33,14 +34,15 @@ class OrderCubit extends Cubit<OrderState> {
     }
 
     _ordersSubscription?.cancel();
-
-    _ordersSubscription = _orderService.getActiveOrders().listen(
+    String restaurant = await _getRestaurantName()!;
+    _ordersSubscription = _orderService.getActiveOrders(restaurant).listen(
       (orders) {
         emit(OrderLoaded(
           activeOrders: orders,
           paidOrders: paidOrders,
           totalRevenue: totalRevenue,
           unPaidOrders: unPaidOrders,
+          restaurant: restaurant,
         ));
       },
       onError: (error) {
@@ -67,5 +69,10 @@ class OrderCubit extends Cubit<OrderState> {
         orderNumber,
       );
     }
+  }
+
+  _getRestaurantName() async {
+    String? restaurant = await SecureStorageService().read('restaurant');
+    return restaurant;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class OrderService {
@@ -8,9 +9,10 @@ class OrderService {
   addTakeAwayOrder(OrderModel order) async {
     try {
       final orderNumber = await _getLastOrderNumber();
+      String? restaurant = await _getRestaurantName();
       final orderRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('orders')
           .doc(orderNumber.toString().padLeft(4, '0'));
 
@@ -25,10 +27,10 @@ class OrderService {
     }
   }
 
-  Stream<List<OrderModel>> getActiveOrders() {
+  Stream<List<OrderModel>> getActiveOrders(String restuarant) {
     return db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restuarant)
         .collection('orders')
         .where(Filter.or(
           Filter.and(
@@ -53,9 +55,10 @@ class OrderService {
   }
 
   Future<List<OrderModel>?> getOrdersByStatus(OrderStatusEnum status) async {
+    String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurant)
         .collection('orders')
         .where('status', isEqualTo: status.name)
         .orderBy('status')
@@ -73,9 +76,10 @@ class OrderService {
   }
 
   Future<List<OrderModel>?> getOrdersByWaiter(String waiterName) async {
+    String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurant)
         .collection('orders')
         .where('waiter', isEqualTo: waiterName)
         .orderBy('status')
@@ -93,9 +97,10 @@ class OrderService {
   }
 
   Future<List<OrderModel>?> getPaidAndUnpaidOrders() async {
+    String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurant)
         .collection('orders')
         .where('status',
             whereIn: [OrderStatusEnum.paid.name, OrderStatusEnum.unpaid.name])
@@ -118,9 +123,10 @@ class OrderService {
     required OrderStatusEnum status,
   }) async {
     try {
+      String? restaurant = await _getRestaurantName();
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('orders')
           .doc(orderNumber)
           .update({
@@ -133,9 +139,10 @@ class OrderService {
 
   Future<int> _getLastOrderNumber() async {
     try {
+      String? restaurant = await _getRestaurantName();
       final orderNumberRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('metadata')
           .doc('orderNumber');
 
@@ -157,9 +164,10 @@ class OrderService {
 
   Future<void> cancelOrder(String orderNumber) async {
     try {
+      String? restaurant = await _getRestaurantName();
       var orderDoc = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('orders')
           .doc(orderNumber)
           .get();
@@ -171,7 +179,7 @@ class OrderService {
 
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurant)
           .collection('orders')
           .doc(orderNumber)
           .delete();
@@ -179,5 +187,10 @@ class OrderService {
     } catch (e) {
       print("Failed to cancel order: ${e.toString()}");
     }
+  }
+
+  Future<String?> _getRestaurantName() async {
+    String? restaurant = await SecureStorageService().read('restaurant');
+    return restaurant;
   }
 }
