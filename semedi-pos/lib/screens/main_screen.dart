@@ -5,6 +5,7 @@ import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
+import 'package:semedi_pos/screens/take_away_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
@@ -49,7 +50,7 @@ class MainScreen extends StatelessWidget {
               Expanded(child: Center(child: _buildStatsHeader(state))),
               Padding(
                 padding: const EdgeInsets.only(right: 16),
-                child: _buildTakeAwayButton(),
+                child: _buildTakeAwayButton(context),
               )
             ],
           ),
@@ -454,9 +455,12 @@ class MainScreen extends StatelessWidget {
         text: "Unpaid");
   }
 
-  AppButton _buildTakeAwayButton() {
+  AppButton _buildTakeAwayButton(BuildContext context) {
     return AppButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => TakeAwayOrderScreen()));
+      },
       isSmall: true,
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
