@@ -253,8 +253,11 @@ class WaiterStatsScreen extends StatelessWidget {
   }
 
   Text _buildOrderTable(OrderModel order) {
+    String tableOrName = order.tableNumber != null
+        ? "TABLE ${order.tableNumber}"
+        : "Take Away: ${order.customerName}";
     return Text(
-      'TABLE ${order.tableNumber}',
+      tableOrName,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
