@@ -35,8 +35,17 @@ class ManagementScreen extends StatelessWidget {
         ),
         body: BlocProvider(
           create: (context) => ManagementCubit(_managementService)..initPage(),
-          child: BlocBuilder<ManagementCubit, ManagementState>(
-              builder: (context, state) {
+          child: BlocConsumer<ManagementCubit, ManagementState>(
+              listener: (context, state) {
+            if (state is ManagementFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Failed ${state.message}"),
+                  backgroundColor: AppColors.softRed,
+                ),
+              );
+            }
+          }, builder: (context, state) {
             final cubit = BlocProvider.of<ManagementCubit>(context);
             if (state is ManagementLoaded) {
               return TabBarView(

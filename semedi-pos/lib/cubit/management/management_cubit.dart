@@ -45,4 +45,20 @@ class ManagementCubit extends Cubit<ManagementState> {
     await _managementService.incrementTotalTables();
     initPage();
   }
+
+  onAddNewWaiter(String name, String email, String password) async {
+    emit(ManagementLoading());
+    Waiter newWaiter = Waiter(
+      name: name,
+      isDisabled: false,
+      email: email,
+      restaurant: 'Barkulan',
+    );
+    try {
+      await _managementService.addNewWaiter(newWaiter, password);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
 }

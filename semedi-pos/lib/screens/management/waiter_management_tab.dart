@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
+import 'package:semedi_pos/cubit/management/management_cubit.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
@@ -23,15 +26,25 @@ class WaiterManagementTab extends StatelessWidget {
   }
 
   Align _buildAddWaiterButton(BuildContext context) {
+    final cubit = BlocProvider.of<ManagementCubit>(context);
     return Align(
       alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () => _showAddWaiterDialog(context),
-        icon: const Icon(Icons.person_add),
-        label: const Text('ADD WAITER'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.deepBlue,
-          foregroundColor: Colors.white,
+      child: AppButton(
+        onPressed: () => _showAddWaiterDialog(context, cubit),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(
+              Icons.person_add,
+              color: AppColors.offWhite,
+            ),
+            Text(
+              'ADD NEW WAITER',
+              style: TextStyle(
+                color: AppColors.offWhite,
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -43,12 +56,13 @@ class WaiterManagementTab extends StatelessWidget {
         itemCount: waiterList.length,
         itemBuilder: (context, index) => Card(
           child: ListTile(
-            leading: CircleAvatar(
-              child: Text('${index + 1}'),
-            ),
+            leading: const Icon(Icons.person),
             title: Text(waiterList[index].name),
             trailing: IconButton(
-              icon: const Icon(Icons.delete),
+              icon: Icon(
+                Icons.delete_outlined,
+                color: AppColors.softRed,
+              ),
               onPressed: () {},
             ),
           ),
@@ -57,22 +71,54 @@ class WaiterManagementTab extends StatelessWidget {
     );
   }
 
-  void _showAddWaiterDialog(BuildContext context) {
+  void _showAddWaiterDialog(BuildContext context, ManagementCubit cubit) {
+    TextEditingController? nameController = TextEditingController();
+    TextEditingController? emailController = TextEditingController();
+    TextEditingController? passwordController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Waiter'),
-        content: const TxtFormField(labelText: 'Waiter Name'),
+        title: const Center(child: Text('Add New Waiter')),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TxtFormField(
+              controller: nameController,
+              labelText: ' Name',
+              prefixIcon: Icon(Icons.person_outline, color: AppColors.deepBlue),
+            ),
+            const SizedBox(height: 8),
+            TxtFormField(
+              controller: emailController,
+              labelText: ' Email',
+              prefixIcon: Icon(Icons.mail_outline, color: AppColors.deepBlue),
+            ),
+            const SizedBox(height: 8),
+            TxtFormField(
+              controller: passwordController,
+              labelText: 'Password',
+              prefixIcon: Icon(Icons.lock_outline, color: AppColors.deepBlue),
+              isTextObscure: true,
+            ),
+          ],
+        ),
         actions: [
-          TextButton(
+          AppButton(
+            isOutlined: true,
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL'),
+            text: 'cancel',
           ),
-          ElevatedButton(
+          AppButton(
             onPressed: () {
+              cubit.onAddNewWaiter(
+                nameController.text,
+                emailController.text,
+                passwordController.text,
+              );
               Navigator.pop(context);
             },
-            child: const Text('ADD'),
+            text: 'add',
           ),
         ],
       ),

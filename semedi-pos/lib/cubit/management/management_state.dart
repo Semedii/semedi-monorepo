@@ -17,3 +17,9 @@ final class ManagementLoaded extends ManagementState {
     required this.totalTableNumber,
   });
 }
+
+final class ManagementFailure extends ManagementState {
+  final String message;
+
+  ManagementFailure(this.message);
+}

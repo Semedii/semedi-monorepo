@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
+import 'package:semedi_pos/service/auth_service.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
@@ -34,7 +35,7 @@ class ManagementService {
     final querySnapshot = await db
         .collection('users')
         .doc('waiterRoot')
-        .collection('barkulan')
+        .collection('waiters')
         .withConverter<Waiter>(
           fromFirestore: (snapshot, _) => Waiter.fromFirestore(snapshot),
           toFirestore: (_, __) => throw UnimplementedError(
@@ -42,6 +43,20 @@ class ManagementService {
         )
         .get();
     return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  addNewWaiter(Waiter waiter, String password) async {
+    try {
+      await AuthService()
+          .createUserWithEmailAndPassword(waiter.email, password);
+      await db
+          .collection('users')
+          .doc('waiterRoot')
+          .collection('waiters')
+          .add(waiter.toFirestore());
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<void> addMenu(MenuItem newItem) async {
