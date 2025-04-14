@@ -111,13 +111,15 @@ class ReportScreen extends StatelessWidget {
       foregroundColor: Colors.white,
       actions: [
         IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => WaitersPerfomanceScreen()));
-            },
-            icon: const Icon(Icons.table_chart))
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => WaitersPerfomanceScreen()));
+          },
+          icon: const Icon(Icons.people),
+          tooltip: 'Waiter Perfomances',
+        )
       ],
     );
   }

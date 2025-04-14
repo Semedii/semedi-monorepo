@@ -62,6 +62,7 @@ class WaiterStatsScreen extends StatelessWidget {
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
+      iconTheme: IconThemeData(color: AppColors.offWhite),
     );
   }
 

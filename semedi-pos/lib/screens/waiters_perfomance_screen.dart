@@ -29,6 +29,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         backgroundColor: AppColors.deepBlue,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: AppColors.offWhite),
       ),
       body: BlocProvider(
         create: (context) => WaitersPerfomanceCubit(_orderService)..initPage(),
