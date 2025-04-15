@@ -58,7 +58,7 @@ class OrderCubit extends Cubit<OrderState> {
       listenToOrders();
     } catch (e) {
       emit(OrderLoadingFailed(
-          message: 'Failed to pay this order try again: $e'));
+          message: 'Failed to pay this order please try again: $e'));
       listenToOrders();
     }
   }
