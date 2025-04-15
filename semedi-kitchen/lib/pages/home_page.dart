@@ -15,6 +15,7 @@ class HomePage extends StatelessWidget {
       total: 22.0,
       waiter: "abdis",
       note: "Extra spicy",
+      tableNumber: 2,
     ),
     OrderModel(
       orderNumber: "K-1002",
@@ -23,6 +24,7 @@ class HomePage extends StatelessWidget {
       status: OrderStatusEnum.preparing,
       total: 12.0,
       waiter: "maryam",
+      tableNumber: 3,
     ),
     OrderModel(
       orderNumber: "K-1001",
@@ -32,6 +34,7 @@ class HomePage extends StatelessWidget {
       total: 22.0,
       waiter: "abdis",
       note: "Extra spicy",
+      tableNumber: 4,
     ),
     OrderModel(
       orderNumber: "K-1001",
@@ -41,6 +44,7 @@ class HomePage extends StatelessWidget {
       total: 22.0,
       waiter: "abdis",
       note: "Extra spicy",
+      tableNumber: 5,
     ),
   ];
 
@@ -91,12 +95,19 @@ class HomePage extends StatelessWidget {
             title: 'New Orders',
             value: '1',
             icon: Icons.receipt,
+            color: AppColors.darkGrey.withOpacity(0.7),
           ),
           _buildStatCard(
-            title: 'Preparing',
+            title: 'Preparing Orders',
             value: '1',
             icon: Icons.timer,
             color: AppColors.warmOrange,
+          ),
+          _buildStatCard(
+            title: 'Ready Orders',
+            value: '2',
+            icon: Icons.fastfood,
+            color: AppColors.green,
           ),
         ],
       ),
@@ -131,7 +142,7 @@ class HomePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 28, color: color ?? AppColors.darkGrey),
+          Icon(icon, size: 28, color: color),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +234,7 @@ class HomePage extends StatelessWidget {
 
   Text _buildOrderTable(OrderModel order) {
     return Text(
-      'Order #${order.orderNumber}',
+      'Order #${order.orderNumber}, Table: ${order.tableNumber}',
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -320,7 +331,7 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildCancelChip(),
           const SizedBox(width: 8),
@@ -335,7 +346,7 @@ class HomePage extends StatelessWidget {
   Chip _buildCancelChip() {
     return Chip(
       side: BorderSide(color: AppColors.softRed),
-      elevation: 8,
+      elevation: 4,
       shadowColor: AppColors.softRed,
       label: Text(
         'Cancel',
@@ -364,7 +375,7 @@ class HomePage extends StatelessWidget {
   Color _getStatusColor(OrderStatusEnum status) {
     switch (status) {
       case OrderStatusEnum.ordered:
-        return AppColors.darkGrey;
+        return AppColors.darkGrey.withOpacity(0.5);
       case OrderStatusEnum.preparing:
         return AppColors.warmOrange;
       case OrderStatusEnum.ready:
