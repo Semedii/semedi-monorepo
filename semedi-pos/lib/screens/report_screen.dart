@@ -334,6 +334,18 @@ class ReportScreen extends StatelessWidget {
                     '\$${salesData['totalVat']!.toStringAsFixed(2)}',
                   ],
                   [
+                    'Unpaid Orders',
+                    _formatCurrency(salesData['unPaidDineIn']!),
+                    _formatCurrency(salesData['unPaidTakeAway']!),
+                    _formatCurrency(salesData['unPaidTotal']!),
+                  ],
+                  [
+                    'No of Orders',
+                    (salesData['noOfOrdersDineIn']!.toStringAsFixed(0)),
+                    (salesData['noOfOrdersTakeAway']!.toStringAsFixed(0)),
+                    (paidOrders.length + unPaidOrders.length).toString(),
+                  ],
+                  [
                     'Net Sales',
                     '\$${salesData['dineInNet']!.toStringAsFixed(2)}',
                     '\$${salesData['takeAwayNet']!.toStringAsFixed(2)}',
