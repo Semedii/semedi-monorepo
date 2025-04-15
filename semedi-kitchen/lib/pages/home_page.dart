@@ -1,70 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
+import 'package:semedi_kitchen/cubit/homepage/home_page_cubit.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
+import 'package:semedi_kitchen/services/order_service.dart';
+import 'package:semedi_kitchen/services/secure_storage_service.dart';
+import 'package:semedi_kitchen/services/service_locator.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 import 'package:semedi_kitchen/models/order.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
 
 class HomePage extends StatelessWidget {
-  final List<OrderModel> orders = [
-    OrderModel(
-      orderNumber: "K-1001",
-      itemsWithQuantity: {"Shawarma": 2, "Fries": 1},
-      itemsWithPrices: {"Shawarma": 9.5, "Fries": 3.0},
-      status: OrderStatusEnum.ordered,
-      total: 22.0,
-      waiter: "abdis",
-      note: "Extra spicy",
-      tableNumber: 2,
-    ),
-    OrderModel(
-      orderNumber: "K-1002",
-      itemsWithQuantity: {"Pasta": 1},
-      itemsWithPrices: {"Pasta": 12.0},
-      status: OrderStatusEnum.preparing,
-      total: 12.0,
-      waiter: "maryam",
-      tableNumber: 3,
-    ),
-    OrderModel(
-      orderNumber: "K-1001",
-      itemsWithQuantity: {"Shawarma": 2, "Fries": 1},
-      itemsWithPrices: {"Shawarma": 9.5, "Fries": 3.0},
-      status: OrderStatusEnum.ready,
-      total: 22.0,
-      waiter: "abdis",
-      note: "Extra spicy",
-      tableNumber: 4,
-    ),
-    OrderModel(
-      orderNumber: "K-1001",
-      itemsWithQuantity: {"Shawarma": 2, "Fries": 1},
-      itemsWithPrices: {"Shawarma": 9.5, "Fries": 3.0},
-      status: OrderStatusEnum.ordered,
-      total: 22.0,
-      waiter: "abdis",
-      note: "Extra spicy",
-      tableNumber: 5,
-    ),
-  ];
-
   HomePage({super.key});
+
+  final OrderService _orderService = OrderService();
+  final SecureStorageService _secureStorageService =
+      getIt<SecureStorageService>();
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          HomePageCubit(_orderService, _secureStorageService)..listenToOrders(),
+      child: BlocBuilder<HomePageCubit, HomePageState>(
+        builder: _mapStateToWidget,
+      ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, HomePageState state) {
+    if (state is HomepageLoaded) {
+      return _buildPageBody(context, state);
+    }
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+
+  Scaffold _buildPageBody(BuildContext context, HomepageLoaded state) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       appBar: AppBar(
-        title:
-            const Text('KITCHEN ORDERS', style: TextStyle(letterSpacing: 1.5)),
+        title: Text(
+          '${state.restaurantName} KITCHEN ORDERS',
+          style: const TextStyle(letterSpacing: 1.5),
+        ),
         backgroundColor: AppColors.deepBlue,
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
       body: Column(
         children: [
-          _buildStatsHeader(),
-          _buildOrderGrid(),
+          _buildStatsHeader(context),
+          _buildOrderGrid(state.activeOrders),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -84,7 +70,8 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsHeader() {
+  Widget _buildStatsHeader(BuildContext context) {
+    final cubit = BlocProvider.of<HomePageCubit>(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: _buildStatsDecoration(),
@@ -93,19 +80,19 @@ class HomePage extends StatelessWidget {
         children: [
           _buildStatCard(
             title: 'New Orders',
-            value: '1',
+            value: cubit.getNewOrdersNumber().toString(),
             icon: Icons.receipt,
             color: AppColors.darkGrey.withOpacity(0.7),
           ),
           _buildStatCard(
             title: 'Preparing Orders',
-            value: '1',
+            value: cubit.getPreparingOrdersNumber().toString(),
             icon: Icons.timer,
             color: AppColors.warmOrange,
           ),
           _buildStatCard(
             title: 'Ready Orders',
-            value: '2',
+            value: cubit.getReadyOrdersNumber().toString(),
             icon: Icons.fastfood,
             color: AppColors.green,
           ),
@@ -162,7 +149,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderGrid() {
+  Widget _buildOrderGrid(List<OrderModel> orders) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -232,13 +219,23 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Text _buildOrderTable(OrderModel order) {
-    return Text(
-      'Order #${order.orderNumber}, Table: ${order.tableNumber}',
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
+  Widget _buildOrderTable(OrderModel order) {
+    Icon takeAwayIcon =
+        const Icon(Icons.takeout_dining, color: Colors.white, size: 20);
+    String tableInfo = order.tableNumber != null
+        ? 'Table: ${order.tableNumber}'
+        : 'TakeAway for ${order.customerName}';
+    return Row(
+      children: [
+        Text(
+          'Order #${order.orderNumber}, $tableInfo',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        if (order.tableNumber == null) takeAwayIcon
+      ],
     );
   }
 
