@@ -25,12 +25,16 @@ class ReportScreen extends StatelessWidget {
     double unPaidTotal = 0;
     double unPaidDineIn = 0;
     double unPaidTakeAway = 0;
+    double noOfDineInOrders = 0;
+    double noOfTakeAwayOrders = 0;
 
     for (final order in paidOrders) {
       if (order.tableNumber == null) {
         takeAwayTotal += order.total;
+        noOfTakeAwayOrders++;
       } else {
         dineInTotal += order.total;
+        noOfDineInOrders++;
       }
     }
 
@@ -64,6 +68,8 @@ class ReportScreen extends StatelessWidget {
       'unPaidTotal': unPaidTotal,
       'unPaidDineIn': unPaidDineIn,
       'unPaidTakeAway': unPaidTakeAway,
+      'noOfOrdersDineIn': noOfDineInOrders,
+      'noOfOrdersTakeAway': noOfTakeAwayOrders,
     };
   }
 
@@ -188,6 +194,12 @@ class ReportScreen extends StatelessWidget {
                   _formatCurrency(salesData['unPaidDineIn']!),
                   _formatCurrency(salesData['unPaidTakeAway']!),
                   _formatCurrency(salesData['unPaidTotal']!),
+                ),
+                _buildTableRow(
+                  'No of Orders',
+                  salesData['noOfOrdersDineIn']!.toStringAsFixed(0),
+                  salesData['noOfOrdersTakeAway']!.toStringAsFixed(0),
+                  (paidOrders.length + unPaidOrders.length).toString(),
                 ),
                 _buildTableRow(
                   'Net Sales',
