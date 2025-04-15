@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_kitchen/cubit/menu/menu_cubit.dart';
 import 'package:semedi_kitchen/models/menu.dart';
+import 'package:semedi_kitchen/services/menu_service.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 
 class MenuManagementScreen extends StatelessWidget {
-  final List<MenuItem> menuItems = [
-    MenuItem(name: "Shawarma", price: 9.5, searchKeywords: ["wrap", "chicken"]),
-    MenuItem(name: "Pasta Carbonara", price: 12.0, isAvailable: false),
-    MenuItem(name: "Margherita Pizza", price: 10.5),
-    MenuItem(name: "Caesar Salad", price: 8.0),
-    MenuItem(name: "Beef Burger", price: 7.5, isAvailable: false),
-  ];
-
   MenuManagementScreen({super.key});
-
+  final MenuService _menuService = MenuService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildMenuList(),
+      body: BlocProvider(
+        create: (context) => MenuCubit(_menuService)..initPage(),
+        child: BlocBuilder<MenuCubit, MenuState>(
+          builder: _mapStateToWidget,
+        ),
+      ),
     );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, MenuState state) {
+    if (state is MenuLoaded) {
+      return _buildMenuList(context, state.menuList);
+    }
+    return const Center(child: CircularProgressIndicator());
   }
 
   AppBar _buildAppBar() {
@@ -30,16 +37,16 @@ class MenuManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuList() {
+  Widget _buildMenuList(BuildContext context, List<MenuItem> menuList) {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: menuItems.length,
+      itemCount: menuList.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, index) => _buildMenuItemCard(menuItems[index]),
+      itemBuilder: (_, index) => _buildMenuItemCard(context, menuList[index]),
     );
   }
 
-  Card _buildMenuItemCard(MenuItem item) {
+  Card _buildMenuItemCard(BuildContext context, MenuItem item) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -51,7 +58,7 @@ class MenuManagementScreen extends StatelessWidget {
           children: [
             _buildItemInfo(item),
             const Spacer(),
-            _buildAvailabilitySwitch(item),
+            _buildAvailabilitySwitch(context, item),
           ],
         ),
       ),
@@ -80,12 +87,13 @@ class MenuManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAvailabilitySwitch(MenuItem item) {
+  Widget _buildAvailabilitySwitch(BuildContext context, MenuItem item) {
+    final cubit = BlocProvider.of<MenuCubit>(context);
     return Switch(
       value: item.isAvailable,
       activeColor: AppColors.green,
       inactiveTrackColor: AppColors.softRed.withOpacity(0.5),
-      onChanged: (_) {},
+      onChanged: (_) => cubit.onMenuToggle(item),
     );
   }
 }
