@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
+import 'package:semedi_kitchen/pages/menu_management_screen.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 import 'package:semedi_kitchen/models/order.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
@@ -63,7 +64,14 @@ class HomePage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MenuManagementScreen(),
+            ),
+          );
+        },
         icon: const Icon(Icons.settings),
         label: const Text('MANAGE MENU'),
         backgroundColor: AppColors.deepBlue,
