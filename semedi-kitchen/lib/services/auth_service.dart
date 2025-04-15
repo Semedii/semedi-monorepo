@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:semedi_kitchen/models/kitchen_user.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
 
@@ -19,9 +21,6 @@ class AuthService {
       final String? token = await userCredential.user?.getIdToken();
 
       if (token != null) {
-        // Waiter waiter = await _getUserFromWaiterList();
-        // await secureStorageService.write('waiter_name', waiter.name);
-        // await secureStorageService.write('restaurant', waiter.restaurant);
         return token;
       } else {
         throw Exception("Failed to get token");
@@ -35,22 +34,28 @@ class AuthService {
     }
   }
 
-  // Future<Waiter> _getUserFromWaiterList() async {
-  //   final email = FirebaseAuth.instance.currentUser?.email;
-  //   final db = FirebaseFirestore.instance;
-  //   final querySnapshot = await db
-  //       .collection('users')
-  //       .doc('waiterRoot')
-  //       .collection('waiters')
-  //       .where('email', isEqualTo: email)
-  //       .withConverter<Waiter>(
-  //         fromFirestore: (snapshot, _) => Waiter.fromFirestore(snapshot),
-  //         toFirestore: (_, __) => throw UnimplementedError(
-  //             "Writing isn't allowed in user collection"),
-  //       )
-  //       .get();
-  //   return querySnapshot.docs.first.data();
-  // }
+  Future<KitchenUser?> getUserFromKitchenList() async {
+    try {
+      final email = FirebaseAuth.instance.currentUser?.email;
+      final db = FirebaseFirestore.instance;
+      final querySnapshot = await db
+          .collection('users')
+          .doc('kitchenRoot')
+          .collection('kitchens')
+          .where('email', isEqualTo: email)
+          .withConverter<KitchenUser>(
+            fromFirestore: (snapshot, _) => KitchenUser.fromFirestore(snapshot),
+            toFirestore: (_, __) => throw UnimplementedError(
+                "Writing isn't allowed in user collection"),
+          )
+          .get();
+      KitchenUser? kitchenUser = querySnapshot.docs.first.data();
+      await SecureStorageService().write('restaurant', kitchenUser.restaurant);
+      return kitchenUser;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
 
   Future<User?> getCurrentUser() async {
     return FirebaseAuth.instance.currentUser;
