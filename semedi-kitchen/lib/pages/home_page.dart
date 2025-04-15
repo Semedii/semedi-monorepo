@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppColors.offWhite,
       appBar: AppBar(
         title: Text(
-          '${state.restaurantName} KITCHEN ORDERS',
+          '${state.restaurantName.toUpperCase()} KITCHEN ORDERS',
           style: const TextStyle(letterSpacing: 1.5),
         ),
         backgroundColor: AppColors.deepBlue,
