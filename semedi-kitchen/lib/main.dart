@@ -1,22 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:semedi_kitchen/firebase_options.dart';
+import 'package:semedi_kitchen/pages/home_page.dart';
 import 'package:semedi_kitchen/pages/login_page.dart';
+import 'package:semedi_kitchen/services/auth_service.dart';
+import 'package:semedi_kitchen/services/service_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  ServiceLocator.setup();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: LoginPage());
+    final authService = getIt<AuthService>();
+
+    return StreamBuilder<User?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        return MaterialApp(
+          home: snapshot.connectionState == ConnectionState.waiting
+              ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+              : snapshot.hasData
+                  ? HomePage()
+                  : LoginPage(),
+        );
+      },
+    );
   }
 }
