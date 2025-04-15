@@ -32,6 +32,27 @@ class HomePageCubit extends Cubit<HomePageState> {
     );
   }
 
+  onOrderStatusChange(String orderNumber, OrderStatusEnum status) async {
+    try {
+      await _orderService.changeOrderStatus(
+        orderNumber: orderNumber,
+        status: status,
+      );
+    } catch (e) {
+      throw Exception(e);
+    }
+    listenToOrders();
+  }
+
+  onCancelOrder(String orderNumber) async {
+    try {
+      await _orderService.cancelOrder(orderNumber);
+    } catch (e) {
+      throw Exception(e);
+    }
+    listenToOrders();
+  }
+
   getNewOrdersNumber() {
     var currentState = state as HomepageLoaded;
     int number = currentState.activeOrders

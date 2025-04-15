@@ -161,13 +161,16 @@ class HomePage extends StatelessWidget {
             childAspectRatio: 1.1,
           ),
           itemCount: orders.length,
-          itemBuilder: (context, index) => _buildOrderCard(orders[index]),
+          itemBuilder: (context, index) => _buildOrderCard(
+            context,
+            orders[index],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(OrderModel order) {
+  Widget _buildOrderCard(BuildContext context, OrderModel order) {
     return Container(
       decoration: _buildOrderCardDecoration(),
       child: Column(
@@ -175,7 +178,7 @@ class HomePage extends StatelessWidget {
         children: [
           _buildOrderHeader(order),
           _buildOrderCardBody(order),
-          _buildActionButtons(order),
+          _buildActionButtons(context, order),
         ],
       ),
     );
@@ -324,47 +327,60 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Padding _buildActionButtons(OrderModel order) {
+  Padding _buildActionButtons(BuildContext context, OrderModel order) {
+    final cubit = BlocProvider.of<HomePageCubit>(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCancelChip(),
+          _buildCancelChip(cubit, order.orderNumber!),
           const SizedBox(width: 8),
-          if (order.status == OrderStatusEnum.ordered) _buildPrepareButton(),
-          if (order.status == OrderStatusEnum.preparing)
-            _buildMarkReadyButton(),
+          if (order.status == OrderStatusEnum.ordered) ...{
+            _buildPrepareButton(cubit, order.orderNumber!),
+          },
+          if (order.status == OrderStatusEnum.preparing) ...{
+            _buildMarkReadyButton(cubit, order.orderNumber!),
+          }
         ],
       ),
     );
   }
 
-  Chip _buildCancelChip() {
-    return Chip(
-      side: BorderSide(color: AppColors.softRed),
-      elevation: 4,
-      shadowColor: AppColors.softRed,
-      label: Text(
-        'Cancel',
-        style: TextStyle(color: AppColors.offWhite),
+  Widget _buildCancelChip(HomePageCubit cubit, String orderNumber) {
+    return GestureDetector(
+      onTap: () => cubit.onCancelOrder(orderNumber),
+      child: Chip(
+        side: BorderSide(color: AppColors.softRed),
+        elevation: 4,
+        shadowColor: AppColors.softRed,
+        label: Text(
+          'Cancel',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        backgroundColor: AppColors.softRed,
       ),
-      backgroundColor: AppColors.softRed,
     );
   }
 
-  AppButton _buildPrepareButton() {
+  AppButton _buildPrepareButton(HomePageCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.warmOrange,
-      onPressed: () {},
+      onPressed: () => cubit.onOrderStatusChange(
+        orderNumber,
+        OrderStatusEnum.preparing,
+      ),
       text: 'Start preparing',
     );
   }
 
-  AppButton _buildMarkReadyButton() {
+  AppButton _buildMarkReadyButton(HomePageCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.green,
-      onPressed: () {},
+      onPressed: () => cubit.onOrderStatusChange(
+        orderNumber,
+        OrderStatusEnum.ready,
+      ),
       text: 'mark ready',
     );
   }
