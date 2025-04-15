@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:semedi_kitchen/models/kitchen_user.dart';
 import 'package:semedi_kitchen/services/auth_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 
