@@ -6,22 +6,22 @@ import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
 
-part 'home_page_state.dart';
+part 'home_state.dart';
 
-class HomePageCubit extends Cubit<HomePageState> {
+class HomeCubit extends Cubit<HomeState> {
   final OrderService _orderService;
   final SecureStorageService _secureStorageService;
-  HomePageCubit(this._orderService, this._secureStorageService)
-      : super(HomePageInitial());
+  HomeCubit(this._orderService, this._secureStorageService)
+      : super(HomeInitial());
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
   void listenToOrders() async {
-    emit(HomepageLoading());
+    emit(HomeLoading());
 
     _ordersSubscription?.cancel();
     String? restaurant = await _secureStorageService.read('restaurant');
     _ordersSubscription = _orderService.getActiveOrders(restaurant!).listen(
       (orders) {
-        emit(HomepageLoaded(
+        emit(HomeLoaded(
           activeOrders: orders,
           restaurantName: restaurant,
         ));
@@ -54,7 +54,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   getNewOrdersNumber() {
-    var currentState = state as HomepageLoaded;
+    var currentState = state as HomeLoaded;
     int number = currentState.activeOrders
         .where((order) => order.status == OrderStatusEnum.ordered)
         .length;
@@ -62,7 +62,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   getPreparingOrdersNumber() {
-    var currentState = state as HomepageLoaded;
+    var currentState = state as HomeLoaded;
     int number = currentState.activeOrders
         .where((order) => order.status == OrderStatusEnum.preparing)
         .length;
@@ -70,7 +70,7 @@ class HomePageCubit extends Cubit<HomePageState> {
   }
 
   getReadyOrdersNumber() {
-    var currentState = state as HomepageLoaded;
+    var currentState = state as HomeLoaded;
     int number = currentState.activeOrders
         .where((order) => order.status == OrderStatusEnum.ready)
         .length;

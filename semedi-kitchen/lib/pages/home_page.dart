@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
-import 'package:semedi_kitchen/cubit/homepage/home_page_cubit.dart';
+import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
@@ -21,21 +21,21 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          HomePageCubit(_orderService, _secureStorageService)..listenToOrders(),
-      child: BlocBuilder<HomePageCubit, HomePageState>(
+          HomeCubit(_orderService, _secureStorageService)..listenToOrders(),
+      child: BlocBuilder<HomeCubit, HomeState>(
         builder: _mapStateToWidget,
       ),
     );
   }
 
-  Widget _mapStateToWidget(BuildContext context, HomePageState state) {
-    if (state is HomepageLoaded) {
+  Widget _mapStateToWidget(BuildContext context, HomeState state) {
+    if (state is HomeLoaded) {
       return _buildPageBody(context, state);
     }
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 
-  Scaffold _buildPageBody(BuildContext context, HomepageLoaded state) {
+  Scaffold _buildPageBody(BuildContext context, HomeLoaded state) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       appBar: AppBar(
@@ -71,7 +71,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildStatsHeader(BuildContext context) {
-    final cubit = BlocProvider.of<HomePageCubit>(context);
+    final cubit = BlocProvider.of<HomeCubit>(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: _buildStatsDecoration(),
@@ -328,7 +328,7 @@ class HomePage extends StatelessWidget {
   }
 
   Padding _buildActionButtons(BuildContext context, OrderModel order) {
-    final cubit = BlocProvider.of<HomePageCubit>(context);
+    final cubit = BlocProvider.of<HomeCubit>(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -347,7 +347,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildCancelChip(HomePageCubit cubit, String orderNumber) {
+  Widget _buildCancelChip(HomeCubit cubit, String orderNumber) {
     return GestureDetector(
       onTap: () => cubit.onCancelOrder(orderNumber),
       child: Chip(
@@ -363,7 +363,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  AppButton _buildPrepareButton(HomePageCubit cubit, String orderNumber) {
+  AppButton _buildPrepareButton(HomeCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.warmOrange,
       onPressed: () => cubit.onOrderStatusChange(
@@ -374,7 +374,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  AppButton _buildMarkReadyButton(HomePageCubit cubit, String orderNumber) {
+  AppButton _buildMarkReadyButton(HomeCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.green,
       onPressed: () => cubit.onOrderStatusChange(
