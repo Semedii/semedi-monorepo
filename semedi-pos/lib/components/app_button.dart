@@ -7,6 +7,7 @@ class AppButton extends StatelessWidget {
     this.child,
     this.color,
     this.onPressed,
+    this.elevation,
     this.isOutlined = false,
     this.isSmall = true,
     super.key,
@@ -16,6 +17,7 @@ class AppButton extends StatelessWidget {
   final Color? color;
   final Widget? child;
   final bool isOutlined;
+  final double? elevation;
   final Function()? onPressed;
   final bool isSmall;
 
@@ -27,6 +29,7 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
+          elevation: elevation,
           backgroundColor: isOutlined ? null : color ?? AppColors.deepBlue,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

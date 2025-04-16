@@ -474,6 +474,7 @@ class MainScreen extends StatelessWidget {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => TakeAwayOrderScreen()));
       },
+      elevation: 12,
       isSmall: true,
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
