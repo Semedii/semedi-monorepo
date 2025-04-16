@@ -180,7 +180,7 @@ class WaiterStatsScreen extends StatelessWidget {
             crossAxisCount: 3,
             crossAxisSpacing: 20,
             mainAxisSpacing: 20,
-            childAspectRatio: 1.2,
+            childAspectRatio: .8,
           ),
           itemCount: orders.length,
           itemBuilder: (context, index) => _buildOrderCard(

@@ -54,7 +54,7 @@ class MainScreen extends StatelessWidget {
               )
             ],
           ),
-          _buildOrderGrid(state.activeOrders),
+          _buildOrderGrid(context, state.activeOrders),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -218,7 +218,8 @@ class MainScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildOrderGrid(List<OrderModel>? orders) {
+  Widget _buildOrderGrid(BuildContext context, List<OrderModel>? orders) {
+    final height = MediaQuery.of(context).size.height;
     if (orders == null || orders.isEmpty) {
       return const Expanded(
         child: Center(
@@ -233,12 +234,11 @@ class MainScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.2,
-          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              mainAxisExtent: height * .67),
           itemCount: orders.length,
           itemBuilder: (context, index) => _buildOrderCard(
             context,
