@@ -207,26 +207,26 @@ class TakeAwayOrderScreen extends StatelessWidget {
   }
 
   Widget _buildMenuCard(MenuItem item, TakeAwayCubit cubit) {
-    return Card(
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(item.name,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text('\$${item.price.toStringAsFixed(2)}'),
-            const SizedBox(height: 4),
-            item.isAvailable
-                ? IconButton(
-                    icon: Icon(Icons.add_circle, color: AppColors.deepBlue),
-                    onPressed: () => cubit.onAddItem(item),
-                  )
-                : const Text('Not Available',
-                    style: TextStyle(color: Colors.red)),
-          ],
+    return GestureDetector(
+      onTap: item.isAvailable ? () => cubit.onAddItem(item) : null,
+      child: Card(
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(item.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text('\$${item.price.toStringAsFixed(2)}'),
+              const SizedBox(height: 4),
+              item.isAvailable
+                  ? Icon(Icons.add_circle, color: AppColors.deepBlue)
+                  : const Text('Not Available',
+                      style: TextStyle(color: Colors.red)),
+            ],
+          ),
         ),
       ),
     );
