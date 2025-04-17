@@ -97,17 +97,9 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _getLogo() {
-    return Column(
-      children: [
-        Image.asset(
-          'assets/images/logo.png',
-          height: 150,
-        ),
-        Image.asset(
-          'assets/images/semedisystems.png',
-          height: 20,
-        ),
-      ],
+    return Image.asset(
+      'assets/images/logo.png',
+      height: 200,
     );
   }
 
