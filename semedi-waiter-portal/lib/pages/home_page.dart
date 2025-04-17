@@ -131,6 +131,9 @@ class HomePage extends StatelessWidget {
           onDeliver: () =>
               cubit.onDeliverOrder(activeOrders[index].orderNumber),
           onCancel: () => cubit.onCancelOrder(activeOrders[index].orderNumber),
+          onRequestPay: (namePhone) {
+            print("ahhaa $namePhone");
+          },
         ),
       ),
     );

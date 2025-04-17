@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:semedi/components/app_button.dart';
+import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/models/order.dart';
 import 'package:semedi/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:semedi/utils/order_status_enum.dart';
+import 'package:semedi/utils/text_validators.dart';
 
 class OrderItem extends StatelessWidget {
   final OrderModel order;
   final Function()? onDeliver;
   final Function()? onCancel;
-  const OrderItem({
+  final Function(String namePhone) onRequestPay;
+  OrderItem({
     super.key,
     required this.order,
     this.onCancel,
     this.onDeliver,
+    required this.onRequestPay,
   });
+
+  final TextEditingController controller = TextEditingController();
+  final _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +50,7 @@ class OrderItem extends StatelessWidget {
             },
             const SizedBox(height: 12),
             _buildTimestamp(),
-            if (order.tableNumber != null) _buildWaiterAndActionButton(),
+            if (order.tableNumber != null) _buildWaiterAndActionButton(context),
           ],
         ),
       ),
@@ -168,7 +176,7 @@ class OrderItem extends StatelessWidget {
     );
   }
 
-  Row _buildWaiterAndActionButton() {
+  Row _buildWaiterAndActionButton(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -177,7 +185,10 @@ class OrderItem extends StatelessWidget {
           style: TextStyle(color: AppColors.deepBlue),
         ),
         if (order.status == OrderStatusEnum.ready) _buildDeliverButton(),
-        if (order.status == OrderStatusEnum.ordered) _buildCancelButton()
+        if (order.status == OrderStatusEnum.ordered) _buildCancelButton(),
+        if (order.status == OrderStatusEnum.delivered) ...{
+          _buildRequestPayApprovalButton(context),
+        }
       ],
     );
   }
@@ -212,6 +223,58 @@ class OrderItem extends StatelessWidget {
         backgroundColor: AppColors.deepBlue,
       ),
     );
+  }
+
+  _buildRequestPayApprovalButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () => showNotifyCashierDialog(context),
+      child: Chip(
+        side: BorderSide(color: AppColors.green),
+        elevation: 8,
+        shadowColor: AppColors.green,
+        label: Text(
+          'Notify Cashier',
+          style: TextStyle(color: AppColors.offWhite),
+        ),
+        backgroundColor: AppColors.green,
+      ),
+    );
+  }
+
+  showNotifyCashierDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: AlertDialog(
+              title: const Text("From Name/Number"),
+              content: Form(
+                key: _formkey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TxtFormField(
+                      controller: controller,
+                      labelText: "Name or Phone",
+                      validator: TextValidators.fieldRequired,
+                    ),
+                    const SizedBox(height: 12),
+                    AppButton(
+                      text: "Request Approval",
+                      onPressed: () {
+                        if (_formkey.currentState!.validate()) {
+                          onRequestPay(controller.text);
+                        }
+                        ;
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Color _getStatusChipColor(OrderStatusEnum status) {
