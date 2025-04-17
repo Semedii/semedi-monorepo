@@ -34,6 +34,7 @@ class HomeCubit extends Cubit<HomeState> {
         }
 
         previousOrders = orders;
+        await Future.delayed(const Duration(seconds: 3));
         String? restaurantName = await _secureStorageService.read('restaurant');
         emit(HomeLoaded(orders, totalTables, restaurantName));
       },

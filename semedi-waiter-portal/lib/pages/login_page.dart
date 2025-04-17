@@ -27,7 +27,6 @@ class LoginPage extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
-              authService.logout();
             }
           },
           builder: _mapStateToWidget,

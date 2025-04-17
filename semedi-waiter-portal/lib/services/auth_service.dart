@@ -38,20 +38,24 @@ class AuthService {
   }
 
   Future<Waiter> _getUserFromWaiterList() async {
-    final email = FirebaseAuth.instance.currentUser?.email;
-    final db = FirebaseFirestore.instance;
-    final querySnapshot = await db
-        .collection('users')
-        .doc('waiterRoot')
-        .collection('waiters')
-        .where('email', isEqualTo: email)
-        .withConverter<Waiter>(
-          fromFirestore: (snapshot, _) => Waiter.fromFirestore(snapshot),
-          toFirestore: (_, __) => throw UnimplementedError(
-              "Writing isn't allowed in user collection"),
-        )
-        .get();
-    return querySnapshot.docs.first.data();
+    try {
+      final email = FirebaseAuth.instance.currentUser?.email;
+      final db = FirebaseFirestore.instance;
+      final querySnapshot = await db
+          .collection('users')
+          .doc('waiterRoot')
+          .collection('waiters')
+          .where('email', isEqualTo: email)
+          .withConverter<Waiter>(
+            fromFirestore: (snapshot, _) => Waiter.fromFirestore(snapshot),
+            toFirestore: (_, __) => throw UnimplementedError(
+                "Writing isn't allowed in user collection"),
+          )
+          .get();
+      return querySnapshot.docs.first.data();
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<User?> getCurrentUser() async {

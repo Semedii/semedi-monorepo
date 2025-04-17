@@ -31,14 +31,15 @@ class LoginCubit extends Cubit<LoginState> {
       if (token != null) {
         await _secureStorage.write('auth_token', token);
         emit(LoginSuccess(token: token));
-        emit(LoginInitial());
       } else {
         emit(LoginFailure(message: "Login failed"));
-        emit(LoginInitial());
       }
     } catch (e) {
-      emit(LoginFailure(message: e.toString()));
-      emit(LoginInitial());
+      if (e is! StateError) {
+        _authService.logout();
+        emit(LoginFailure(message: e.toString()));
+      }
     }
+    emit(LoginInitial());
   }
 }
