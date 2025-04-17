@@ -38,6 +38,7 @@ class OrderService {
             Filter('waiter', isEqualTo: 'Cashier'),
           ),
           Filter('status', isEqualTo: OrderStatusEnum.delivered.name),
+          Filter('status', isEqualTo: OrderStatusEnum.payPending.name),
         ))
         .orderBy('status')
         .orderBy('timestamp', descending: true)

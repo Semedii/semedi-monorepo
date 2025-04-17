@@ -416,9 +416,7 @@ class MainScreen extends StatelessWidget {
         children: [
           _buildWaiterNameAndCancel(context, order),
           const SizedBox(height: 12),
-          _buildMarkPaidButton(context, order.orderNumber!),
-          const SizedBox(height: 12),
-          _buildUnPaidButton(context, order.orderNumber!),
+          _buildActionButtons(context, order),
         ],
       ),
     );
@@ -440,6 +438,28 @@ class MainScreen extends StatelessWidget {
           _buildCancelButton(context, order.orderNumber),
         }
       ],
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, OrderModel order) {
+    return order.status == OrderStatusEnum.payPending
+        ? _buildPaymentRecievedButton()
+        : Column(
+            children: [
+              _buildMarkPaidButton(context, order.orderNumber!),
+              const SizedBox(height: 12),
+              _buildUnPaidButton(context, order.orderNumber!),
+            ],
+          );
+  }
+
+  Widget _buildPaymentRecievedButton() {
+    return AppButton(
+      onPressed: () {},
+      isSmall: false,
+      elevation: 8,
+      color: AppColors.green,
+      text: "Payment recieved",
     );
   }
 
@@ -519,6 +539,8 @@ class MainScreen extends StatelessWidget {
         return AppColors.green;
       case OrderStatusEnum.delivered:
         return AppColors.deepBlue;
+      case OrderStatusEnum.payPending:
+        return AppColors.amberGold;
       default:
         return Colors.grey;
     }
