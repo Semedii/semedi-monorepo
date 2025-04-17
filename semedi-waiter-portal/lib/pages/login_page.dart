@@ -97,9 +97,17 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _getLogo() {
-    return const Text(
-      "Semedi",
-      style: TextStyle(color: Colors.white, fontSize: 52),
+    return Column(
+      children: [
+        Image.asset(
+          'assets/images/logo.png',
+          height: 150,
+        ),
+        Image.asset(
+          'assets/images/semedisystems.png',
+          height: 20,
+        ),
+      ],
     );
   }
 
