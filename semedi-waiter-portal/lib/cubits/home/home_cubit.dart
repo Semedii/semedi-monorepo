@@ -75,6 +75,17 @@ class HomeCubit extends Cubit<HomeState> {
         orderNumber: orderNumber,
         newStatus: OrderStatusEnum.delivered,
       );
+      listenToOrders();
+    }
+  }
+
+  onRequestPay(String? orderNumber, String namePhone) {
+    if (orderNumber != null) {
+      _orderService.requestPay(
+        orderNumber: orderNumber,
+        namePhone: namePhone,
+      );
+      listenToOrders();
     }
   }
 
@@ -83,6 +94,7 @@ class HomeCubit extends Cubit<HomeState> {
       _orderService.cancelOrder(
         orderNumber,
       );
+      listenToOrders();
     }
   }
 

@@ -265,6 +265,7 @@ class OrderItem extends StatelessWidget {
                       onPressed: () {
                         if (_formkey.currentState!.validate()) {
                           onRequestPay(controller.text);
+                          Navigator.pop(context);
                         }
                         ;
                       },

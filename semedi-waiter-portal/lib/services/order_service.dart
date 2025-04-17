@@ -247,6 +247,25 @@ class OrderService {
     }
   }
 
+  Future<void> requestPay({
+    required String orderNumber,
+    required String namePhone,
+  }) async {
+    try {
+      await db
+          .collection('shops')
+          .doc('Barkulan')
+          .collection('orders')
+          .doc(orderNumber)
+          .update({
+        'status': OrderStatusEnum.payPending.name,
+        'namePhone': namePhone, // Update timestamp
+      });
+    } catch (e) {
+      throw Exception('Failed to update status: ${e.toString()}');
+    }
+  }
+
   Future<void> cancelOrder(String orderNumber) async {
     try {
       var orderDoc = await db
