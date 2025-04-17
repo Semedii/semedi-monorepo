@@ -41,7 +41,7 @@ class LoginScreen extends StatelessWidget {
   Widget _buildPageBody(BuildContext context) {
     return Center(
       child: Container(
-        width: MediaQuery.of(context).size.width * .35,
+        width: MediaQuery.of(context).size.width * .4,
         padding: const EdgeInsets.all(40),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -66,22 +66,21 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Row _buildHeader() {
-    return Row(
+  Widget _buildHeader() {
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildHeaderLogo(),
-        const SizedBox(width: 12),
+        const SizedBox(height: 24),
         _buildHeaderTitle(),
       ],
     );
   }
 
-  Icon _buildHeaderLogo() {
-    return Icon(
-      Icons.point_of_sale,
-      size: 32,
-      color: AppColors.deepBlue,
+  Widget _buildHeaderLogo() {
+    return Image.asset(
+      "assets/images/logo.png",
+      height: 150,
     );
   }
 
