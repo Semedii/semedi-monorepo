@@ -25,12 +25,13 @@ class HomeCubit extends Cubit<HomeState> {
     emit(const HomeLoading());
     final session = GetIt.instance<AppSessionService>();
     final int totalTables = await MenuService().getTotalTableNumber();
+    final waiterName = await _secureStorageService.read('waiter_name');
 
     List<OrderModel> previousOrders = [];
 
     _ordersSubscription?.cancel();
 
-    _ordersSubscription = _orderService.getAllOrders().listen(
+    _ordersSubscription = _orderService.getAllOrders(waiterName).listen(
       (orders) async {
         if (_shouldPlaySound(previousOrders, orders)) {
           _playNotificationSound();

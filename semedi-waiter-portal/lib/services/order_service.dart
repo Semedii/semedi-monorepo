@@ -112,14 +112,14 @@ class OrderService {
     );
   }
 
-  Stream<List<OrderModel>> getAllOrders() {
+  Stream<List<OrderModel>> getAllOrders(String? waiterName) {
     return db
         .collection('shops')
         .doc('Barkulan')
         .collection('orders')
-        .orderBy(
-            'status') // Primary sort by status (Firestore sorts alphabetically)
-        .orderBy('timestamp', descending: true) // Secondary sort
+        .orderBy('status')
+        .where('waiter', isEqualTo: waiterName)
+        .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
           fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
           toFirestore: (order, _) => order.toFirestore(),
