@@ -258,7 +258,7 @@ class OrderService {
           .doc(orderNumber)
           .update({
         'status': OrderStatusEnum.payPending.name,
-        'namePhone': namePhone, // Update timestamp
+        'namePhone': namePhone,
       });
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');

@@ -12,10 +12,12 @@ class OrderModel {
   final DateTime timestamp;
   final double total;
   final String waiter;
+  final String? paymentInfo;
 
   OrderModel({
     this.customerName,
     this.tableNumber,
+    this.paymentInfo,
     required this.itemsWithQuantity,
     required this.itemsWithPrices,
     required this.status,
@@ -38,6 +40,7 @@ class OrderModel {
       'timestamp': Timestamp.fromDate(timestamp),
       'total': total,
       'waiter': waiter,
+      'namePhone': paymentInfo,
     };
   }
 
@@ -59,6 +62,7 @@ class OrderModel {
           : null,
       total: (data['total'] as num?)?.toDouble() ?? 0,
       waiter: data['waiter'] ?? "unknown",
+      paymentInfo: data['namePhone'],
     );
   }
 
@@ -82,6 +86,7 @@ class OrderModel {
       timestamp: timestamp,
       total: total,
       waiter: waiter,
+      paymentInfo: paymentInfo,
     );
   }
 }

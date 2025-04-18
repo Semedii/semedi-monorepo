@@ -289,7 +289,7 @@ class OrderItem extends StatelessWidget {
       case OrderStatusEnum.delivered:
         return AppColors.deepBlue;
       case OrderStatusEnum.payPending:
-        return AppColors.warmOrange;
+        return AppColors.amberGold;
       case OrderStatusEnum.paymentNotRecieved:
         return AppColors.softRed;
       default:
