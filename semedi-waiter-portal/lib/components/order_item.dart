@@ -177,6 +177,11 @@ class OrderItem extends StatelessWidget {
   }
 
   Row _buildWaiterAndActionButton(BuildContext context) {
+    bool isDelivered = order.status == OrderStatusEnum.delivered;
+    bool isOrdered = order.status == OrderStatusEnum.ordered;
+    bool isReady = order.status == OrderStatusEnum.ready;
+    bool isPaymentNotRecieved =
+        order.status == OrderStatusEnum.paymentNotRecieved;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -184,9 +189,9 @@ class OrderItem extends StatelessWidget {
           order.waiter,
           style: TextStyle(color: AppColors.deepBlue),
         ),
-        if (order.status == OrderStatusEnum.ready) _buildDeliverButton(),
-        if (order.status == OrderStatusEnum.ordered) _buildCancelButton(),
-        if (order.status == OrderStatusEnum.delivered) ...{
+        if (isReady) _buildDeliverButton(),
+        if (isOrdered) _buildCancelButton(),
+        if (isDelivered || isPaymentNotRecieved) ...{
           _buildRequestPayApprovalButton(context),
         }
       ],
