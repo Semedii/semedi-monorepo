@@ -280,12 +280,18 @@ class OrderItem extends StatelessWidget {
 
   Color _getStatusChipColor(OrderStatusEnum status) {
     switch (status) {
+      case OrderStatusEnum.ordered:
+        return AppColors.darkGrey;
+      case OrderStatusEnum.preparing:
+        return AppColors.warmOrange;
       case OrderStatusEnum.ready:
         return AppColors.green;
       case OrderStatusEnum.delivered:
         return AppColors.deepBlue;
-      case OrderStatusEnum.preparing:
+      case OrderStatusEnum.payPending:
         return AppColors.warmOrange;
+      case OrderStatusEnum.paymentNotRecieved:
+        return AppColors.softRed;
       default:
         return Colors.grey;
     }
