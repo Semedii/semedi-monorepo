@@ -112,12 +112,11 @@ class OrderService {
     );
   }
 
-  Stream<List<OrderModel>> getActiveOrders() {
+  Stream<List<OrderModel>> getAllOrders() {
     return db
         .collection('shops')
         .doc('Barkulan')
         .collection('orders')
-        .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
         .orderBy(
             'status') // Primary sort by status (Firestore sorts alphabetically)
         .orderBy('timestamp', descending: true) // Secondary sort

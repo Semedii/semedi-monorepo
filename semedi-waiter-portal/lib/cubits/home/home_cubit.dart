@@ -30,7 +30,7 @@ class HomeCubit extends Cubit<HomeState> {
 
     _ordersSubscription?.cancel();
 
-    _ordersSubscription = _orderService.getActiveOrders().listen(
+    _ordersSubscription = _orderService.getAllOrders().listen(
       (orders) async {
         if (_shouldPlaySound(previousOrders, orders)) {
           _playNotificationSound();
@@ -73,6 +73,23 @@ class HomeCubit extends Cubit<HomeState> {
     if (state is! HomeLoaded) return false;
     final currentState = state as HomeLoaded;
     return currentState.orders.any((order) => order.tableNumber == tableNumber);
+  }
+
+  List<OrderModel> getActiveOrders() {
+    final currentState = state as HomeLoaded;
+    final activeOrders = currentState.orders
+        .where((order) => order.status != OrderStatusEnum.paid)
+        .toList();
+    return activeOrders;
+  }
+
+  List<OrderModel> getPaidOrders() {
+    final currentState = state as HomeLoaded;
+    final activeOrders = currentState.orders
+        .where((order) => order.status == OrderStatusEnum.paid)
+        .toList();
+
+    return activeOrders;
   }
 
   onDeliverOrder(String? orderNumber) {
