@@ -287,7 +287,25 @@ class MainScreen extends StatelessWidget {
           topRight: Radius.circular(12),
         ),
       ),
-      child: _buildOrderTableAndTotal(context, order),
+      child: Column(
+        children: [
+          if (order.status == OrderStatusEnum.payPending) ...{
+            _buildPaymentInfo(order),
+          },
+          _buildOrderTableAndTotal(context, order),
+        ],
+      ),
+    );
+  }
+
+  Text _buildPaymentInfo(OrderModel order) {
+    return Text(
+      "From: ${order.paymentInfo}",
+      style: const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 1.2,
+      ),
     );
   }
 
@@ -442,20 +460,30 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, OrderModel order) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
     return order.status == OrderStatusEnum.payPending
-        ? _buildPaymentRecievedButton()
+        ? Column(
+            children: [
+              _buildPaymentRecievedButton(cubit, order.orderNumber!),
+              const SizedBox(height: 12),
+              _buildPaymentNotRecievedButton(cubit, order.orderNumber!),
+            ],
+          )
         : Column(
             children: [
-              _buildMarkPaidButton(context, order.orderNumber!),
+              _buildMarkPaidButton(cubit, order.orderNumber!),
               const SizedBox(height: 12),
-              _buildUnPaidButton(context, order.orderNumber!),
+              _buildUnPaidButton(cubit, order.orderNumber!),
             ],
           );
   }
 
-  Widget _buildPaymentRecievedButton() {
+  Widget _buildPaymentRecievedButton(OrderCubit cubit, String orderNumber) {
     return AppButton(
-      onPressed: () {},
+      onPressed: () => cubit.changeOrderStatus(
+        orderNumber,
+        OrderStatusEnum.paid,
+      ),
       isSmall: false,
       elevation: 8,
       color: AppColors.green,
@@ -463,25 +491,33 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
+  Widget _buildPaymentNotRecievedButton(OrderCubit cubit, String orderNumber) {
+    return AppButton(
+      onPressed: () => cubit.changeOrderStatus(
+        orderNumber,
+        OrderStatusEnum.paymentNotRecieved,
+      ),
+      isSmall: false,
+      elevation: 8,
+      color: AppColors.softRed,
+      text: "Payment not recieved",
+    );
+  }
+
+  AppButton _buildMarkPaidButton(OrderCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.green,
       isSmall: false,
       text: 'Mark as paid',
-      onPressed: () => BlocProvider.of<OrderCubit>(context).changeOrderStatus(
-        orderNumber,
-        OrderStatusEnum.paid,
-      ),
+      onPressed: () =>
+          cubit.changeOrderStatus(orderNumber, OrderStatusEnum.paid),
     );
   }
 
-  AppButton _buildUnPaidButton(BuildContext context, String orderNumber) {
+  AppButton _buildUnPaidButton(OrderCubit cubit, String orderNumber) {
     return AppButton(
         onPressed: () {
-          BlocProvider.of<OrderCubit>(context).changeOrderStatus(
-            orderNumber,
-            OrderStatusEnum.unpaid,
-          );
+          cubit.changeOrderStatus(orderNumber, OrderStatusEnum.unpaid);
         },
         color: AppColors.warmOrange,
         isSmall: false,

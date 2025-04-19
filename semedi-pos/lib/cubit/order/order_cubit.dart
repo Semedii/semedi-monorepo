@@ -26,14 +26,6 @@ class OrderCubit extends Cubit<OrderState> {
     final List<OrderModel> unPaidOrders =
         await _orderService.getOrdersByStatus(OrderStatusEnum.unpaid) ?? [];
 
-    final List<OrderModel> payPendingOrders =
-        await _orderService.getOrdersByStatus(OrderStatusEnum.payPending) ?? [];
-
-    // Check for unpaid orders and play sound if any exist
-    if (payPendingOrders.isNotEmpty) {
-      await _playNotificationSound();
-    }
-
     double totalRevenue = 0.0;
 
     for (var order in paidOrders) {
@@ -46,7 +38,15 @@ class OrderCubit extends Cubit<OrderState> {
     _ordersSubscription?.cancel();
     String restaurant = await _getRestaurantName()!;
     _ordersSubscription = _orderService.getActiveOrders(restaurant).listen(
-      (orders) {
+      (orders) async {
+        final List<OrderModel> payPendingOrders =
+            await _orderService.getOrdersByStatus(OrderStatusEnum.payPending) ??
+                [];
+        if (payPendingOrders.isNotEmpty) {
+          await _playNotificationSound();
+        } else {
+          _audioPlayer.setReleaseMode(ReleaseMode.stop);
+        }
         emit(OrderLoaded(
           activeOrders: orders,
           paidOrders: paidOrders,
