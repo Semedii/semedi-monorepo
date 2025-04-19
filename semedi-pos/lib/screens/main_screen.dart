@@ -235,10 +235,11 @@ class MainScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 20,
-              mainAxisExtent: height * .67),
+            crossAxisCount: 3,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            mainAxisExtent: height * 0.67,
+          ),
           itemCount: orders.length,
           itemBuilder: (context, index) => _buildOrderCard(
             context,
@@ -253,10 +254,10 @@ class MainScreen extends StatelessWidget {
     return Container(
       decoration: _getOrderCardDecoration(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildOrderCardHeader(context, order),
           _buildOrderCardBody(order),
+          const Spacer(),
           _buildOrderCardFooter(context, order),
         ],
       ),
@@ -358,31 +359,41 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildOrderCardBody(OrderModel order) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _buildItemList(order),
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: 100,
+          maxHeight: 200,
+        ),
+        child: ListView(
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          children: order.itemsWithQuantity.entries
+              .map((item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        _buildItemQuantity(item),
+                        const SizedBox(width: 12),
+                        Expanded(child: _buildItemName(item)),
+                        _buildItemPrice(order, item),
+                      ],
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
 
-  Expanded _buildItemList(OrderModel order) {
-    return Expanded(
-      child: ListView(
-        children: order.itemsWithQuantity.entries
-            .map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      _buildItemQuantity(item),
-                      const SizedBox(width: 12),
-                      _buildItemName(item),
-                      _buildItemPrice(order, item),
-                    ],
-                  ),
-                ))
-            .toList(),
+  Widget _buildItemName(MapEntry<String, int> item) {
+    return Text(
+      item.key,
+      style: TextStyle(
+        color: AppColors.darkGrey,
       ),
+      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -400,17 +411,6 @@ class MainScreen extends StatelessWidget {
         style: TextStyle(
           color: AppColors.deepBlue,
           fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Expanded _buildItemName(MapEntry<String, int> item) {
-    return Expanded(
-      child: Text(
-        item.key,
-        style: TextStyle(
-          color: AppColors.darkGrey,
         ),
       ),
     );
