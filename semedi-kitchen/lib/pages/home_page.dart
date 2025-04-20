@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
+import 'package:semedi_kitchen/services/thermal_reciept_service.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 import 'package:semedi_kitchen/models/order.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
@@ -176,7 +179,7 @@ class HomePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildOrderHeader(order),
+          _buildOrderHeader(context, order),
           _buildOrderCardBody(order),
           _buildActionButtons(context, order),
         ],
@@ -198,7 +201,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Container _buildOrderHeader(OrderModel order) {
+  Container _buildOrderHeader(BuildContext context, OrderModel order) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -208,36 +211,43 @@ class HomePage extends StatelessWidget {
           topRight: Radius.circular(12),
         ),
       ),
-      child: _buildOrderTableAndStatus(order),
+      child: _buildOrderTableAndStatus(context, order),
     );
   }
 
-  Row _buildOrderTableAndStatus(OrderModel order) {
+  Row _buildOrderTableAndStatus(BuildContext context, OrderModel order) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildOrderTable(order),
+        _buildOrderTable(context, order),
         _buildOrderStatus(order),
       ],
     );
   }
 
-  Widget _buildOrderTable(OrderModel order) {
-    Icon takeAwayIcon =
-        const Icon(Icons.takeout_dining, color: Colors.white, size: 20);
+  Widget _buildOrderTable(BuildContext context, OrderModel order) {
     String tableInfo = order.tableNumber != null
         ? 'Table: ${order.tableNumber}'
         : 'TakeAway for ${order.customerName}';
     return Row(
       children: [
+        IconButton(
+          onPressed: () => _generateAndPrintReceipt(context, order),
+          icon: Icon(
+            Icons.print,
+            color: AppColors.offWhite,
+          ),
+          tooltip: 'Print Reciept',
+        ),
+        const SizedBox(width: 4),
         Text(
-          'Order #${order.orderNumber}, $tableInfo',
+          tableInfo,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
           ),
         ),
-        if (order.tableNumber == null) takeAwayIcon
       ],
     );
   }
@@ -395,6 +405,31 @@ class HomePage extends StatelessWidget {
         return AppColors.green;
       default:
         return Colors.grey;
+    }
+  }
+
+  Future<void> _generateAndPrintReceipt(
+    BuildContext context,
+    OrderModel order,
+  ) async {
+    try {
+      final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
+        orderNumber: order.orderNumber ?? 'N/A',
+        tableNumber: order.tableNumber.toString(),
+        waiter: order.waiter,
+        items: order.itemsWithQuantity,
+        prices: order.itemsWithPrices,
+        total: order.total,
+        dateTime: order.timestamp,
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfBytes,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error printing receipt: ${e.toString()}')),
+      );
     }
   }
 }
