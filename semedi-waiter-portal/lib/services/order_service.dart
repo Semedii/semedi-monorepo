@@ -7,13 +7,12 @@ import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
   final db = FirebaseFirestore.instance;
-
+  final secureStorageService = getIt<SecureStorageService>();
   submitOrder(
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
   ) async {
-    final secureStorageService = getIt<SecureStorageService>();
     String? waiter = await secureStorageService.read('waiter_name');
     String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
     if (existingOrderNumber != null) {
@@ -35,12 +34,13 @@ class OrderService {
     String? waiter,
   ) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       int orderNumber = await _getLastOrderNumber();
       OrderModel order =
           _prepareOrderData(selectedItems, tableNumber, note, waiter);
       final orderRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber.toString().padLeft(4, '0'));
 
@@ -59,9 +59,10 @@ class OrderService {
 
   Future<int> _getLastOrderNumber() async {
     try {
+      String? restaurantName = await _getRestaurantName();
       final orderNumberRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('metadata')
           .doc('orderNumber');
 
@@ -112,10 +113,13 @@ class OrderService {
     );
   }
 
-  Stream<List<OrderModel>> getAllOrders(String? waiterName) {
+  Stream<List<OrderModel>> getAllOrders(
+    String? waiterName,
+    String? restaurantName,
+  ) {
     return db
         .collection('shops')
-        .doc('Barkulan')
+        .doc(restaurantName)
         .collection('orders')
         .orderBy('status')
         .where('waiter', isEqualTo: waiterName)
@@ -144,9 +148,10 @@ class OrderService {
 
   _getActiveOrderForTable(int tableNumber) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       final query = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .where('tableNumber', isEqualTo: tableNumber)
           .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
@@ -168,9 +173,10 @@ class OrderService {
     String? waiter,
   }) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       final orderRef = db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber);
 
@@ -232,9 +238,10 @@ class OrderService {
     required OrderStatusEnum newStatus,
   }) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber)
           .update({
@@ -251,9 +258,10 @@ class OrderService {
     required String namePhone,
   }) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber)
           .update({
@@ -267,9 +275,10 @@ class OrderService {
 
   Future<void> cancelOrder(String orderNumber) async {
     try {
+      String? restaurantName = await _getRestaurantName();
       var orderDoc = await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber)
           .get();
@@ -281,7 +290,7 @@ class OrderService {
 
       await db
           .collection('shops')
-          .doc('Barkulan')
+          .doc(restaurantName)
           .collection('orders')
           .doc(orderNumber)
           .delete();
@@ -289,5 +298,10 @@ class OrderService {
     } catch (e) {
       print("Failed to cancel order: ${e.toString()}");
     }
+  }
+
+  _getRestaurantName() async {
+    String? restaurantName = await secureStorageService.read('restaurant');
+    return restaurantName;
   }
 }
