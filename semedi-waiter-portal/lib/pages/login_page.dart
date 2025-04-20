@@ -90,7 +90,7 @@ class LoginPage extends StatelessWidget {
       "Waiter Portal",
       style: TextStyle(
         color: Colors.white,
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: FontWeight.w500,
       ),
     );
