@@ -1,16 +1,14 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart' as path;
-import 'package:open_file/open_file.dart';
 import 'package:intl/intl.dart';
+import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 
 class ThermalReceiptService {
-  static const double receiptWidth =
-      58 * PdfPageFormat.mm; // Standard thermal width
+  static const double receiptWidth = 58 * PdfPageFormat.mm;
   static const double padding = 4.0;
 
-  static Future<File> generateOrderReceipt({
+  static Future<Uint8List> generateOrderReceiptBytes({
     required String orderNumber,
     required String tableNumber,
     required String waiter,
@@ -21,33 +19,26 @@ class ThermalReceiptService {
   }) async {
     final pdf = pw.Document();
 
+    String? restaurantName = await SecureStorageService().read("restaurant");
+
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(receiptWidth, double.infinity),
+        pageFormat: const PdfPageFormat(receiptWidth, double.infinity),
         margin: pw.EdgeInsets.zero,
         build: (pw.Context context) {
           return pw.Padding(
-            padding: pw.EdgeInsets.all(padding),
+            padding: const pw.EdgeInsets.all(padding),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                // Restaurant Header - Centered
-                _buildCenteredHeader(),
+                _buildCenteredHeader(restaurantName ?? ""),
                 pw.SizedBox(height: 8),
-
-                // Order Information
                 _buildOrderInfo(orderNumber, dateTime, tableNumber, waiter),
                 pw.SizedBox(height: 8),
-
-                // Items List
                 _buildItemsTable(items, prices),
                 pw.SizedBox(height: 8),
-
-                // Totals
                 _buildTotalsSection(total),
                 pw.SizedBox(height: 8),
-
-                // Footer
                 _buildFooter(),
               ],
             ),
@@ -56,34 +47,12 @@ class ThermalReceiptService {
       ),
     );
 
-    // Save to temporary directory
-    final output = await path.getTemporaryDirectory();
-    final file = File('${output.path}/receipt_$orderNumber.pdf');
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    return pdf.save();
   }
 
-  static pw.Widget _buildCenteredHeader() {
+  static pw.Widget _buildCenteredHeader(String restaurantName) {
     return pw.Center(
-      child: pw.Column(
-        children: [
-          pw.Text(
-            'SEMEDI RESTAURANT',
-            style: pw.TextStyle(
-              fontWeight: pw.FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-          pw.Text(
-            '123 Main Street, City',
-            style: _normalStyle(),
-          ),
-          pw.Text(
-            'Phone: (123) 456-7890',
-            style: _normalStyle(),
-          ),
-        ],
-      ),
+      child: pw.Text('$restaurantName RESTAURANT', style: _boldStyle(size: 12)),
     );
   }
 
@@ -97,19 +66,11 @@ class ThermalReceiptService {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text('Order #$orderNumber', style: _boldStyle()),
-        pw.Text(
-          'Table: $tableNumber',
-          style: _normalStyle(),
-        ),
+        pw.Text('Table: $tableNumber', style: _normalStyle()),
         pw.SizedBox(height: 4),
-        pw.Text(
-          DateFormat('MM/dd/yyyy hh:mm a').format(dateTime),
-          style: _normalStyle(),
-        ),
-        pw.Text(
-          'Waiter: $waiter',
-          style: _normalStyle(),
-        ),
+        pw.Text(DateFormat('MM/dd/yyyy hh:mm a').format(dateTime),
+            style: _normalStyle()),
+        pw.Text('Waiter: $waiter', style: _normalStyle()),
         pw.Divider(thickness: 0.5),
       ],
     );
@@ -139,18 +100,10 @@ class ThermalReceiptService {
         ),
         ...items.entries.map((item) => pw.TableRow(
               children: [
-                pw.Text(
-                  item.key,
-                  style: _normalStyle(),
-                ),
-                pw.Text(
-                  item.value.toString(),
-                  style: _normalStyle(),
-                ),
-                pw.Text(
-                  '\$${prices[item.key]?.toStringAsFixed(2) ?? '0.00'}',
-                  style: _normalStyle(),
-                ),
+                pw.Text(item.key, style: _normalStyle()),
+                pw.Text(item.value.toString(), style: _normalStyle()),
+                pw.Text('\$${prices[item.key]?.toStringAsFixed(2) ?? '0.00'}',
+                    style: _normalStyle()),
               ],
             )),
       ],
@@ -196,23 +149,12 @@ class ThermalReceiptService {
           pw.Text('Please come again', style: _normalStyle()),
           pw.SizedBox(height: 8),
           pw.Divider(thickness: 0.5),
-          pw.Text(
-            'Powered by:',
-            style: _normalStyle(size: 6),
-          ),
-          pw.Text(
-            'SEMEDI',
-            style: _boldStyle(),
-          ),
-          pw.Text(
-            'www.semedi.dev',
-            style: _normalStyle(size: 6),
-          ),
+          pw.Text('Powered by:', style: _normalStyle(size: 6)),
+          pw.Text('SEMEDI', style: _boldStyle()),
+          pw.Text('www.semedi.dev', style: _normalStyle(size: 6)),
           pw.SizedBox(height: 4),
           pw.Text(
-            'Generated on ${DateFormat('MM/dd/yyyy hh:mm a').format(
-              DateTime.now(),
-            )}',
+            'Generated on ${DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now())}',
             style: _normalStyle(size: 6),
           ),
         ],
@@ -221,19 +163,10 @@ class ThermalReceiptService {
   }
 
   static pw.TextStyle _boldStyle({double size = 8}) {
-    return pw.TextStyle(
-      fontWeight: pw.FontWeight.bold,
-      fontSize: size,
-    );
+    return pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: size);
   }
 
   static pw.TextStyle _normalStyle({double size = 8}) {
-    return pw.TextStyle(
-      fontSize: size,
-    );
-  }
-
-  static Future<void> openFile(File file) async {
-    await OpenFile.open(file.path);
+    return pw.TextStyle(fontSize: size);
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
@@ -327,7 +329,7 @@ class MainScreen extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          onPressed: () => _generateAndOpenReceipt(context, order),
+          onPressed: () => _generateAndPrintReceipt(context, order),
           icon: Icon(
             Icons.print,
             color: AppColors.offWhite,
@@ -582,12 +584,12 @@ class MainScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _generateAndOpenReceipt(
+  Future<void> _generateAndPrintReceipt(
     BuildContext context,
     OrderModel order,
   ) async {
     try {
-      final receiptFile = await ThermalReceiptService.generateOrderReceipt(
+      final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
         orderNumber: order.orderNumber ?? 'N/A',
         tableNumber: order.tableNumber.toString(),
         waiter: order.waiter,
@@ -597,10 +599,12 @@ class MainScreen extends StatelessWidget {
         dateTime: order.timestamp,
       );
 
-      await ThermalReceiptService.openFile(receiptFile);
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfBytes,
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error generating receipt: ${e.toString()}')),
+        SnackBar(content: Text('Error printing receipt: ${e.toString()}')),
       );
     }
   }
