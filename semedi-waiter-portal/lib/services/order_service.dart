@@ -35,7 +35,7 @@ class OrderService {
   ) async {
     try {
       String? restaurantName = await _getRestaurantName();
-      int orderNumber = await _getLastOrderNumber();
+      int orderNumber = await _getLastOrderNumber() + 1;
       OrderModel order =
           _prepareOrderData(selectedItems, tableNumber, note, waiter);
       final orderRef = db
@@ -50,7 +50,7 @@ class OrderService {
             toFirestore: (order, _) => order.toFirestore(),
           )
           .set(order);
-
+      await _incrementOrderNumber(restaurantName!, orderNumber);
       return orderNumber;
     } catch (e) {
       throw Exception(e);
@@ -69,14 +69,29 @@ class OrderService {
       var docSnapshot = await orderNumberRef.get();
       int orderNumber;
       if (docSnapshot.exists) {
-        await orderNumberRef.update({'lastNumber': FieldValue.increment(1)});
-        docSnapshot = await orderNumberRef.get();
         orderNumber = docSnapshot['lastNumber'];
       } else {
         orderNumber = 1;
-        orderNumberRef.set({'lastNumber': orderNumber});
       }
       return orderNumber;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  _incrementOrderNumber(String restaurantName, int orderNumber) async {
+    try {
+      final orderNumberRef = db
+          .collection('shops')
+          .doc(restaurantName)
+          .collection('metadata')
+          .doc('orderNumber');
+      var docSnapshot = await orderNumberRef.get();
+      if (docSnapshot.exists) {
+        await orderNumberRef.update({'lastNumber': FieldValue.increment(1)});
+      } else {
+        orderNumberRef.set({'lastNumber': orderNumber});
+      }
     } catch (e) {
       throw Exception(e);
     }
