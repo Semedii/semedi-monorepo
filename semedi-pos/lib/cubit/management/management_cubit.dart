@@ -12,12 +12,12 @@ class ManagementCubit extends Cubit<ManagementState> {
 
   initPage() async {
     emit(ManagementLoading());
-    final List<MenuItem> menuList = await _managementService.getMenuList();
+    final List<MenuItem>? menuList = await _managementService.getMenuList();
     final List<Waiter> waiterList = await _managementService.getWaitersList();
     final int totalTableNumber = await _managementService.getTotalTableNumber();
 
     emit(ManagementLoaded(
-      menuList: menuList,
+      menuList: menuList ?? [],
       waiterList: waiterList,
       totalTableNumber: totalTableNumber,
     ));

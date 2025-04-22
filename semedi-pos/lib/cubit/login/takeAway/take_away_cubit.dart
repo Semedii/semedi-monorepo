@@ -10,7 +10,7 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
   TakeAwayCubit() : super(TakeAwayStateInitial());
 
   initPage() async {
-    List<MenuItem> menuList = await ManagementService().getMenuList();
+    List<MenuItem>? menuList = await ManagementService().getMenuList();
     emit(TakeAwayStateInitial(menuList: menuList));
   }
 
@@ -67,11 +67,13 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
     final menuList = currentState.menuList ?? [];
 
     final itemsWithQuantity = {
-      for (var entry in selectedItems.entries) entry.key.name: entry.value,
+      for (var entry in selectedItems.entries)
+        if (entry.key.name.trim().isNotEmpty) entry.key.name: entry.value,
     };
 
     final itemsWithPrices = {
-      for (var item in menuList) item.name: item.price,
+      for (var item in menuList)
+        if (item.name.trim().isNotEmpty) item.name: item.price,
     };
 
     final newOrder = OrderModel(

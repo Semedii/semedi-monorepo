@@ -7,7 +7,7 @@ import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
-  Future<List<MenuItem>> getMenuList() async {
+  Future<List<MenuItem>?> getMenuList() async {
     String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
         .collection('shops')
