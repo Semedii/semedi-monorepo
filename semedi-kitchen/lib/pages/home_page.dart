@@ -5,6 +5,7 @@ import 'package:printing/printing.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
+import 'package:semedi_kitchen/services/auth_service.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
@@ -19,6 +20,7 @@ class HomePage extends StatelessWidget {
   final OrderService _orderService = OrderService();
   final SecureStorageService _secureStorageService =
       getIt<SecureStorageService>();
+  final AuthService _authService = getIt<AuthService>();
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,29 @@ class HomePage extends StatelessWidget {
         backgroundColor: AppColors.deepBlue,
         foregroundColor: Colors.white,
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            position: PopupMenuPosition.under,
+            color: AppColors.deepBlue,
+            offset: const Offset(0, 12),
+            icon: const Icon(Icons.account_circle),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'logout',
+                child: Text(
+                  'Logout',
+                  style: TextStyle(color: AppColors.offWhite),
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'logout') {
+                _authService.logout();
+              }
+            },
+            tooltip: 'Logout',
+          ),
+        ],
       ),
       body: Column(
         children: [
