@@ -181,7 +181,7 @@ class HomePage extends StatelessWidget {
         children: [
           _buildOrderHeader(context, order),
           _buildOrderCardBody(order),
-          _buildActionButtons(context, order),
+          _buildCardFooter(context, order),
         ],
       ),
     );
@@ -305,7 +305,7 @@ class HomePage extends StatelessWidget {
       alignment: Alignment.center,
       decoration: _buildItemQuantityDecoration(),
       child: Text(
-        '${item.value}',
+        '${item.value}x',
         style: TextStyle(
           color: AppColors.deepBlue,
           fontWeight: FontWeight.bold,
@@ -333,6 +333,26 @@ class HomePage extends StatelessWidget {
           color: AppColors.softRed,
           fontStyle: FontStyle.italic,
         ),
+      ),
+    );
+  }
+
+  Widget _buildCardFooter(BuildContext context, OrderModel order) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildWaiterName(order),
+        _buildActionButtons(context, order),
+      ],
+    );
+  }
+
+  Padding _buildWaiterName(OrderModel order) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Text(
+        order.waiter,
+        style: TextStyle(color: AppColors.deepBlue),
       ),
     );
   }
