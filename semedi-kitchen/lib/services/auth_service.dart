@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get_it/get_it.dart';
 import 'package:semedi_kitchen/models/kitchen_user.dart';
+import 'package:semedi_kitchen/services/app_session_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
 
@@ -63,6 +65,7 @@ class AuthService {
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
+    GetIt.instance<AppSessionService>().reset();
     await secureStorageService.clear();
   }
 }
