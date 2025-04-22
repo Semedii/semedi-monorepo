@@ -421,10 +421,8 @@ class HomePage extends StatelessWidget {
   AppButton _buildPrepareButton(HomeCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.warmOrange,
-      onPressed: () => cubit.onOrderStatusChange(
-        orderNumber,
-        OrderStatusEnum.preparing,
-      ),
+      onPressed: () =>
+          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.preparing),
       text: 'Start preparing',
     );
   }
@@ -432,10 +430,8 @@ class HomePage extends StatelessWidget {
   AppButton _buildMarkReadyButton(HomeCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.green,
-      onPressed: () => cubit.onOrderStatusChange(
-        orderNumber,
-        OrderStatusEnum.ready,
-      ),
+      onPressed: () =>
+          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.ready),
       text: 'mark ready',
     );
   }
