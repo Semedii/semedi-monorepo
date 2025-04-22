@@ -251,6 +251,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildOrderTable(BuildContext context, OrderModel order) {
+    bool isTakeAway = order.customerName != null && order.tableNumber == null;
     String tableInfo = order.tableNumber != null
         ? 'Table: ${order.tableNumber}'
         : 'TakeAway for ${order.customerName}';
@@ -265,15 +266,36 @@ class HomePage extends StatelessWidget {
           tooltip: 'Print Reciept',
         ),
         const SizedBox(width: 4),
-        Text(
-          tableInfo,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
+        Column(
+          children: [
+            Text(
+              order.orderNumber ?? '',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            Text(
+              tableInfo,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            )
+          ],
         ),
+        const SizedBox(width: 12),
+        if (isTakeAway) _buildTakeAwayText()
       ],
+    );
+  }
+
+  Text _buildTakeAwayText() {
+    return Text(
+      "Take Away",
+      style: TextStyle(color: AppColors.offWhite, fontWeight: FontWeight.bold),
     );
   }
 
