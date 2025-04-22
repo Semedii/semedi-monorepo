@@ -8,32 +8,14 @@ import 'package:semedi/utils/order_status_enum.dart';
 class OrderService {
   final db = FirebaseFirestore.instance;
   final secureStorageService = getIt<SecureStorageService>();
-  submitOrder(
-    List<MenuItem> selectedItems,
-    int tableNumber,
-    String? note,
-  ) async {
-    String? waiter = await secureStorageService.read('waiter_name');
-    String? existingOrderNumber = await _getActiveOrderForTable(tableNumber);
-    if (existingOrderNumber != null) {
-      return await addItemsToExistingOrder(
-        orderNumber: existingOrderNumber,
-        newItems: selectedItems,
-        note: note,
-        waiter: waiter,
-      );
-    } else {
-      return await addNewOrder(selectedItems, tableNumber, note, waiter);
-    }
-  }
 
   addNewOrder(
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
-    String? waiter,
   ) async {
     try {
+      String? waiter = await secureStorageService.read('waiter_name');
       String? restaurantName = await _getRestaurantName();
       int orderNumber = await _getLastOrderNumber() + 1;
       OrderModel order =
@@ -161,93 +143,6 @@ class OrderService {
     });
   }
 
-  _getActiveOrderForTable(int tableNumber) async {
-    try {
-      String? restaurantName = await _getRestaurantName();
-      final query = await db
-          .collection('shops')
-          .doc(restaurantName)
-          .collection('orders')
-          .where('tableNumber', isEqualTo: tableNumber)
-          .where('status', isNotEqualTo: OrderStatusEnum.paid.name)
-          .limit(1)
-          .get();
-
-      if (query.docs.isEmpty) return null;
-
-      return query.docs.first.id;
-    } catch (e) {
-      throw Exception('Failed to check table status: ${e.toString()}');
-    }
-  }
-
-  addItemsToExistingOrder({
-    required String orderNumber,
-    required List<MenuItem> newItems,
-    String? note,
-    String? waiter,
-  }) async {
-    try {
-      String? restaurantName = await _getRestaurantName();
-      final orderRef = db
-          .collection('shops')
-          .doc(restaurantName)
-          .collection('orders')
-          .doc(orderNumber);
-
-      final docSnapshot = await orderRef.get();
-      if (!docSnapshot.exists) {
-        throw Exception("Order not found");
-      }
-
-      final currentOrder = OrderModel.fromFirestore(docSnapshot);
-      String? prevNote = (docSnapshot.data() as Map<String, dynamic>)['note'];
-      String? newNote = (prevNote != null && prevNote.isNotEmpty)
-          ? "$prevNote, \n $note"
-          : note;
-
-      final updatedOrder =
-          _updateOrderWithNewItems(currentOrder, newItems, newNote, waiter);
-
-      await orderRef.update(updatedOrder.toFirestore());
-      return currentOrder.orderNumber;
-    } catch (e) {
-      throw Exception("Failed to update order: $e");
-    }
-  }
-
-  OrderModel _updateOrderWithNewItems(
-    OrderModel currentOrder,
-    List<MenuItem> newItems,
-    String? note,
-    String? waiter,
-  ) {
-    final itemsWithQuantity =
-        Map<String, int>.from(currentOrder.itemsWithQuantity);
-    final itemsWithPrices =
-        Map<String, double>.from(currentOrder.itemsWithPrices);
-    double total = currentOrder.total;
-
-    for (final item in newItems) {
-      final newQuantity = (itemsWithQuantity[item.name] ?? 0) + 1;
-      itemsWithQuantity[item.name] = newQuantity;
-
-      itemsWithPrices[item.name] = item.price * newQuantity;
-
-      total += item.price;
-    }
-
-    return currentOrder.copyWithItem(
-      itemsWithQuantity: itemsWithQuantity,
-      note: note,
-      itemsWithPrices: itemsWithPrices,
-      status: OrderStatusEnum.ordered,
-      total: total,
-      timestamp: DateTime.now(),
-      waiter: waiter ?? "unknown",
-    );
-  }
-
   Future<void> updateOrderStatus({
     required String orderNumber,
     required OrderStatusEnum newStatus,
@@ -261,7 +156,7 @@ class OrderService {
           .doc(orderNumber)
           .update({
         'status': newStatus.name,
-        'timestamp': FieldValue.serverTimestamp(), // Update timestamp
+        'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');

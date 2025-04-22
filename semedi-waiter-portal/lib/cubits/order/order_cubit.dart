@@ -80,7 +80,7 @@ class OrderCubit extends Cubit<OrderState> {
     var currentState = state as OrderIdle;
     emit(OrderLoading());
     try {
-      var orderNumber = await _orderService.submitOrder(
+      var orderNumber = await _orderService.addNewOrder(
         currentState.selectedItems,
         tableNumber,
         currentState.note,
