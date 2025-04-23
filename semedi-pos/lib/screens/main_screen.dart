@@ -77,7 +77,10 @@ class MainScreen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, OrderLoaded state) {
     return AppBar(
-      title: const Text('ACTIVE ORDERS', style: TextStyle(letterSpacing: 1.5)),
+      title: Text(
+        '${state.restaurant.toUpperCase()} ACTIVE ORDERS',
+        style: const TextStyle(letterSpacing: 1.5),
+      ),
       backgroundColor: AppColors.deepBlue,
       foregroundColor: Colors.white,
       elevation: 0,
