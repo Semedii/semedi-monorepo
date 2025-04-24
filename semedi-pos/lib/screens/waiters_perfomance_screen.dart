@@ -252,7 +252,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         build: (pw.Context context) {
           return pw.Column(
             children: [
-              pw.Text('${state.restaurant} Restaurant',
+              pw.Text('${state.restaurant.toUpperCase()} Restaurant',
                   style: pw.TextStyle(fontSize: 40)),
               pw.SizedBox(height: 12),
               pw.Text(
