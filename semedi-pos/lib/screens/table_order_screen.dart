@@ -23,18 +23,17 @@ class TableOrderScreen extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: _buildAppBar(),
-      body: BlocProvider.value(
-        value: orderCubit,
-        child: BlocBuilder<OrderCubit, OrderState>(
-          builder: (context, state) {
-            if (state is OrderLoaded) {
-              state as OrderLoaded;
-              List<OrderModel> tableOrders = state.activeOrders
-                      ?.where((o) => o.tableNumber == tableNumber)
-                      .toList() ??
-                  [];
-              return Expanded(
-                child: Padding(
+      body: SafeArea(
+        child: BlocProvider.value(
+          value: orderCubit,
+          child: BlocBuilder<OrderCubit, OrderState>(
+            builder: (context, state) {
+              if (state is OrderLoaded) {
+                List<OrderModel> tableOrders = state.activeOrders
+                        ?.where((o) => o.tableNumber == tableNumber)
+                        .toList() ??
+                    [];
+                return Padding(
                   padding: const EdgeInsets.all(24),
                   child: GridView.builder(
                     gridDelegate: _buildGridDelegate(height),
@@ -44,11 +43,11 @@ class TableOrderScreen extends StatelessWidget {
                       tableOrders[index],
                     ),
                   ),
-                ),
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
         ),
       ),
     );
