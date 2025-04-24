@@ -42,11 +42,9 @@ class OrderPage extends StatelessWidget {
   }
 
   AppBar _buildAppBar() {
-    String title =
-        tableNumber == 10001 ? 'Take Away Order' : "Table $tableNumber - Order";
     return AppBar(
       title: Text(
-        title,
+        "Table $tableNumber - Order",
         style: TextStyle(
           color: AppColors.offWhite,
         ),
@@ -58,33 +56,30 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildPageBody(BuildContext context, OrderIdle state) {
-    return Stack(
+    return Column(
       children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 120),
-          child: Column(
-            children: [
-              _buildSearchBar(context),
-              _buildSelectedItemsSection(context, state.selectedItems),
-              Divider(thickness: 2, color: AppColors.deepBlue),
-              _buildMenuSection(state, context),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            color: AppColors.offWhite,
+        Expanded(
+          child: SingleChildScrollView(
             child: Column(
               children: [
-                _buildNoteField(context),
-                const SizedBox(height: 12),
-                _buildSubmitButton(context, state),
+                _buildSearchBar(context),
+                _buildSelectedItemsSection(context, state.selectedItems),
+                Divider(thickness: 2, color: AppColors.deepBlue),
+                _buildMenuSection(state, context),
               ],
             ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16),
+          color: AppColors.offWhite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildNoteField(context),
+              const SizedBox(height: 12),
+              _buildSubmitButton(context, state),
+            ],
           ),
         ),
       ],
@@ -104,12 +99,9 @@ class OrderPage extends StatelessWidget {
 
   Widget _buildSelectedItemsSection(
       BuildContext context, List<MenuItem> selectedItems) {
-    return SizedBox(
-      height: selectedItems.isEmpty ? 60 : 200, // Dynamic height
-      child: selectedItems.isEmpty
-          ? _buildNoSelectedItemsText()
-          : _buildSelectedItemsList(context),
-    );
+    return selectedItems.isEmpty
+        ? _buildNoSelectedItemsText()
+        : _buildSelectedItemsList(context);
   }
 
   Widget _buildNoSelectedItemsText() {
@@ -124,55 +116,50 @@ class OrderPage extends StatelessWidget {
     final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
     final itemList = orderItemsWithQuantity.entries.toList();
 
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * .25,
-      child: SingleChildScrollView(
-        child: Column(
-          children: itemList.asMap().entries.map<Widget>((indexedEntry) {
-            final index = indexedEntry.key;
-            final entry = indexedEntry.value;
+    return Column(
+      children: itemList.asMap().entries.map<Widget>((indexedEntry) {
+        final index = indexedEntry.key;
+        final entry = indexedEntry.value;
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppColors.deepBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '${entry.value}x',
-                      style: TextStyle(
-                        color: AppColors.deepBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.deepBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '${entry.value}x',
+                  style: TextStyle(
+                    color: AppColors.deepBlue,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(entry.key)),
-                  IconButton(
-                    onPressed: () => orderCubit.onRemoveItem(index),
-                    icon: Icon(
-                      Icons.remove_circle,
-                      color: AppColors.softRed,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            );
-          }).toList(),
-        ),
-      ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(entry.key)),
+              IconButton(
+                onPressed: () => orderCubit.onRemoveItem(index),
+                icon: Icon(
+                  Icons.remove_circle,
+                  color: AppColors.softRed,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildMenuSection(OrderIdle state, BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.6,
       child: state.searchQuery.isEmpty
           ? _buildMenuGrid(context, state.filteredMenuItems)
           : _buildSearchResultList(context, state.filteredMenuItems),
@@ -181,6 +168,7 @@ class OrderPage extends StatelessWidget {
 
   Widget _buildMenuGrid(BuildContext context, List<MenuItem> items) {
     return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       gridDelegate: _getGridDelegate(),
       itemCount: items.length,
