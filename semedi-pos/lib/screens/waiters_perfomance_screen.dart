@@ -33,7 +33,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
       ),
       body: BlocProvider(
         create: (context) => WaitersPerfomanceCubit(_orderService)..initPage(),
-        child: BlocBuilder<WaitersPerfomanceCubit, WaitersPerfomanceState>(
+        child: BlocConsumer<WaitersPerfomanceCubit, WaitersPerfomanceState>(
+          listener: _getListener,
           builder: _mapStateToWidget,
         ),
       ),
@@ -69,7 +70,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildSavePdfButton(context, state),
+          _buildActionButtons(context, state),
         ],
       ),
     );
@@ -165,27 +166,78 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSavePdfButton(
+  Widget _buildActionButtons(
     BuildContext context,
     WaitersPerfomanceLoaded state,
   ) {
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: ElevatedButton.icon(
-        icon: Icon(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildSimpleButton(
+          Icons.delete,
+          'Clear Today\'s History',
+          AppColors.softRed,
+          () => _showClearDataDialog(context),
+        ),
+        _buildSimpleButton(
           Icons.picture_as_pdf,
-          color: AppColors.offWhite,
-        ),
-        label: Text(
           'Save PDF',
-          style: TextStyle(color: AppColors.offWhite),
+          AppColors.deepBlue,
+          () => _generatePdf(context, state),
         ),
-        onPressed: () => _generatePdf(context, state),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.deepBlue,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        ),
+      ],
+    );
+  }
+
+  _showClearDataDialog(BuildContext context) {
+    final cubit = BlocProvider.of<WaitersPerfomanceCubit>(context);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are You Sure You Want To Clear The Data?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                  "Please Make Sure You Printed The Summary and Waiter's Perfomance And Double Check It Before Proceeding"),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildSimpleButton(Icons.delete, 'CLEAR', AppColors.softRed,
+                      () async {
+                    await cubit.clearData();
+                    Navigator.pop(context);
+                  }),
+                  _buildSimpleButton(Icons.cancel, 'CANCEL', AppColors.deepBlue,
+                      () => Navigator.pop(context)),
+                ],
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  _buildSimpleButton(
+    IconData icon,
+    String text,
+    Color color,
+    Function()? onPressed,
+  ) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, color: Colors.white),
+      label: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
       ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+      onPressed: onPressed,
     );
   }
 
@@ -254,6 +306,24 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         ),
       );
     }
+  }
+}
+
+_getListener(context, state) {
+  if (state is ClearDataSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text("Cleared Successfully"),
+        backgroundColor: AppColors.green,
+      ),
+    );
+  } else if (state is ClearDataFailure) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state.message),
+        backgroundColor: AppColors.softRed,
+      ),
+    );
   }
 }
 

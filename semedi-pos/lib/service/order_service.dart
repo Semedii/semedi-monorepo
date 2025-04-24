@@ -190,6 +190,55 @@ class OrderService {
     }
   }
 
+  Future<void> clearOrder() async {
+    try {
+      String? restaurant = await _getRestaurantName();
+      if (restaurant == null || restaurant.isEmpty) {
+        throw Exception('Restaurant name not found');
+      }
+
+      final ordersRef = FirebaseFirestore.instance
+          .collection('shops')
+          .doc(restaurant)
+          .collection('orders');
+
+      await _deleteCollection(ordersRef);
+
+      print('All orders deleted successfully');
+    } catch (e) {
+      print('Error deleting orders: $e');
+      rethrow;
+    }
+  }
+
+  resetOrderNumber() async {
+    try {
+      String? restaurant = await _getRestaurantName();
+      await db
+          .collection('shops')
+          .doc(restaurant)
+          .collection('metadata')
+          .doc('orderNumber')
+          .delete();
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> _deleteCollection(CollectionReference collectionRef,
+      {int batchSize = 100}) async {
+    QuerySnapshot snapshot = await collectionRef.limit(batchSize).get();
+
+    while (snapshot.docs.isNotEmpty) {
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      for (DocumentSnapshot doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      snapshot = await collectionRef.limit(batchSize).get();
+    }
+  }
+
   Future<String?> _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

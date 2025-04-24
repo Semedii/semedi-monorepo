@@ -55,6 +55,19 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
     ));
   }
 
+  clearData() async {
+    emit(WaitersPerfomanceLoading());
+    try {
+      await _orderService.clearOrder();
+      await _orderService.resetOrderNumber();
+      emit(ClearDataSuccess());
+      initPage();
+    } catch (e) {
+      emit(ClearDataFailure(message: e.toString()));
+      initPage();
+    }
+  }
+
   _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

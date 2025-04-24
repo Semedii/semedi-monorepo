@@ -13,3 +13,11 @@ final class WaitersPerfomanceLoaded extends WaitersPerfomanceState {
   WaitersPerfomanceLoaded(
       {required this.waitersPerfomance, required this.restaurant});
 }
+
+final class ClearDataSuccess extends WaitersPerfomanceState {}
+
+final class ClearDataFailure extends WaitersPerfomanceState {
+  final String message;
+
+  ClearDataFailure({required this.message});
+}
