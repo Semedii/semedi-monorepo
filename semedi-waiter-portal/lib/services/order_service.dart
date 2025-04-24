@@ -119,7 +119,10 @@ class OrderService {
         .doc(restaurantName)
         .collection('orders')
         .orderBy('status')
-        .where('waiter', isEqualTo: waiterName)
+        .where(Filter.and(
+          Filter('waiter', isEqualTo: waiterName),
+          Filter('status', isNotEqualTo: OrderStatusEnum.unPaid.name),
+        ))
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
           fromFirestore: (snapshot, _) => OrderModel.fromFirestore(snapshot),
