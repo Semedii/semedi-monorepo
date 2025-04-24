@@ -21,7 +21,7 @@ class WaiterStatsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
-      appBar: _buildAppBar(context, waitersPerfomance),
+      appBar: _buildAppBar(context),
       body: BlocProvider(
         create: (context) =>
             WaiterStatCubit(_orderService)..initPage(waitersPerfomance.name),
@@ -34,7 +34,7 @@ class WaiterStatsScreen extends StatelessWidget {
 
   Widget _mapStateToWidget(BuildContext context, WaiterStatState state) {
     if (state is WaiterStatLoaded) {
-      return _buildScreenBody(state.waitersOrders);
+      return _buildScreenBody(context, state.waitersOrders);
     }
     if (state is WaiterStatLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -42,19 +42,19 @@ class WaiterStatsScreen extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Column _buildScreenBody(List<OrderModel>? waitersOrders) {
+  Widget _buildScreenBody(
+    BuildContext context,
+    List<OrderModel>? waitersOrders,
+  ) {
     return Column(
       children: [
-        _buildStatsHeader(waitersPerfomance),
-        _buildOrderGrid(waitersOrders),
+        _buildStatsHeader(context),
+        _buildOrderGrid(context, waitersOrders),
       ],
     );
   }
 
-  PreferredSizeWidget _buildAppBar(
-    BuildContext context,
-    WaitersPerfomance waitersPerfomance,
-  ) {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
       title: Text(waitersPerfomance.name,
           style: const TextStyle(letterSpacing: 1.5)),
@@ -66,9 +66,11 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsHeader(WaitersPerfomance waitersPerfomance) {
+  Widget _buildStatsHeader(BuildContext context) {
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -79,33 +81,61 @@ class WaiterStatsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Center(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildStatCard(
-                title: 'Paid Orders',
-                value: waitersPerfomance.noOfPaidOrders.toString(),
-                icon: Icons.check_circle,
-                color: AppColors.green,
-              ),
-              const SizedBox(width: 24),
-              _buildStatCard(
-                title: 'Unpaid Orders',
-                value: waitersPerfomance.noOfUnpaidOrders.toString(),
-                icon: Icons.dangerous,
-                color: AppColors.warmOrange,
-              ),
-              const SizedBox(width: 24),
-              _buildStatCard(
-                title: 'Total Orders',
-                value: waitersPerfomance.totalOrders.toString(),
-                icon: Icons.food_bank,
-                color: AppColors.deepBlue,
-              ),
-            ],
-          ),
+      child: SingleChildScrollView(
+        scrollDirection: isSmallScreen ? Axis.vertical : Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: isSmallScreen
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStatCard(
+                      title: 'Paid Orders',
+                      value: waitersPerfomance.noOfPaidOrders.toString(),
+                      icon: Icons.check_circle,
+                      color: AppColors.green,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStatCard(
+                      title: 'Unpaid Orders',
+                      value: waitersPerfomance.noOfUnpaidOrders.toString(),
+                      icon: Icons.dangerous,
+                      color: AppColors.warmOrange,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildStatCard(
+                      title: 'Total Orders',
+                      value: waitersPerfomance.totalOrders.toString(),
+                      icon: Icons.food_bank,
+                      color: AppColors.deepBlue,
+                    ),
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildStatCard(
+                      title: 'Paid Orders',
+                      value: waitersPerfomance.noOfPaidOrders.toString(),
+                      icon: Icons.check_circle,
+                      color: AppColors.green,
+                    ),
+                    const SizedBox(width: 24),
+                    _buildStatCard(
+                      title: 'Unpaid Orders',
+                      value: waitersPerfomance.noOfUnpaidOrders.toString(),
+                      icon: Icons.dangerous,
+                      color: AppColors.warmOrange,
+                    ),
+                    const SizedBox(width: 24),
+                    _buildStatCard(
+                      title: 'Total Orders',
+                      value: waitersPerfomance.totalOrders.toString(),
+                      icon: Icons.food_bank,
+                      color: AppColors.deepBlue,
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -117,22 +147,28 @@ class WaiterStatsScreen extends StatelessWidget {
     required IconData icon,
     Color? color,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: _getStatsCardDecoration(),
-      child: Row(
-        children: [
-          Icon(icon, size: 28, color: color ?? AppColors.darkGrey),
-          const SizedBox(width: 12),
-          _buildStatsCardTitleValue(title, value, color),
-        ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 180),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: _getStatsCardDecoration(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 28, color: color ?? AppColors.darkGrey),
+            const SizedBox(width: 12),
+            _buildStatsCardTitleValue(title, value, color),
+          ],
+        ),
       ),
     );
   }
 
-  Column _buildStatsCardTitleValue(String title, String value, Color? color) {
+  Widget _buildStatsCardTitleValue(String title, String value, Color? color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         _buildStatsCardTitle(title),
         const SizedBox(height: 4),
@@ -149,19 +185,23 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Text _buildStatsCardTitle(String title) =>
-      Text(title, style: TextStyle(color: Colors.grey.shade600));
+  Widget _buildStatsCardTitle(String title) => Text(
+        title,
+        style: TextStyle(color: Colors.grey.shade600),
+      );
 
-  Text _buildStatsCardValue(String value, Color? color) {
-    return Text(value,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ));
+  Widget _buildStatsCardValue(String value, Color? color) {
+    return Text(
+      value,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: color,
+      ),
+    );
   }
 
-  Widget _buildOrderGrid(List<OrderModel>? orders) {
+  Widget _buildOrderGrid(BuildContext context, List<OrderModel>? orders) {
     if (orders == null || orders.isEmpty) {
       return const Expanded(
         child: Center(
@@ -172,46 +212,47 @@ class WaiterStatsScreen extends StatelessWidget {
         ),
       );
     }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth < 600
+        ? 1
+        : screenWidth < 900
+            ? 2
+            : 3;
+
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(screenWidth < 600 ? 16 : 24),
         child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
             crossAxisSpacing: 20,
             mainAxisSpacing: 20,
-            childAspectRatio: .8,
+            childAspectRatio: 0.8,
           ),
           itemCount: orders.length,
-          itemBuilder: (context, index) => _buildOrderCard(
-            context,
-            orders[index],
-          ),
+          itemBuilder: (context, index) =>
+              _buildOrderCard(context, orders[index]),
         ),
       ),
     );
   }
 
   Widget _buildOrderCard(BuildContext context, OrderModel order) {
-    return Container(
-      decoration: _getOrderCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildOrderCardHeader(order),
-          _buildOrderCardBody(order),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              "Ordered at: ${DateFormat.jm().format(order.timestamp)}",
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 12,
-              ),
-            ),
-          )
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          decoration: _getOrderCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildOrderCardHeader(order),
+              _buildOrderCardBody(order),
+              _buildOrderCardFooter(context, order),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -243,20 +284,23 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Row _buildOrderTableAndTotal(OrderModel order) {
+  Widget _buildOrderTableAndTotal(OrderModel order) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildOrderTable(order),
+        Flexible(
+          child: _buildOrderTable(order),
+        ),
         _buildOrderTotal(order),
       ],
     );
   }
 
-  Text _buildOrderTable(OrderModel order) {
-    String tableOrName = order.tableNumber != null
+  Widget _buildOrderTable(OrderModel order) {
+    final tableOrName = order.tableNumber != null
         ? "TABLE ${order.tableNumber}"
-        : "Take Away: ${order.customerName}";
+        : "Take Away: ${order.customerName ?? 'N/A'}";
+
     return Text(
       tableOrName,
       style: const TextStyle(
@@ -264,10 +308,11 @@ class WaiterStatsScreen extends StatelessWidget {
         fontWeight: FontWeight.bold,
         letterSpacing: 1.2,
       ),
+      overflow: TextOverflow.ellipsis,
     );
   }
 
-  Text _buildOrderTotal(OrderModel order) {
+  Widget _buildOrderTotal(OrderModel order) {
     return Text(
       '\$${order.total.toStringAsFixed(2)}',
       style: const TextStyle(
@@ -280,34 +325,45 @@ class WaiterStatsScreen extends StatelessWidget {
 
   Widget _buildOrderCardBody(OrderModel order) {
     return Expanded(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: _buildItemList(order),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ...order.itemsWithQuantity.entries.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: _buildOrderItemRow(item, order),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                "Ordered at: ${DateFormat.jm().format(order.timestamp)}",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Expanded _buildItemList(OrderModel order) {
-    return Expanded(
-      child: ListView(
-        children: order.itemsWithQuantity.entries
-            .map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      _buildItemQuantity(item),
-                      const SizedBox(width: 12),
-                      _buildItemName(item),
-                      _buildItemPrice(order, item),
-                    ],
-                  ),
-                ))
-            .toList(),
-      ),
+  Widget _buildOrderItemRow(MapEntry<String, int> item, OrderModel order) {
+    return Row(
+      children: [
+        _buildItemQuantity(item),
+        const SizedBox(width: 12),
+        _buildItemName(item),
+        _buildItemPrice(order, item),
+      ],
     );
   }
 
-  Container _buildItemQuantity(MapEntry<String, int> item) {
+  Widget _buildItemQuantity(MapEntry<String, int> item) {
     return Container(
       width: 24,
       height: 24,
@@ -326,18 +382,19 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Expanded _buildItemName(MapEntry<String, int> item) {
+  Widget _buildItemName(MapEntry<String, int> item) {
     return Expanded(
       child: Text(
         item.key,
         style: TextStyle(
           color: AppColors.darkGrey,
         ),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 
-  Text _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
+  Widget _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
     final price = order.itemsWithPrices[item.key] ?? 0.0;
     return Text(
       '\$ $price',
@@ -348,22 +405,43 @@ class WaiterStatsScreen extends StatelessWidget {
   }
 
   Widget _buildOrderCardFooter(BuildContext context, OrderModel order) {
+    final isSmallScreen = MediaQuery.of(context).size.width < 400;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildWaiterName(order),
           const SizedBox(height: 12),
-          _buildMarkPaidButton(context, order.orderNumber!),
-          const SizedBox(height: 12),
-          _buildUnPaidButton(context, order.orderNumber!),
+          if (order.orderNumber != null) ...[
+            if (isSmallScreen)
+              Column(
+                children: [
+                  _buildMarkPaidButton(context, order.orderNumber!),
+                  const SizedBox(height: 8),
+                  _buildUnPaidButton(context, order.orderNumber!),
+                ],
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMarkPaidButton(context, order.orderNumber!),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildUnPaidButton(context, order.orderNumber!),
+                  ),
+                ],
+              ),
+          ],
         ],
       ),
     );
   }
 
-  Text _buildWaiterName(OrderModel order) {
+  Widget _buildWaiterName(OrderModel order) {
     return Text(
       'Waiter: ${order.waiter}',
       style: TextStyle(
@@ -373,10 +451,10 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
+  Widget _buildMarkPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
       color: AppColors.green,
-      isSmall: false,
+      isSmall: true,
       text: 'Mark as paid',
       onPressed: () => BlocProvider.of<OrderCubit>(context).changeOrderStatus(
         orderNumber,
@@ -385,17 +463,18 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  AppButton _buildUnPaidButton(BuildContext context, String orderNumber) {
+  Widget _buildUnPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
-        onPressed: () {
-          BlocProvider.of<OrderCubit>(context).changeOrderStatus(
-            orderNumber,
-            OrderStatusEnum.unpaid,
-          );
-        },
-        color: AppColors.warmOrange,
-        isSmall: false,
-        text: "Unpaid");
+      onPressed: () {
+        BlocProvider.of<OrderCubit>(context).changeOrderStatus(
+          orderNumber,
+          OrderStatusEnum.unpaid,
+        );
+      },
+      color: AppColors.warmOrange,
+      isSmall: true,
+      text: "Mark as unpaid",
+    );
   }
 
   Color _getStatusColor(OrderStatusEnum status) {
