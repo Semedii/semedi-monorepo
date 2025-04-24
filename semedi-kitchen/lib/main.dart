@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:semedi_kitchen/firebase_options.dart';
 import 'package:semedi_kitchen/pages/home_page.dart';
 import 'package:semedi_kitchen/pages/login_page.dart';
@@ -9,6 +10,10 @@ import 'package:semedi_kitchen/services/service_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
