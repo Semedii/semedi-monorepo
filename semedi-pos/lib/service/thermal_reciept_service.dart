@@ -10,7 +10,8 @@ class ThermalReceiptService {
 
   static Future<Uint8List> generateOrderReceiptBytes({
     required String orderNumber,
-    required String tableNumber,
+    String? tableNumber,
+    String? customerName,
     required String waiter,
     required Map<String, int> items,
     required Map<String, double> prices,
@@ -33,7 +34,13 @@ class ThermalReceiptService {
               children: [
                 _buildCenteredHeader(restaurantName ?? ""),
                 pw.SizedBox(height: 8),
-                _buildOrderInfo(orderNumber, dateTime, tableNumber, waiter),
+                _buildOrderInfo(
+                  orderNumber,
+                  dateTime,
+                  tableNumber,
+                  customerName,
+                  waiter,
+                ),
                 pw.SizedBox(height: 8),
                 _buildItemsTable(items, prices),
                 pw.SizedBox(height: 8),
@@ -52,21 +59,26 @@ class ThermalReceiptService {
 
   static pw.Widget _buildCenteredHeader(String restaurantName) {
     return pw.Center(
-      child: pw.Text('$restaurantName RESTAURANT', style: _boldStyle(size: 12)),
+      child: pw.Text('${restaurantName.toUpperCase()} RESTAURANT',
+          style: _boldStyle(size: 12)),
     );
   }
 
   static pw.Widget _buildOrderInfo(
     String orderNumber,
     DateTime dateTime,
-    String tableNumber,
+    String? tableNumber,
+    String? customerName,
     String waiter,
   ) {
+    String orderLabel = customerName != null
+        ? 'TakeAway: $customerName'
+        : 'Table: $tableNumber';
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text('Order #$orderNumber', style: _boldStyle()),
-        pw.Text('Table: $tableNumber', style: _normalStyle()),
+        pw.Text(orderLabel, style: _normalStyle()),
         pw.SizedBox(height: 4),
         pw.Text(DateFormat('MM/dd/yyyy hh:mm a').format(dateTime),
             style: _normalStyle()),

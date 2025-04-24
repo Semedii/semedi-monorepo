@@ -366,6 +366,7 @@ class OrderCard extends StatelessWidget {
       final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
         orderNumber: order.orderNumber ?? 'N/A',
         tableNumber: order.tableNumber.toString(),
+        customerName: order.customerName,
         waiter: order.waiter,
         items: order.itemsWithQuantity,
         prices: order.itemsWithPrices,
