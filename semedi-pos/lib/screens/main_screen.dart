@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
+import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
+import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
@@ -38,21 +40,29 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildScreenBody(BuildContext context, OrderLoaded state) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    List<OrderModel>? takeAwayOrders = cubit.getTakeAwayOrders();
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       appBar: _buildAppBar(context, state),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: Center(child: _buildStatsHeader(state))),
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: _buildTakeAwayButton(context),
-              )
-            ],
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Row(
+              children: [
+                Expanded(child: Center(child: _buildStatsHeader(state))),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: _buildTakeAwayButton(context),
+                )
+              ],
+            ),
           ),
-          _buildOrderGrid(context, state),
+          if (takeAwayOrders != null && takeAwayOrders.isNotEmpty)
+            _buildTakeAwayGrid(width, takeAwayOrders, cubit),
+          _buildTableGrid(width, cubit, state),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -219,47 +229,73 @@ class MainScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildOrderGrid(BuildContext context, OrderLoaded state) {
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-    final size = height * 0.18;
-    final cubit = BlocProvider.of<OrderCubit>(context);
+  SliverPadding _buildTakeAwayGrid(
+      double width, List<OrderModel> takeAwayOrders, OrderCubit cubit) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: width > 1200
+              ? 4
+              : width > 800
+                  ? 4
+                  : 2,
+          childAspectRatio: 0.7,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final order = takeAwayOrders[index];
+            return OrderCard(
+              order: order,
+              onChangeOrderStatus: cubit.changeOrderStatus,
+              onCancelOrder: cubit.onCancelOrder,
+            );
+          },
+          childCount: takeAwayOrders.length,
+        ),
+      ),
+    );
+  }
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: width > 1200
-                ? 8
-                : width > 800
-                    ? 6
-                    : 4,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: state.tableNumbers,
-          itemBuilder: (context, index) {
+  SliverPadding _buildTableGrid(
+      double width, OrderCubit cubit, OrderLoaded state) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: width > 1200
+              ? 8
+              : width > 800
+                  ? 6
+                  : 4,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.0,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
             final tableNumber = index + 1;
-
             return GestureDetector(
               onTap: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TableOrderScreen(
-                              tableNumber: tableNumber,
-                              orderCubit: cubit,
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TableOrderScreen(
+                      tableNumber: tableNumber,
+                      orderCubit: cubit,
+                    ),
+                  ),
+                );
               },
               child: Container(
-                height: size,
-                width: size,
                 decoration: _getTableBoxDecoration(cubit, tableNumber),
                 child: _getTableText(tableNumber),
               ),
             );
           },
+          childCount: state.tableNumbers,
         ),
       ),
     );

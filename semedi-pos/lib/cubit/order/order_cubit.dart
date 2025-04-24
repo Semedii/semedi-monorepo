@@ -85,6 +85,14 @@ class OrderCubit extends Cubit<OrderState> {
     }
   }
 
+  getTakeAwayOrders() {
+    var currentState = state as OrderLoaded;
+    List<OrderModel>? takeAwayOrders = currentState.activeOrders
+        ?.where((order) => order.customerName != null)
+        .toList();
+    return takeAwayOrders;
+  }
+
   onCancelOrder(String? orderNumber) {
     if (orderNumber != null) {
       _orderService.cancelOrder(
