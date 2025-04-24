@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
@@ -37,6 +38,7 @@ class OrderCubit extends Cubit<OrderState> {
 
     _ordersSubscription?.cancel();
     String restaurant = await _getRestaurantName()!;
+    int tableNumber = await ManagementService().getTotalTableNumber();
     _ordersSubscription = _orderService.getActiveOrders(restaurant).listen(
       (orders) async {
         final List<OrderModel> payPendingOrders =
@@ -53,6 +55,7 @@ class OrderCubit extends Cubit<OrderState> {
           totalRevenue: totalRevenue,
           unPaidOrders: unPaidOrders,
           restaurant: restaurant,
+          tableNumbers: tableNumber,
         ));
       },
       onError: (error) {
@@ -93,6 +96,33 @@ class OrderCubit extends Cubit<OrderState> {
   _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;
+  }
+
+  List<OrderModel>? getTableOrders(int tableNumber) {
+    var currentState = state as OrderLoaded;
+    List<OrderModel>? orders = currentState.activeOrders
+        ?.where((order) => order.tableNumber == tableNumber)
+        .toList();
+
+    return orders;
+  }
+
+  bool isTablePayPending(int tableNumber) {
+    var currentState = state as OrderLoaded;
+    bool isPayPending = currentState.activeOrders
+            ?.where((order) => order.tableNumber == tableNumber)
+            .any((order) => order.status == OrderStatusEnum.payPending) ??
+        false;
+    return isPayPending;
+  }
+
+  bool isTableVacant(int tableNumber) {
+    final currentState = state as OrderLoaded;
+    final activeOrders = currentState.activeOrders ?? [];
+    final hasOrder =
+        activeOrders.any((order) => order.tableNumber == tableNumber);
+
+    return !hasOrder;
   }
 
   @override

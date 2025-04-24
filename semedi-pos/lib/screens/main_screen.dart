@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
-import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
+import 'package:semedi_pos/screens/table_order_screen.dart';
 import 'package:semedi_pos/screens/take_away_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
-import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
-import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -56,7 +52,7 @@ class MainScreen extends StatelessWidget {
               )
             ],
           ),
-          _buildOrderGrid(context, state.activeOrders),
+          _buildOrderGrid(context, state),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -223,310 +219,87 @@ class MainScreen extends StatelessWidget {
         ));
   }
 
-  Widget _buildOrderGrid(BuildContext context, List<OrderModel>? orders) {
+  Widget _buildOrderGrid(BuildContext context, OrderLoaded state) {
     final height = MediaQuery.of(context).size.height;
-    if (orders == null || orders.isEmpty) {
-      return const Expanded(
-        child: Center(
-          child: Text(
-            'No orders available',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
-          ),
-        ),
-      );
-    }
+    final width = MediaQuery.of(context).size.width;
+    final size = height * 0.18;
+    final cubit = BlocProvider.of<OrderCubit>(context);
+
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            mainAxisExtent: height * 0.67,
+            crossAxisCount: width > 1200
+                ? 8
+                : width > 800
+                    ? 6
+                    : 4,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
-          itemCount: orders.length,
-          itemBuilder: (context, index) => _buildOrderCard(
-            context,
-            orders[index],
-          ),
+          itemCount: state.tableNumbers,
+          itemBuilder: (context, index) {
+            final tableNumber = index + 1;
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TableOrderScreen(
+                              tableNumber: tableNumber,
+                              orderCubit: cubit,
+                            )));
+              },
+              child: Container(
+                height: size,
+                width: size,
+                decoration: _getTableBoxDecoration(cubit, tableNumber),
+                child: _getTableText(tableNumber),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, OrderModel order) {
-    return Container(
-      decoration: _getOrderCardDecoration(),
-      child: Column(
-        children: [
-          _buildOrderCardHeader(context, order),
-          _buildOrderCardBody(order),
-          const Spacer(),
-          _buildOrderCardFooter(context, order),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration _getOrderCardDecoration() {
+  BoxDecoration _getTableBoxDecoration(OrderCubit cubit, int tableNumber) {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
+      color: _getTableColor(cubit, tableNumber),
+      borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 8,
+          offset: const Offset(2, 4),
+        )
       ],
     );
   }
 
-  Widget _buildOrderCardHeader(BuildContext context, OrderModel order) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _getStatusColor(order.status),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-        ),
-      ),
-      child: Column(
-        children: [
-          if (order.status == OrderStatusEnum.payPending) ...{
-            _buildPaymentInfo(order),
-          },
-          _buildOrderTableAndTotal(context, order),
-        ],
-      ),
-    );
-  }
-
-  Text _buildPaymentInfo(OrderModel order) {
-    return Text(
-      "From: ${order.paymentInfo}",
-      style: const TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-
-  Row _buildOrderTableAndTotal(BuildContext context, OrderModel order) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildOrderTable(context, order),
-        _buildOrderTotal(order),
-      ],
-    );
-  }
-
-  Widget _buildOrderTable(BuildContext context, OrderModel order) {
-    String tableOrName = order.tableNumber != null
-        ? "TABLE ${order.tableNumber}"
-        : "Take Away: ${order.customerName}";
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => _generateAndPrintReceipt(context, order),
-          icon: Icon(
-            Icons.print,
-            color: AppColors.offWhite,
-          ),
-          tooltip: 'Print Reciept',
-        ),
-        const SizedBox(width: 4),
-        Text(
-          tableOrName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Text _buildOrderTotal(OrderModel order) {
-    return Text(
-      '\$${order.total.toStringAsFixed(2)}',
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    );
-  }
-
-  Widget _buildOrderCardBody(OrderModel order) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 100,
-          maxHeight: 200,
-        ),
-        child: ListView(
-          shrinkWrap: true,
-          physics: const ClampingScrollPhysics(),
-          children: order.itemsWithQuantity.entries
-              .map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        _buildItemQuantity(item),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildItemName(item)),
-                        _buildItemPrice(order, item),
-                      ],
-                    ),
-                  ))
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemName(MapEntry<String, int> item) {
-    return Text(
-      item.key,
-      style: TextStyle(
-        color: AppColors.darkGrey,
-      ),
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Container _buildItemQuantity(MapEntry<String, int> item) {
-    return Container(
-      width: 24,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.deepBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
+  Center _getTableText(int tableNumber) {
+    return Center(
       child: Text(
-        '${item.value}',
-        style: TextStyle(
-          color: AppColors.deepBlue,
+        'Table $tableNumber',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 16,
           fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
     );
   }
 
-  Text _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
-    final price = order.itemsWithPrices[item.key] ?? 0.0;
-    return Text(
-      '\$ $price',
-      style: TextStyle(
-        color: AppColors.darkGrey.withOpacity(0.7),
-      ),
-    );
-  }
-
-  Widget _buildOrderCardFooter(BuildContext context, OrderModel order) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildWaiterNameAndCancel(context, order),
-          const SizedBox(height: 12),
-          _buildActionButtons(context, order),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWaiterNameAndCancel(BuildContext context, OrderModel order) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Waiter: ${order.waiter}',
-          style: TextStyle(
-            color: AppColors.darkGrey.withOpacity(0.6),
-            fontSize: 12,
-          ),
-        ),
-        if (order.tableNumber == null &&
-            order.status == OrderStatusEnum.ordered) ...{
-          _buildCancelButton(context, order.orderNumber),
-        }
-      ],
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context, OrderModel order) {
-    final cubit = BlocProvider.of<OrderCubit>(context);
-    return order.status == OrderStatusEnum.payPending
-        ? Column(
-            children: [
-              _buildPaymentRecievedButton(cubit, order.orderNumber!),
-              const SizedBox(height: 12),
-              _buildPaymentNotRecievedButton(cubit, order.orderNumber!),
-            ],
-          )
-        : Column(
-            children: [
-              _buildMarkPaidButton(cubit, order.orderNumber!),
-              const SizedBox(height: 12),
-              _buildUnPaidButton(cubit, order.orderNumber!),
-            ],
-          );
-  }
-
-  Widget _buildPaymentRecievedButton(OrderCubit cubit, String orderNumber) {
-    return AppButton(
-      onPressed: () => cubit.changeOrderStatus(
-        orderNumber,
-        OrderStatusEnum.paid,
-      ),
-      isSmall: false,
-      elevation: 8,
-      color: AppColors.green,
-      text: "Payment recieved",
-    );
-  }
-
-  Widget _buildPaymentNotRecievedButton(OrderCubit cubit, String orderNumber) {
-    return AppButton(
-      onPressed: () => cubit.changeOrderStatus(
-        orderNumber,
-        OrderStatusEnum.paymentNotRecieved,
-      ),
-      isSmall: false,
-      elevation: 8,
-      color: AppColors.softRed,
-      text: "Payment not recieved",
-    );
-  }
-
-  AppButton _buildMarkPaidButton(OrderCubit cubit, String orderNumber) {
-    return AppButton(
-      color: AppColors.green,
-      isSmall: false,
-      text: 'Mark as paid',
-      onPressed: () =>
-          cubit.changeOrderStatus(orderNumber, OrderStatusEnum.paid),
-    );
-  }
-
-  AppButton _buildUnPaidButton(OrderCubit cubit, String orderNumber) {
-    return AppButton(
-        onPressed: () {
-          cubit.changeOrderStatus(orderNumber, OrderStatusEnum.unpaid);
-        },
-        color: AppColors.warmOrange,
-        isSmall: false,
-        text: "Unpaid");
+  Color _getTableColor(OrderCubit cubit, int tableNumber) {
+    if (cubit.isTableVacant(tableNumber)) {
+      return AppColors.green;
+    } else if (cubit.isTablePayPending(tableNumber)) {
+      return AppColors.warmOrange;
+    }
+    return AppColors.deepBlue;
   }
 
   AppButton _buildTakeAwayButton(BuildContext context) {
@@ -551,64 +324,5 @@ class MainScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  _buildCancelButton(BuildContext context, String? orderNumber) {
-    return GestureDetector(
-      onTap: () =>
-          BlocProvider.of<OrderCubit>(context).onCancelOrder(orderNumber),
-      child: Chip(
-        side: BorderSide(color: AppColors.softRed),
-        elevation: 8,
-        shadowColor: AppColors.softRed,
-        label: Text(
-          'Cancel',
-          style: TextStyle(color: AppColors.offWhite),
-        ),
-        backgroundColor: AppColors.softRed,
-      ),
-    );
-  }
-
-  Color _getStatusColor(OrderStatusEnum status) {
-    switch (status) {
-      case OrderStatusEnum.ordered:
-        return AppColors.darkGrey;
-      case OrderStatusEnum.preparing:
-        return AppColors.warmOrange;
-      case OrderStatusEnum.ready:
-        return AppColors.green;
-      case OrderStatusEnum.delivered:
-        return AppColors.deepBlue;
-      case OrderStatusEnum.payPending:
-        return AppColors.amberGold;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Future<void> _generateAndPrintReceipt(
-    BuildContext context,
-    OrderModel order,
-  ) async {
-    try {
-      final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
-        orderNumber: order.orderNumber ?? 'N/A',
-        tableNumber: order.tableNumber.toString(),
-        waiter: order.waiter,
-        items: order.itemsWithQuantity,
-        prices: order.itemsWithPrices,
-        total: order.total,
-        dateTime: order.timestamp,
-      );
-
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdfBytes,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error printing receipt: ${e.toString()}')),
-      );
-    }
   }
 }
