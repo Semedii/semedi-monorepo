@@ -18,8 +18,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          OrderCubit(orderService: OrderService())..listenToOrders(),
+      create: (context) => _createCubit()..listenToOrders(),
       child: BlocBuilder<OrderCubit, OrderState>(
         builder: _mapStateToWidget,
       ),
@@ -109,7 +108,9 @@ class MainScreen extends StatelessWidget {
         ),
         IconButton(
           icon: const Icon(Icons.refresh),
-          onPressed: () {},
+          onPressed: () {
+            BlocProvider.of<OrderCubit>(context).listenToOrders();
+          },
           tooltip: 'Refresh',
         ),
         PopupMenuButton<String>(
@@ -360,5 +361,9 @@ class MainScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  OrderCubit _createCubit() {
+    return OrderCubit(orderService: OrderService());
   }
 }
