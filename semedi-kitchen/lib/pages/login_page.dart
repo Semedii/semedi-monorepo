@@ -87,11 +87,10 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Icon _buildHeaderLogo() {
-    return Icon(
-      Icons.kitchen,
-      size: 48,
-      color: AppColors.deepBlue,
+  Widget _buildHeaderLogo() {
+    return Image.asset(
+      'assets/images/logo.png',
+      height: 120,
     );
   }
 
