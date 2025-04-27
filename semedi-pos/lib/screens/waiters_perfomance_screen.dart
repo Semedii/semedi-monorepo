@@ -93,9 +93,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
       ),
       columns: [
         _buildDataColumn("waiter"),
-        _buildDataColumn("paid orders"),
-        _buildDataColumn("unpaid order"),
-        _buildDataColumn("total orders"),
+        _buildDataColumn("no of orders"),
+        _buildDataColumn("unpaid orders total"),
         _buildDataColumn("total sales"),
         _buildDataColumn("view"),
       ],
@@ -118,14 +117,10 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         cells: [
           _buildDataCell(waiter.name),
           _buildDataCell(
-            waiter.noOfPaidOrders.toString(),
-            color: AppColors.green,
-          ),
-          _buildDataCell(
-            waiter.noOfUnpaidOrders.toString(),
+            waiter.totalOrders.toString(),
             color: AppColors.warmOrange,
           ),
-          _buildDataCell(waiter.totalOrders.toString()),
+          _buildDataCell(waiter.unpaidOrdersTotal.toString()),
           _buildDataCell('\$${waiter.totalSales.toStringAsFixed(2)}'),
           _buildVIewButton(context, waiter),
         ],
@@ -263,17 +258,15 @@ class WaitersPerfomanceScreen extends StatelessWidget {
               pw.Table.fromTextArray(context: context, data: <List<String>>[
                 [
                   "Waiter",
-                  "Paid Orders",
-                  "Unpaid Orders",
-                  "Total Orders",
+                  "no of Orders",
+                  "Unpaid Orders Total",
                   "Total Sales",
                 ],
                 ...state.waitersPerfomance.map((waiterPerfomance) {
                   return [
                     waiterPerfomance.name,
-                    waiterPerfomance.noOfPaidOrders.toString(),
-                    waiterPerfomance.noOfUnpaidOrders.toString(),
                     waiterPerfomance.totalOrders.toString(),
+                    waiterPerfomance.unpaidOrdersTotal.toString(),
                     waiterPerfomance.totalSales.toString(),
                   ];
                 })

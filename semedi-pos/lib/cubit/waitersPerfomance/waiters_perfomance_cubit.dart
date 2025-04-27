@@ -33,6 +33,8 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
           noOfPaidOrders: existingPerformance.noOfPaidOrders + (isPaid ? 1 : 0),
           noOfUnpaidOrders:
               existingPerformance.noOfUnpaidOrders + (isPaid ? 0 : 1),
+          unpaidOrdersTotal: existingPerformance.unpaidOrdersTotal +
+              (isPaid ? 0 : order.total),
           totalOrders: existingPerformance.totalOrders + 1,
           totalSales: existingPerformance.totalSales + order.total,
         );
@@ -41,6 +43,7 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
           name: waiterName,
           noOfPaidOrders: isPaid ? 1 : 0,
           noOfUnpaidOrders: isPaid ? 0 : 1,
+          unpaidOrdersTotal: isPaid ? 0 : order.total,
           totalOrders: 1,
           totalSales: order.total,
         );
