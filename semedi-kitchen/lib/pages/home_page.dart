@@ -411,7 +411,9 @@ class HomePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildCancelChip(cubit, order.orderNumber!),
+          if (order.status != OrderStatusEnum.ordered) ...{
+            _buildCancelChip(cubit, order.orderNumber!),
+          },
           const SizedBox(width: 8),
           if (order.status == OrderStatusEnum.ordered) ...{
             _buildPrepareButton(cubit, order.orderNumber!),
