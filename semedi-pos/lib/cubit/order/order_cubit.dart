@@ -114,6 +114,7 @@ class OrderCubit extends Cubit<OrderState> {
     } catch (e) {
       throw Exception(e);
     }
+    listenToOrders();
   }
 
   _getRestaurantName() async {
