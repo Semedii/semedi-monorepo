@@ -70,7 +70,7 @@ class MainScreen extends StatelessWidget {
             ),
           ),
           if (takeAwayOrders != null && takeAwayOrders.isNotEmpty)
-            _buildTakeAwayGrid(width, takeAwayOrders, cubit),
+            _buildTakeAwayGrid(width, takeAwayOrders, cubit, state),
           _buildTableGrid(width, cubit, state),
         ],
       ),
@@ -241,7 +241,11 @@ class MainScreen extends StatelessWidget {
   }
 
   SliverPadding _buildTakeAwayGrid(
-      double width, List<OrderModel> takeAwayOrders, OrderCubit cubit) {
+    double width,
+    List<OrderModel> takeAwayOrders,
+    OrderCubit cubit,
+    OrderLoaded state,
+  ) {
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverGrid(
@@ -260,6 +264,7 @@ class MainScreen extends StatelessWidget {
             final order = takeAwayOrders[index];
             return OrderCard(
               order: order,
+              exchangeRate: state.exchangeRate,
               onChangeOrderStatus: cubit.changeOrderStatus,
               onCancelOrder: cubit.onCancelOrder,
             );
@@ -295,6 +300,7 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => TableOrderScreen(
                       tableNumber: tableNumber,
+                      exchangeRate: state.exchangeRate,
                       orderCubit: cubit,
                     ),
                   ),

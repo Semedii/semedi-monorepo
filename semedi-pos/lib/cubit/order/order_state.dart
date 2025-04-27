@@ -11,6 +11,7 @@ final class OrderLoaded extends OrderState {
   final double totalRevenue;
   final String restaurant;
   final int tableNumbers;
+  final int exchangeRate;
 
   OrderLoaded({
     required this.activeOrders,
@@ -19,6 +20,7 @@ final class OrderLoaded extends OrderState {
     required this.totalRevenue,
     required this.restaurant,
     required this.tableNumbers,
+    required this.exchangeRate,
   });
 
   OrderLoaded copyWith({
@@ -34,6 +36,7 @@ final class OrderLoaded extends OrderState {
       totalRevenue: totalRevenue ?? this.totalRevenue,
       restaurant: restaurant,
       tableNumbers: tableNumbers,
+      exchangeRate: exchangeRate,
     );
   }
 }

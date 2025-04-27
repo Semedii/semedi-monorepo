@@ -176,6 +176,22 @@ class ManagementService {
     }
   }
 
+  Future<int> getExchangeRate() async {
+    try {
+      String? restaurant = await _getRestaurantName();
+      final snapshot = await db
+          .collection('shops')
+          .doc(restaurant)
+          .collection('metadata')
+          .doc('exchangeRate')
+          .get();
+      int exchangeRate = snapshot['rate'];
+      return exchangeRate;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Future<String?> _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

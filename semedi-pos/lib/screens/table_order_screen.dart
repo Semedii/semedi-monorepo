@@ -12,10 +12,12 @@ class TableOrderScreen extends StatelessWidget {
   const TableOrderScreen({
     required this.orderCubit,
     required this.tableNumber,
+    required this.exchangeRate,
     super.key,
   });
   final OrderCubit orderCubit;
   final int tableNumber;
+  final int exchangeRate;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class TableOrderScreen extends StatelessWidget {
                     itemCount: tableOrders.length,
                     itemBuilder: (context, index) => OrderCard(
                       order: tableOrders[index],
+                      exchangeRate: exchangeRate,
                       onChangeOrderStatus: orderCubit.changeOrderStatus,
                       onCancelOrder: orderCubit.onCancelOrder,
                     ),
@@ -117,6 +120,7 @@ class TableOrderScreen extends StatelessWidget {
           items: itemsWithQuantity,
           prices: itemsWithPrices,
           total: total,
+          exchangeRate: exchangeRate,
           dateTime: tableOrders.last.timestamp);
 
       await Printing.layoutPdf(

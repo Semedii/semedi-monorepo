@@ -16,6 +16,7 @@ class ThermalReceiptService {
     required Map<String, int> items,
     required Map<String, double> prices,
     required double total,
+    required int exchangeRate,
     required DateTime dateTime,
   }) async {
     final pdf = pw.Document();
@@ -44,7 +45,7 @@ class ThermalReceiptService {
                 pw.SizedBox(height: 8),
                 _buildItemsTable(items, prices),
                 pw.SizedBox(height: 8),
-                _buildTotalsSection(total),
+                _buildTotalsSection(total, exchangeRate),
                 pw.SizedBox(height: 8),
                 _buildFooter(),
               ],
@@ -122,7 +123,7 @@ class ThermalReceiptService {
     );
   }
 
-  static pw.Widget _buildTotalsSection(double total) {
+  static pw.Widget _buildTotalsSection(double total, int exchangeRate) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.end,
       children: [
@@ -145,8 +146,18 @@ class ThermalReceiptService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text('TOTAL:', style: _boldStyle()),
-            pw.Text('\$${(total * 1.1).toStringAsFixed(2)}',
+            pw.Text('\$${(total * 1.05).toStringAsFixed(2)}',
                 style: _boldStyle()),
+          ],
+        ),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text('TOTAL SLSH:', style: _boldStyle()),
+            pw.Text(
+              '\$${NumberFormat('#,###.00').format(total * 1.05 * exchangeRate)}',
+              style: _boldStyle(),
+            )
           ],
         ),
       ],
