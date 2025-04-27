@@ -11,11 +11,14 @@ part 'order_state.dart';
 
 class OrderCubit extends Cubit<OrderState> {
   final OrderService _orderService;
+  final ManagementService managementService;
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
 
-  OrderCubit({required OrderService orderService})
-      : _orderService = orderService,
+  OrderCubit({
+    required OrderService orderService,
+    required this.managementService,
+  })  : _orderService = orderService,
         super(OrderInitial());
 
   void listenToOrders() async {
@@ -98,6 +101,17 @@ class OrderCubit extends Cubit<OrderState> {
       _orderService.cancelOrder(
         orderNumber,
       );
+    }
+  }
+
+  onSetExchangeRate(String? exchangeRate) async {
+    try {
+      if (exchangeRate != null) {
+        int exchangeRateInt = int.parse(exchangeRate);
+        await managementService.setExchangeRate(exchangeRateInt);
+      }
+    } catch (e) {
+      throw Exception(e);
     }
   }
 

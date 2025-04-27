@@ -162,6 +162,20 @@ class ManagementService {
     }
   }
 
+  Future<void> setExchangeRate(int exchangeRate) async {
+    try {
+      String? restaurant = await _getRestaurantName();
+      await db
+          .collection('shops')
+          .doc(restaurant)
+          .collection('metadata')
+          .doc('exchangeRate')
+          .set({'rate': exchangeRate});
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Future<String?> _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

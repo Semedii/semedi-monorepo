@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
+import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
@@ -9,11 +10,16 @@ import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
 import 'package:semedi_pos/screens/take_away_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
+import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
+import 'package:semedi_pos/utils/text_validators.dart';
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+  MainScreen({super.key});
+
+  final TextEditingController? exchangeRateController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +57,10 @@ class MainScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Row(
               children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: _buildExchangeRateButton(context),
+                ),
                 Expanded(child: Center(child: _buildStatsHeader(state))),
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
@@ -339,6 +349,25 @@ class MainScreen extends StatelessWidget {
     return AppColors.deepBlue;
   }
 
+  AppButton _buildExchangeRateButton(BuildContext context) {
+    return AppButton(
+      onPressed: () {
+        showExchangeRateField(context);
+      },
+      elevation: 12,
+      isSmall: true,
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text(
+            "\$ Set Exchange Rate",
+            style: TextStyle(color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
   AppButton _buildTakeAwayButton(BuildContext context) {
     return AppButton(
       onPressed: () {
@@ -363,7 +392,45 @@ class MainScreen extends StatelessWidget {
     );
   }
 
+  showExchangeRateField(BuildContext context) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Enter Your Exchange Rate of 1\$"),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TxtFormField(
+                    controller: exchangeRateController,
+                    labelText: 'SLSH Value of 1\$',
+                    validator: TextValidators.onlyNumbers,
+                  ),
+                  const SizedBox(height: 16),
+                  AppButton(
+                    isSmall: true,
+                    text: 'Submit',
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        cubit.onSetExchangeRate(exchangeRateController?.text);
+                        Navigator.pop(context);
+                      }
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   OrderCubit _createCubit() {
-    return OrderCubit(orderService: OrderService());
+    return OrderCubit(
+      orderService: OrderService(),
+      managementService: ManagementService(),
+    );
   }
 }
