@@ -145,6 +145,23 @@ class ManagementService {
     }
   }
 
+  Future<void> decrementTotalTables() async {
+    try {
+      String? restaurant = await _getRestaurantName();
+      final docRef = db
+          .collection('shops')
+          .doc(restaurant)
+          .collection('metadata')
+          .doc('totalTables');
+
+      await docRef.update({
+        'totalTables': FieldValue.increment(-1),
+      });
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Future<String?> _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

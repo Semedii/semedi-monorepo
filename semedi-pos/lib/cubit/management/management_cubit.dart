@@ -63,6 +63,16 @@ class ManagementCubit extends Cubit<ManagementState> {
     initPage();
   }
 
+  onRemoveTable() async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.decrementTotalTables();
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
   onAddNewWaiter(String name, String email, String password) async {
     emit(ManagementLoading());
     String? restuarant = await SecureStorageService().read('restaurant');
