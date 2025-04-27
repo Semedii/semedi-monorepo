@@ -482,7 +482,7 @@ class WaiterStatsScreen extends StatelessWidget {
       case OrderStatusEnum.paid:
         return AppColors.green;
       case OrderStatusEnum.unpaid:
-        return AppColors.warmOrange;
+        return AppColors.softRed;
       default:
         return Colors.grey;
     }

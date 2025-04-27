@@ -82,7 +82,13 @@ class OrderService {
         .collection('shops')
         .doc(restaurant)
         .collection('orders')
-        .where('waiter', isEqualTo: waiterName)
+        .where(Filter.and(
+          Filter('waiter', isEqualTo: waiterName),
+          Filter.or(
+            Filter('status', isEqualTo: OrderStatusEnum.paid.name),
+            Filter('status', isEqualTo: OrderStatusEnum.unpaid.name),
+          ),
+        ))
         .orderBy('status')
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
