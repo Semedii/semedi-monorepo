@@ -10,13 +10,13 @@ import 'package:semedi_pos/utils/order_status_enum.dart';
 class OrderCard extends StatelessWidget {
   const OrderCard({
     required this.order,
-    required this.exchangeRate,
+    this.exchangeRate,
     required this.onChangeOrderStatus,
     required this.onCancelOrder,
     super.key,
   });
   final OrderModel order;
-  final int exchangeRate;
+  final int? exchangeRate;
   final Function(String orderNumber, OrderStatusEnum status)
       onChangeOrderStatus;
   final Function(String orderNumber) onCancelOrder;

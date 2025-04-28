@@ -12,12 +12,12 @@ class TableOrderScreen extends StatelessWidget {
   const TableOrderScreen({
     required this.orderCubit,
     required this.tableNumber,
-    required this.exchangeRate,
+    this.exchangeRate,
     super.key,
   });
   final OrderCubit orderCubit;
   final int tableNumber;
-  final int exchangeRate;
+  final int? exchangeRate;
 
   @override
   Widget build(BuildContext context) {

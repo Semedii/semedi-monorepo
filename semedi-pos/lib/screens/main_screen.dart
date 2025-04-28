@@ -59,7 +59,7 @@ class MainScreen extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16),
-                  child: _buildExchangeRateButton(context),
+                  child: _buildExchangeRateButton(context, state),
                 ),
                 Expanded(child: Center(child: _buildStatsHeader(state))),
                 Padding(
@@ -355,20 +355,27 @@ class MainScreen extends StatelessWidget {
     return AppColors.deepBlue;
   }
 
-  AppButton _buildExchangeRateButton(BuildContext context) {
+  AppButton _buildExchangeRateButton(BuildContext context, OrderLoaded state) {
     return AppButton(
       onPressed: () {
         showExchangeRateField(context);
       },
       elevation: 12,
       isSmall: true,
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            "\$ Set Exchange Rate",
-            style: TextStyle(color: Colors.white),
-          )
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                "\$ Set Exchange Rate",
+                style: TextStyle(color: Colors.white),
+              )
+            ],
+          ),
+          Text('SLSH ${state.exchangeRate.toString()}',
+              style: const TextStyle(color: Colors.white)),
         ],
       ),
     );

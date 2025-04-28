@@ -176,7 +176,7 @@ class ManagementService {
     }
   }
 
-  Future<int> getExchangeRate() async {
+  Future<int?> getExchangeRate() async {
     try {
       String? restaurant = await _getRestaurantName();
       final snapshot = await db
@@ -185,7 +185,17 @@ class ManagementService {
           .collection('metadata')
           .doc('exchangeRate')
           .get();
-      int exchangeRate = snapshot['rate'];
+
+      if (!snapshot.exists) {
+        print('Exchange rate document does not exist');
+        return null;
+      }
+
+      print("Document snapshot: $snapshot");
+      print("Exchange rate: ${snapshot['rate']}");
+
+      int? exchangeRate = snapshot['rate'];
+
       return exchangeRate;
     } catch (e) {
       throw Exception(e);

@@ -23,7 +23,7 @@ class OrderCubit extends Cubit<OrderState> {
 
   void listenToOrders() async {
     emit(OrderLoading());
-    final int exchangeRate = await managementService.getExchangeRate();
+
     final List<OrderModel> paidOrders =
         await _orderService.getOrdersByStatus(OrderStatusEnum.paid) ?? [];
 
@@ -31,6 +31,7 @@ class OrderCubit extends Cubit<OrderState> {
         await _orderService.getOrdersByStatus(OrderStatusEnum.unpaid) ?? [];
 
     double totalRevenue = 0.0;
+    final int? exchangeRate = await managementService.getExchangeRate();
 
     for (var order in paidOrders) {
       totalRevenue += order.total;
