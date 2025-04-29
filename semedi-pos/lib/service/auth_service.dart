@@ -6,8 +6,21 @@ import 'package:semedi_pos/service/secure_storage_service.dart';
 class AuthService {
   final SecureStorageService _secureStorage = SecureStorageService();
 
-  Stream<User?> get authStateChanges =>
-      FirebaseAuth.instance.authStateChanges();
+  Stream<Cashier?> get authStateWithUser {
+    return FirebaseAuth.instance.authStateChanges().asyncMap((user) async {
+      if (user == null) {
+        await _secureStorage.clear();
+        return null;
+      }
+      final cashier = await getUserFromCashierList();
+      try {
+        await _secureStorage.write('restaurant', cashier.restaurant);
+      } catch (e) {
+        throw Exception(e);
+      }
+      return cashier;
+    });
+  }
 
   signInWithEmailAndPassword(String email, String password) async {
     try {
@@ -70,8 +83,6 @@ class AuthService {
                 "Writing isn't allowed in user collection"),
           )
           .get();
-      Cashier cashier = querySnapshot.docs.first.data();
-      await SecureStorageService().write('restaurant', cashier.restaurant);
       return querySnapshot.docs.first.data();
     } catch (e) {
       throw Exception(e);

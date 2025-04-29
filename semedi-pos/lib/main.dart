@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/login/login_cubit.dart';
 import 'package:semedi_pos/firebase_options.dart';
+import 'package:semedi_pos/models/cashier.dart';
 import 'package:semedi_pos/screens/login_screen.dart';
 import 'package:semedi_pos/screens/main_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: StreamBuilder<User?>(
-          stream: AuthService().authStateChanges,
+        home: StreamBuilder<Cashier?>(
+          stream: AuthService().authStateWithUser,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();

@@ -29,8 +29,6 @@ class LoginCubit extends Cubit<LoginState> {
         currentState.password!,
       );
 
-      await _authService.getUserFromCashierList();
-
       if (token != null) {
         await _secureStorage.write('auth_token', token);
         emit(LoginSuccess());
