@@ -58,31 +58,59 @@ class OrderPage extends StatelessWidget {
   Widget _buildPageBody(BuildContext context, OrderIdle state) {
     return Column(
       children: [
+        _buildSearchBar(context),
         Expanded(
-          child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                _buildSearchBar(context),
-                _buildSelectedItemsSection(context, state.selectedItems),
-                Divider(thickness: 2, color: AppColors.deepBlue),
-                _buildMenuSection(state, context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSelectedItemsSection(
+                          context,
+                          state.selectedItems,
+                        ),
+                        const SizedBox(height: 16),
+                        Divider(thickness: 2, color: AppColors.deepBlue),
+                        const SizedBox(height: 16),
+                        _buildMenuSection(state, context),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: AppColors.offWhite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildNoteField(context),
-              const SizedBox(height: 12),
-              _buildSubmitButton(context, state),
-            ],
-          ),
-        ),
+        _buildBottomSection(context, state),
       ],
+    );
+  }
+
+  Widget _buildBottomSection(BuildContext context, OrderIdle state) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.offWhite,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildNoteField(context),
+          const SizedBox(height: 12),
+          _buildSubmitButton(context, state),
+        ],
+      ),
     );
   }
 
@@ -105,9 +133,14 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildNoSelectedItemsText() {
-    return const Text(
-      'No items selected yet',
-      style: TextStyle(color: Colors.grey),
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Text(
+          'No items selected yet',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
     );
   }
 
@@ -116,134 +149,86 @@ class OrderPage extends StatelessWidget {
     final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
     final itemList = orderItemsWithQuantity.entries.toList();
 
-    return Column(
-      children: itemList.asMap().entries.map<Widget>((indexedEntry) {
-        final index = indexedEntry.key;
-        final entry = indexedEntry.value;
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.deepBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '${entry.value}x',
-                  style: TextStyle(
-                    color: AppColors.deepBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: itemList.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final entry = itemList[index];
+        return Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.deepBlue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '${entry.value}x',
+                style: TextStyle(
+                  color: AppColors.deepBlue,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(entry.key)),
-              IconButton(
-                onPressed: () => orderCubit.onRemoveItem(index),
-                icon: Icon(
-                  Icons.remove_circle,
-                  color: AppColors.softRed,
-                ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(entry.key)),
+            IconButton(
+              onPressed: () => orderCubit.onRemoveItem(index),
+              icon: Icon(
+                Icons.remove_circle,
+                color: AppColors.softRed,
               ),
-            ],
-          ),
+            ),
+          ],
         );
-      }).toList(),
+      },
     );
   }
 
   Widget _buildMenuSection(OrderIdle state, BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.6,
-      child: state.searchQuery.isEmpty
-          ? _buildMenuGrid(context, state.filteredMenuItems)
-          : _buildSearchResultList(context, state.filteredMenuItems),
-    );
-  }
-
-  Widget _buildMenuGrid(BuildContext context, List<MenuItem> items) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      gridDelegate: _getGridDelegate(),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return MenuItemCard(
-          item: item,
-          onTap: () =>
-              BlocProvider.of<OrderCubit>(context).onSelectedItem(item),
-        );
-      },
-    );
+    return state.filteredMenuItems.isEmpty
+        ? const Center(child: Text('No menu items found'))
+        : GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 16),
+            gridDelegate: _getGridDelegate(),
+            itemCount: state.filteredMenuItems.length,
+            itemBuilder: (context, index) {
+              final item = state.filteredMenuItems[index];
+              return MenuItemCard(
+                item: item,
+                onTap: () =>
+                    BlocProvider.of<OrderCubit>(context).onSelectedItem(item),
+              );
+            },
+          );
   }
 
   SliverGridDelegate _getGridDelegate() {
     return const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 2,
-      childAspectRatio: 1.5,
+      childAspectRatio: 1.6,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
     );
   }
 
-  Widget _buildSearchResultList(BuildContext context, List<MenuItem> items) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        return _buildSearchResultTile(context, items, index);
-      },
-    );
-  }
-
-  Widget _buildSearchResultTile(
-    BuildContext context,
-    List<MenuItem> items,
-    int index,
-  ) {
-    final item = items[index];
-    return ListTile(
-      title: Text(item.name),
-      subtitle: Text(item.price.toStringAsFixed(2)),
-      trailing: _buildResultTileTrailing(context, item),
-      onTap: null,
-    );
-  }
-
-  Widget _buildResultTileTrailing(BuildContext context, MenuItem item) {
-    return item.isAvailable
-        ? IconButton(
-            icon: const Icon(Icons.add_circle, color: Colors.green),
-            onPressed: () => context.read<OrderCubit>().onSelectedItem(item),
-          )
-        : const Text(
-            'Not Available',
-            style: TextStyle(color: Colors.red),
-          );
-  }
-
   _buildNoteField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: TxtFormField(
-        labelText: 'Special note (modifications...)',
-        onChanged: BlocProvider.of<OrderCubit>(context).onNoteChanged,
-      ),
+    return TxtFormField(
+      labelText: 'Special note (modifications...)',
+      onChanged: BlocProvider.of<OrderCubit>(context).onNoteChanged,
     );
   }
 
   Widget _buildSubmitButton(BuildContext context, OrderIdle state) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: AppButton(
-          text: 'Submit order',
-          onPressed: () => showConfirmOrderDialog(context, state)),
+    return AppButton(
+      text: 'Submit order',
+      onPressed: () => showConfirmOrderDialog(context, state),
     );
   }
 
@@ -253,14 +238,15 @@ class OrderPage extends StatelessWidget {
     final total = cubit.getTotalPrice();
 
     showDialog(
-        context: context,
-        builder: (context) => OrderConfirmDialog(
-              orderItemsWithQuantity: orderItemsWithQuantity,
-              tableNumber: tableNumber,
-              total: total,
-              submitOrder: () => cubit.submitOrder(tableNumber),
-              note: state.note,
-            ));
+      context: context,
+      builder: (context) => OrderConfirmDialog(
+        orderItemsWithQuantity: orderItemsWithQuantity,
+        tableNumber: tableNumber,
+        total: total,
+        submitOrder: () => cubit.submitOrder(tableNumber),
+        note: state.note,
+      ),
+    );
   }
 
   _getListener(context, state) {
@@ -290,7 +276,7 @@ class OrderPage extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.softRed,
-        content: Text("Error: ${state.error} "),
+        content: Text("Error: ${state.error}"),
       ),
     );
   }
