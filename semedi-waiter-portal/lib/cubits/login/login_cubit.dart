@@ -33,13 +33,14 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginSuccess(token: token));
       } else {
         emit(LoginFailure(message: "Login failed"));
+        emit(LoginInitial());
       }
     } catch (e) {
       if (e is! StateError) {
         _authService.logout();
         emit(LoginFailure(message: e.toString()));
+        emit(LoginInitial());
       }
     }
-    emit(LoginInitial());
   }
 }
