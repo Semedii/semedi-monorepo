@@ -8,7 +8,7 @@ class AuthService {
   final secureStorageService = getIt<SecureStorageService>();
   Stream<KitchenUser?> get authStateWithUser {
     return FirebaseAuth.instance.authStateChanges().asyncMap((user) async {
-      final kitchenUser = await getUserFromKitchenList();
+      final kitchenUser = await _getUserFromKitchenList();
       try {
         if (user == null) {
           await secureStorageService.clear();
@@ -50,7 +50,7 @@ class AuthService {
     }
   }
 
-  Future<KitchenUser?> getUserFromKitchenList() async {
+  Future<KitchenUser?> _getUserFromKitchenList() async {
     try {
       final email = FirebaseAuth.instance.currentUser?.email;
       final db = FirebaseFirestore.instance;

@@ -30,19 +30,19 @@ class LoginCubit extends Cubit<LoginState> {
         currentState.email!,
         currentState.password!,
       );
-      await _authService.getUserFromKitchenList();
       if (token != null) {
         await _secureStorageService.write('auth_token', token);
         emit(LoginSuccess());
       } else {
         emit(LoginFailure(message: "Login failed"));
+        emit(LoginInitial());
       }
     } catch (e) {
       if (e is! StateError) {
         _authService.logout();
         emit(LoginFailure(message: e.toString()));
+        emit(LoginInitial());
       }
     }
-    emit(LoginInitial());
   }
 }
