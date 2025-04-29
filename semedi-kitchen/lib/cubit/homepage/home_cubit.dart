@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:semedi_kitchen/models/order.dart';
-import 'package:semedi_kitchen/services/app_session_service.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
@@ -16,7 +14,6 @@ class HomeCubit extends Cubit<HomeState> {
   final SecureStorageService _secureStorageService;
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
-  final session = GetIt.instance<AppSessionService>();
   List<OrderModel> _previousOrders = [];
 
   HomeCubit(this._orderService, this._secureStorageService)
@@ -26,10 +23,6 @@ class HomeCubit extends Cubit<HomeState> {
     emit(HomeLoading());
 
     _ordersSubscription?.cancel();
-    if (!session.hasInitializedAfterLogin) {
-      await Future.delayed(const Duration(seconds: 3));
-      session.hasInitializedAfterLogin = true;
-    }
 
     String? restaurant = await _secureStorageService.read('restaurant');
     _ordersSubscription = _orderService.getActiveOrders(restaurant!).listen(

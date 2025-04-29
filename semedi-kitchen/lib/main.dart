@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:semedi_kitchen/firebase_options.dart';
+import 'package:semedi_kitchen/models/kitchen_user.dart';
 import 'package:semedi_kitchen/pages/home_page.dart';
 import 'package:semedi_kitchen/pages/login_page.dart';
 import 'package:semedi_kitchen/services/auth_service.dart';
@@ -28,8 +28,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = getIt<AuthService>();
 
-    return StreamBuilder<User?>(
-      stream: authService.authStateChanges,
+    return StreamBuilder<KitchenUser?>(
+      stream: authService.authStateWithUser,
       builder: (context, snapshot) {
         return MaterialApp(
           home: snapshot.connectionState == ConnectionState.waiting

@@ -1,16 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get_it/get_it.dart';
 import 'package:semedi_kitchen/models/kitchen_user.dart';
-import 'package:semedi_kitchen/services/app_session_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
 
 class AuthService {
-  Stream<User?> get authStateChanges =>
-      FirebaseAuth.instance.authStateChanges();
-
   final secureStorageService = getIt<SecureStorageService>();
+  Stream<KitchenUser?> get authStateWithUser {
+    return FirebaseAuth.instance.authStateChanges().asyncMap((user) async {
+      final kitchenUser = await getUserFromKitchenList();
+      try {
+        if (user == null) {
+          await secureStorageService.clear();
+          return null;
+        }
+
+        if (kitchenUser != null) {
+          await secureStorageService.write(
+              'restaurant', kitchenUser.restaurant);
+        }
+      } catch (e) {
+        throw Exception(e);
+      }
+      return kitchenUser;
+    });
+  }
 
   signInWithEmailAndPassword(String email, String password) async {
     try {
@@ -52,7 +66,6 @@ class AuthService {
           )
           .get();
       KitchenUser? kitchenUser = querySnapshot.docs.first.data();
-      await SecureStorageService().write('restaurant', kitchenUser.restaurant);
       return kitchenUser;
     } catch (e) {
       throw Exception(e);
@@ -65,7 +78,6 @@ class AuthService {
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    GetIt.instance<AppSessionService>().reset();
     await secureStorageService.clear();
   }
 }
