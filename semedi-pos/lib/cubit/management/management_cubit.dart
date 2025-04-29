@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/management_service.dart';
-import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
+
+import 'package:semedi_pos/service/secure_storage_service.dart';
 
 part 'management_state.dart';
 

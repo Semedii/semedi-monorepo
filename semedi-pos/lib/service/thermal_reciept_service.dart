@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
-import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
+import 'package:semedi_pos/service/secure_storage_service.dart';
 
 class ThermalReceiptService {
   static const double receiptWidth = 58 * PdfPageFormat.mm;

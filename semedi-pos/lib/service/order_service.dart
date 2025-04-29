@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/order.dart';
-import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
+import 'package:semedi_pos/service/secure_storage_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
 class OrderService {

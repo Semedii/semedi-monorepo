@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/auth_service.dart';
-import 'package:semedi_pos/service/secure_storage_service%20copy.dart';
+
+import 'package:semedi_pos/service/secure_storage_service.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
