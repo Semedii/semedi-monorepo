@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:semedi/models/order.dart';
-import 'package:semedi/services/app_session_service.dart';
+
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
@@ -23,7 +22,6 @@ class HomeCubit extends Cubit<HomeState> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   void listenToOrders() async {
     emit(const HomeLoading());
-    final session = GetIt.instance<AppSessionService>();
     final int totalTables = await MenuService().getTotalTableNumber();
     final waiterName = await _secureStorageService.read('waiter_name');
     String? restaurantName = await _secureStorageService.read('restaurant');
@@ -40,10 +38,7 @@ class HomeCubit extends Cubit<HomeState> {
         }
 
         previousOrders = orders;
-        if (!session.hasInitializedAfterLogin) {
-          await Future.delayed(const Duration(seconds: 3));
-          session.hasInitializedAfterLogin = true;
-        }
+
         String? restaurantName = await _secureStorageService.read('restaurant');
         emit(HomeLoaded(orders, totalTables, restaurantName));
       },

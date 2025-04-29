@@ -1,16 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter/services.dart';
 import 'package:semedi/models/waiter.dart';
-import 'package:semedi/services/app_session_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/services/service_locator.dart';
 
 class AuthService {
   final secureStorageService = getIt<SecureStorageService>();
 
-  Stream<User?> get authStateChanges =>
-      FirebaseAuth.instance.authStateChanges();
+  Stream<Waiter?> get authStateWithUser {
+    return FirebaseAuth.instance.authStateChanges().asyncMap((user) async {
+      if (user == null) {
+        await secureStorageService.clear();
+        return null;
+      }
+      final waiter = await _getUserFromWaiterList();
+      try {
+        await secureStorageService.write('waiter_name', waiter.name);
+
+        await secureStorageService.write('restaurant', waiter.restaurant);
+      } catch (e) {
+        throw Exception(e);
+      }
+
+      return waiter;
+    });
+  }
 
   signInWithEmailAndPassword(String email, String password) async {
     try {
@@ -23,9 +38,6 @@ class AuthService {
       final String? token = await userCredential.user?.getIdToken();
 
       if (token != null) {
-        Waiter waiter = await _getUserFromWaiterList();
-        await secureStorageService.write('waiter_name', waiter.name);
-        await secureStorageService.write('restaurant', waiter.restaurant);
         return token;
       } else {
         throw Exception("Failed to get token");
@@ -67,6 +79,5 @@ class AuthService {
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
     await secureStorageService.clear();
-    GetIt.instance<AppSessionService>().reset();
   }
 }

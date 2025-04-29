@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:semedi/firebase_options.dart';
+import 'package:semedi/models/waiter.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/pages/login_page.dart';
-import 'package:semedi/services/app_session_service.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/service_locator.dart';
 
@@ -23,13 +22,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = getIt<AuthService>();
-    final session = getIt<AppSessionService>();
-    return StreamBuilder<User?>(
-      stream: authService.authStateChanges,
+    return StreamBuilder<Waiter?>(
+      stream: authService.authStateWithUser,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          session.hasInitializedAfterLogin = true;
-        }
         return MaterialApp(
           home: snapshot.connectionState == ConnectionState.waiting
               ? const Scaffold(body: Center(child: CircularProgressIndicator()))
