@@ -290,6 +290,22 @@ class OrderService {
     }
   }
 
+  Future<List<DailySummary>> getSalesHistory() async {
+    String? restaurant = await _getRestaurantName();
+    final summaryRef = db
+        .collection('shops')
+        .doc(restaurant)
+        .collection('summaryArchives')
+        .withConverter<DailySummary>(
+          fromFirestore: DailySummary.fromFirestore,
+          toFirestore: DailySummary.toFirestore,
+        );
+    final querySnapshot = await summaryRef.get();
+    final summaryList = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    return summaryList;
+  }
+
   Future<String?> _getRestaurantName() async {
     String? restaurant = await SecureStorageService().read('restaurant');
     return restaurant;

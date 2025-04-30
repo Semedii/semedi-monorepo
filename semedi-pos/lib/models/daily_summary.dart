@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
 
 class DailySummary {
@@ -63,5 +64,45 @@ class DailySummary {
       'waitersPerfomanceList':
           waitersPerfomanceList.map((waiter) => waiter.toMap()).toList(),
     };
+  }
+
+  factory DailySummary.fromMap(Map<String, dynamic> map) {
+    return DailySummary(
+      date: map['date'] ?? '',
+      restaurant: map['restaurant'] ?? '',
+      dineIn: (map['dineIn'] ?? 0).toDouble(),
+      takeAway: (map['takeAway'] ?? 0).toDouble(),
+      totalSales: (map['totalSales'] ?? 0).toDouble(),
+      dineInVat: (map['dineInVat'] ?? 0).toDouble(),
+      takeAwayVat: (map['takeAwayVat'] ?? 0).toDouble(),
+      totalVat: (map['totalVat'] ?? 0).toDouble(),
+      dineInNet: (map['dineInNet'] ?? 0).toDouble(),
+      takeAwayNet: (map['takeAwayNet'] ?? 0).toDouble(),
+      totalNet: (map['totalNet'] ?? 0).toDouble(),
+      unpaidDineIn: (map['unpaidDineIn'] ?? 0).toDouble(),
+      unpaidTakeAway: (map['unpaidTakeAway'] ?? 0).toDouble(),
+      unpaidTotal: (map['unpaidTotal'] ?? 0).toDouble(),
+      noOfOrdersDineIn: map['noOfOrdersDineIn'] ?? 0,
+      noOfOrdersTakeAway: map['noOfOrdersTakeAway'] ?? 0,
+      totalOrders: map['totalOrders'] ?? 0,
+      waitersPerfomanceList:
+          (map['waitersPerfomanceList'] as List<dynamic>? ?? [])
+              .map((e) => WaitersPerfomance.fromMap(e as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+
+  static DailySummary fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+    SnapshotOptions? options,
+  ) {
+    return DailySummary.fromMap(doc.data()!);
+  }
+
+  static Map<String, dynamic> toFirestore(
+    DailySummary summary,
+    SetOptions? options,
+  ) {
+    return summary.toMap();
   }
 }

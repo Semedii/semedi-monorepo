@@ -1,21 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_pos/cubit/SalesHistory/sales_history_cubit.dart';
+import 'package:semedi_pos/models/daily_summary.dart';
+import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class SalesHistoryListScreen extends StatelessWidget {
-  const SalesHistoryListScreen({super.key});
-
+  SalesHistoryListScreen({super.key});
+  final OrderService _orderService = OrderService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: 12,
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          return _buildDayCard();
-        },
+      body: BlocProvider(
+        create: (context) => _createCubit()..initPage(),
+        child: BlocBuilder<SalesHistoryCubit, SalesHistoryState>(
+          builder: _mapStateToWidget,
+        ),
       ),
+    );
+  }
+
+  Widget _mapStateToWidget(BuildContext context, SalesHistoryState state) {
+    if (state is SalesHistoryLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state is SalesHistoryLoaded) {
+      return _buildPageBody(context, state);
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildPageBody(BuildContext context, SalesHistoryLoaded state) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: state.dailySummaryList.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final dailySummary = state.dailySummaryList[index];
+        return _buildDayCard(dailySummary);
+      },
     );
   }
 
@@ -33,7 +57,7 @@ class SalesHistoryListScreen extends StatelessWidget {
     );
   }
 
-  Card _buildDayCard() {
+  Card _buildDayCard(DailySummary dailySummary) {
     return Card(
       elevation: 0,
       color: AppColors.green,
@@ -50,7 +74,7 @@ class SalesHistoryListScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildDayData(),
+              _buildDayData(dailySummary),
               _buildTrailingIcon(),
             ],
           ),
@@ -59,20 +83,20 @@ class SalesHistoryListScreen extends StatelessWidget {
     );
   }
 
-  Column _buildDayData() {
+  Column _buildDayData(DailySummary dailySummary) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildDate(),
+        _buildDate(dailySummary),
         const SizedBox(height: 4),
-        _buildOrderData(),
+        _buildOrderData(dailySummary),
       ],
     );
   }
 
-  Text _buildDate() {
+  Text _buildDate(DailySummary dailySummary) {
     return Text(
-      '30-04-2025',
+      dailySummary.date,
       style: TextStyle(
         color: AppColors.offWhite,
         fontWeight: FontWeight.bold,
@@ -81,9 +105,9 @@ class SalesHistoryListScreen extends StatelessWidget {
     );
   }
 
-  Text _buildOrderData() {
+  Text _buildOrderData(DailySummary dailySummary) {
     return Text(
-      '14 Orders • \$1,240.50',
+      '${dailySummary.totalOrders} Orders • \$${dailySummary.totalSales} ',
       style: TextStyle(
         color: AppColors.offWhite.withOpacity(0.8),
       ),
@@ -95,5 +119,9 @@ class SalesHistoryListScreen extends StatelessWidget {
       Icons.chevron_right,
       color: AppColors.offWhite.withOpacity(0.6),
     );
+  }
+
+  SalesHistoryCubit _createCubit() {
+    return SalesHistoryCubit(_orderService);
   }
 }
