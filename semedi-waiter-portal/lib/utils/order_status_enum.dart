@@ -6,5 +6,5 @@ enum OrderStatusEnum {
   payPending,
   paymentNotRecieved,
   paid,
-  unPaid,
+  unpaid,
 }

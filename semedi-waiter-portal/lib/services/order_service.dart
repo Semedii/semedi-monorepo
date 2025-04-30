@@ -121,7 +121,7 @@ class OrderService {
         .orderBy('status')
         .where(Filter.and(
           Filter('waiter', isEqualTo: waiterName),
-          Filter('status', isNotEqualTo: OrderStatusEnum.unPaid.name),
+          Filter('status', isNotEqualTo: OrderStatusEnum.unpaid.name),
         ))
         .orderBy('timestamp', descending: true)
         .withConverter<OrderModel>(
