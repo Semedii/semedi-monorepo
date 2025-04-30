@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/SalesHistory/sales_history_cubit.dart';
 import 'package:semedi_pos/models/daily_summary.dart';
+import 'package:semedi_pos/screens/sales_history_data.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
@@ -38,7 +39,7 @@ class SalesHistoryListScreen extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final dailySummary = state.dailySummaryList[index];
-        return _buildDayCard(dailySummary);
+        return _buildDayCard(context, dailySummary);
       },
     );
   }
@@ -57,7 +58,7 @@ class SalesHistoryListScreen extends StatelessWidget {
     );
   }
 
-  Card _buildDayCard(DailySummary dailySummary) {
+  Card _buildDayCard(BuildContext context, DailySummary dailySummary) {
     return Card(
       elevation: 0,
       color: AppColors.green,
@@ -67,7 +68,10 @@ class SalesHistoryListScreen extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          // Handle tap to view details
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SalesHistoryData(dailySummary)));
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
