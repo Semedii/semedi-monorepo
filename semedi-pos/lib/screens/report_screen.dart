@@ -124,9 +124,12 @@ class ReportScreen extends StatelessWidget {
         IconButton(
           onPressed: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => WaitersPerfomanceScreen()));
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    WaitersPerfomanceScreen(_calculateSales()),
+              ),
+            );
           },
           icon: const Icon(Icons.people),
           tooltip: 'Waiter Perfomances',

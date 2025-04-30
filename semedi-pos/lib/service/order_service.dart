@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:semedi_pos/models/daily_summary.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/waiters_perfomance.dart';
 import 'package:semedi_pos/service/secure_storage_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
@@ -196,7 +199,49 @@ class OrderService {
     }
   }
 
-  Future<void> clearOrder() async {
+  Future<void> archiveSummary({
+    required Map<String, double> salesData,
+    required int totalOrders,
+    required List<WaitersPerfomance> waitersPerfomanceList,
+  }) async {
+    final date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    try {
+      String? restaurant = await _getRestaurantName();
+      final summary = DailySummary(
+        date: date,
+        restaurant: restaurant ?? '',
+        dineIn: salesData['dineIn']!,
+        takeAway: salesData['takeAway']!,
+        totalSales: salesData['totalSales']!,
+        dineInVat: salesData['dineInVat']!,
+        takeAwayVat: salesData['takeAwayVat']!,
+        totalVat: salesData['totalVat']!,
+        dineInNet: salesData['dineInNet']!,
+        takeAwayNet: salesData['takeAwayNet']!,
+        totalNet: salesData['totalNet']!,
+        unpaidDineIn: salesData['unPaidDineIn']!,
+        unpaidTakeAway: salesData['unPaidTakeAway']!,
+        unpaidTotal: salesData['unPaidTotal']!,
+        noOfOrdersDineIn: salesData['noOfOrdersDineIn']!.toInt(),
+        noOfOrdersTakeAway: salesData['noOfOrdersTakeAway']!.toInt(),
+        totalOrders: totalOrders,
+        waitersPerfomanceList: waitersPerfomanceList,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('shops')
+          .doc(restaurant)
+          .collection('summaryArchives')
+          .doc('$restaurant-${date.replaceAll('/', '-')}')
+          .set(summary.toMap());
+      await _clearOrder();
+      await _resetOrderNumber();
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> _clearOrder() async {
     try {
       String? restaurant = await _getRestaurantName();
       if (restaurant == null || restaurant.isEmpty) {
@@ -217,7 +262,7 @@ class OrderService {
     }
   }
 
-  resetOrderNumber() async {
+  _resetOrderNumber() async {
     try {
       String? restaurant = await _getRestaurantName();
       await db

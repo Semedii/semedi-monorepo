@@ -13,8 +13,8 @@ import 'package:pdf/widgets.dart' as pw;
 
 class WaitersPerfomanceScreen extends StatelessWidget {
   final OrderService _orderService = OrderService();
-
-  WaitersPerfomanceScreen({super.key});
+  final Map<String, double> salesData;
+  WaitersPerfomanceScreen(this.salesData, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +169,10 @@ class WaitersPerfomanceScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildSimpleButton(
-          Icons.delete,
-          'Clear Today\'s History',
-          AppColors.softRed,
-          () => _showClearDataDialog(context),
+          Icons.archive,
+          'End The Day',
+          AppColors.green,
+          () => _showEndDayDialog(context),
         ),
         _buildSimpleButton(
           Icons.picture_as_pdf,
@@ -184,13 +184,13 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     );
   }
 
-  _showClearDataDialog(BuildContext context) {
+  _showEndDayDialog(BuildContext context) {
     final cubit = BlocProvider.of<WaitersPerfomanceCubit>(context);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Are You Sure You Want To Clear The Data?'),
+          title: const Text('Are You Sure You Want To End The Day'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -200,9 +200,11 @@ class WaitersPerfomanceScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildSimpleButton(Icons.delete, 'CLEAR', AppColors.softRed,
+                  _buildSimpleButton(Icons.archive, 'END', AppColors.softRed,
                       () async {
-                    await cubit.clearData();
+                    await cubit.endDay(
+                      salesData,
+                    );
                     Navigator.pop(context);
                   }),
                   _buildSimpleButton(Icons.cancel, 'CANCEL', AppColors.deepBlue,

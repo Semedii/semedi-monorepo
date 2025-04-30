@@ -58,11 +58,17 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
     ));
   }
 
-  clearData() async {
+  endDay(Map<String, double> salesData) async {
+    var lastState = state as WaitersPerfomanceLoaded;
     emit(WaitersPerfomanceLoading());
     try {
-      await _orderService.clearOrder();
-      await _orderService.resetOrderNumber();
+      List<OrderModel> pastOrders =
+          await _orderService.getPaidAndUnpaidOrders() ?? [];
+      await _orderService.archiveSummary(
+        salesData: salesData,
+        totalOrders: pastOrders.length,
+        waitersPerfomanceList: lastState.waitersPerfomance,
+      );
       emit(ClearDataSuccess());
       initPage();
     } catch (e) {
