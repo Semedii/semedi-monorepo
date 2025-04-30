@@ -7,6 +7,7 @@ import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
+import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
 import 'package:semedi_pos/screens/take_away_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
@@ -124,11 +125,20 @@ class MainScreen extends StatelessWidget {
           tooltip: 'Refresh',
         ),
         PopupMenuButton<String>(
+          menuPadding: const EdgeInsets.symmetric(horizontal: 16),
           position: PopupMenuPosition.under,
           color: AppColors.deepBlue,
           offset: const Offset(0, 12),
           icon: const Icon(Icons.account_circle),
           itemBuilder: (context) => [
+            PopupMenuItem(
+              padding: const EdgeInsets.only(bottom: 20, top: 12),
+              value: 'history',
+              child: Text(
+                'Sale History',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
             PopupMenuItem(
               value: 'logout',
               child: Text(
@@ -140,6 +150,12 @@ class MainScreen extends StatelessWidget {
           onSelected: (value) {
             if (value == 'logout') {
               AuthService().logout();
+            }
+            if (value == 'history') {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SalesHistoryListScreen()));
             }
           },
           tooltip: 'Logout',
