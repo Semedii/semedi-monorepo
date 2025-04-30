@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:semedi/models/waiter.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/services/service_locator.dart';
