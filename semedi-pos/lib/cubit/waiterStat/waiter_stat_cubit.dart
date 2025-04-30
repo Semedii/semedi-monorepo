@@ -21,4 +21,15 @@ class WaiterStatCubit extends Cubit<WaiterStatState> {
     });
     emit(WaiterStatLoaded(waitersOrders: waitersOrders));
   }
+
+  void changeOrderStatus(
+      String waitersName, String orderNumber, OrderStatusEnum status) async {
+    try {
+      await _orderService.changeOrderStatus(
+          orderNumber: orderNumber, status: status);
+      initPage(waitersName);
+    } catch (e) {
+      initPage(waitersName);
+    }
+  }
 }

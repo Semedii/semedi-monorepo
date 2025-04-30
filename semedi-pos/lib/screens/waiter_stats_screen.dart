@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:semedi_pos/components/app_button.dart';
-import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/cubit/waiterStat/waiter_stat_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
@@ -202,6 +201,7 @@ class WaiterStatsScreen extends StatelessWidget {
   }
 
   Widget _buildOrderGrid(BuildContext context, List<OrderModel>? orders) {
+    final cubit = BlocProvider.of<WaiterStatCubit>(context);
     if (orders == null || orders.isEmpty) {
       return const Expanded(
         child: Center(
@@ -232,13 +232,17 @@ class WaiterStatsScreen extends StatelessWidget {
           ),
           itemCount: orders.length,
           itemBuilder: (context, index) =>
-              _buildOrderCard(context, orders[index]),
+              _buildOrderCard(context, orders[index], cubit),
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, OrderModel order) {
+  Widget _buildOrderCard(
+    BuildContext context,
+    OrderModel order,
+    WaiterStatCubit cubit,
+  ) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Container(
@@ -248,7 +252,7 @@ class WaiterStatsScreen extends StatelessWidget {
             children: [
               _buildOrderCardHeader(order),
               _buildOrderCardBody(order),
-              _buildOrderCardFooter(context, order),
+              _buildOrderCardFooter(context, order, cubit),
             ],
           ),
         );
@@ -404,7 +408,8 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCardFooter(BuildContext context, OrderModel order) {
+  Widget _buildOrderCardFooter(
+      BuildContext context, OrderModel order, WaiterStatCubit cubit) {
     final isSmallScreen = MediaQuery.of(context).size.width < 400;
 
     return Padding(
@@ -418,20 +423,20 @@ class WaiterStatsScreen extends StatelessWidget {
             if (isSmallScreen)
               Column(
                 children: [
-                  _buildMarkPaidButton(context, order.orderNumber!),
+                  _buildMarkPaidButton(cubit, order.orderNumber!),
                   const SizedBox(height: 8),
-                  _buildUnPaidButton(context, order.orderNumber!),
+                  _buildUnPaidButton(cubit, order.orderNumber!),
                 ],
               )
             else
               Row(
                 children: [
                   Expanded(
-                    child: _buildMarkPaidButton(context, order.orderNumber!),
+                    child: _buildMarkPaidButton(cubit, order.orderNumber!),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildUnPaidButton(context, order.orderNumber!),
+                    child: _buildUnPaidButton(cubit, order.orderNumber!),
                   ),
                 ],
               ),
@@ -451,22 +456,24 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMarkPaidButton(BuildContext context, String orderNumber) {
+  Widget _buildMarkPaidButton(WaiterStatCubit cubit, String orderNumber) {
     return AppButton(
       color: AppColors.green,
       isSmall: true,
       text: 'Mark as paid',
-      onPressed: () => BlocProvider.of<OrderCubit>(context).changeOrderStatus(
+      onPressed: () => cubit.changeOrderStatus(
+        waitersPerfomance.name,
         orderNumber,
         OrderStatusEnum.paid,
       ),
     );
   }
 
-  Widget _buildUnPaidButton(BuildContext context, String orderNumber) {
+  Widget _buildUnPaidButton(WaiterStatCubit cubit, String orderNumber) {
     return AppButton(
       onPressed: () {
-        BlocProvider.of<OrderCubit>(context).changeOrderStatus(
+        cubit.changeOrderStatus(
+          waitersPerfomance.name,
           orderNumber,
           OrderStatusEnum.unpaid,
         );
