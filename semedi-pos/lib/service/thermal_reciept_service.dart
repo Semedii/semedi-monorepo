@@ -124,6 +124,9 @@ class ThermalReceiptService {
   }
 
   static pw.Widget _buildTotalsSection(double total, int? exchangeRate) {
+    final tax = double.parse((total * 0.05).toStringAsFixed(2));
+    final grandTotal = total + tax;
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.end,
       children: [
@@ -138,7 +141,7 @@ class ThermalReceiptService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text('Tax (5%):'),
-            pw.Text('\$${(total * 0.05).toStringAsFixed(2)}'),
+            pw.Text('\$${tax.toStringAsFixed(2)}'),
           ],
         ),
         pw.Divider(thickness: 0.5),
@@ -146,8 +149,7 @@ class ThermalReceiptService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text('TOTAL:', style: _boldStyle()),
-            pw.Text('\$${(total * 1.05).toStringAsFixed(2)}',
-                style: _boldStyle()),
+            pw.Text('\$${grandTotal.toStringAsFixed(2)}', style: _boldStyle()),
           ],
         ),
         if (exchangeRate != null)
@@ -156,7 +158,7 @@ class ThermalReceiptService {
             children: [
               pw.Text('TOTAL SLSH:', style: _boldStyle()),
               pw.Text(
-                '\$${NumberFormat('#,###.00').format(total * 1.05 * exchangeRate)}',
+                NumberFormat('#,###.00').format(grandTotal * exchangeRate),
                 style: _boldStyle(),
               )
             ],
@@ -174,8 +176,8 @@ class ThermalReceiptService {
           pw.SizedBox(height: 8),
           pw.Divider(thickness: 0.5),
           pw.Text('Powered by:', style: _normalStyle(size: 6)),
-          pw.Text('SEMEDI', style: _boldStyle()),
-          pw.Text('www.semedi.dev', style: _normalStyle(size: 6)),
+          pw.Text('SemediX', style: _boldStyle()),
+          pw.Text('www.semedix.dev', style: _normalStyle(size: 6)),
           pw.SizedBox(height: 4),
           pw.Text(
             'Generated on ${DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now())}',
