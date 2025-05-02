@@ -43,5 +43,6 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginInitial());
       }
     }
+    emit(LoginInitial());
   }
 }
