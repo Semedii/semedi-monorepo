@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
+import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/screens/take_away_order_screen.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
@@ -67,7 +69,15 @@ class TableOrderScreen extends StatelessWidget {
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      actions: [_buildPrintButton(context, tableOrders)],
+      actions: [
+        AppButton(
+          text: 'Add Extra',
+          elevation: 20,
+          onPressed: () {},
+        ),
+        const SizedBox(width: 20),
+        _buildPrintButton(context, tableOrders)
+      ],
     );
   }
 
