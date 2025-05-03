@@ -1,8 +1,8 @@
-part of 'take_away_cubit.dart';
+part of 'take_order_cubit.dart';
 
-sealed class TakeAwayState {}
+sealed class TakeOrderState {}
 
-class TakeAwayStateInitial extends TakeAwayState {
+class TakeOrderStateInitial extends TakeOrderState {
   final String? customerName;
   final String? note;
   final String? searchQuery;
@@ -10,7 +10,7 @@ class TakeAwayStateInitial extends TakeAwayState {
   final Map<MenuItem, int>? selectedItems;
   final List<MenuItem>? filteredMenuItems;
 
-  TakeAwayStateInitial(
+  TakeOrderStateInitial(
       {this.customerName,
       this.menuList,
       this.note,
@@ -18,7 +18,7 @@ class TakeAwayStateInitial extends TakeAwayState {
       this.selectedItems,
       this.filteredMenuItems});
 
-  TakeAwayStateInitial copyWith({
+  TakeOrderStateInitial copyWith({
     String? customerName,
     String? note,
     List<MenuItem>? menuList,
@@ -26,7 +26,7 @@ class TakeAwayStateInitial extends TakeAwayState {
     Map<MenuItem, int>? selectedItems,
     List<MenuItem>? filteredMenuItems,
   }) {
-    return TakeAwayStateInitial(
+    return TakeOrderStateInitial(
       customerName: customerName ?? this.customerName,
       note: note ?? this.note,
       searchQuery: searchQuery ?? this.searchQuery,
@@ -37,10 +37,10 @@ class TakeAwayStateInitial extends TakeAwayState {
   }
 }
 
-class TakeAwayStateSuccess extends TakeAwayState {}
+class TakeOrderStateSuccess extends TakeOrderState {}
 
-class TakeAwayStateFailure extends TakeAwayState {
+class TakeOrderStateFailure extends TakeOrderState {
   final String message;
 
-  TakeAwayStateFailure({required this.message});
+  TakeOrderStateFailure({required this.message});
 }

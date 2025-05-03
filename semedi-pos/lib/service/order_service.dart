@@ -9,7 +9,7 @@ import 'package:semedi_pos/utils/order_status_enum.dart';
 class OrderService {
   final db = FirebaseFirestore.instance;
 
-  addTakeAwayOrder(OrderModel order) async {
+  addTakeOrder(OrderModel order) async {
     try {
       final orderNumber = await _getLastOrderNumber();
       String? restaurant = await _getRestaurantName();

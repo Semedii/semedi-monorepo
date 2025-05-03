@@ -4,28 +4,28 @@ import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
-part 'take_away_state.dart';
+part 'take_order_state.dart';
 
-class TakeAwayCubit extends Cubit<TakeAwayState> {
-  TakeAwayCubit() : super(TakeAwayStateInitial());
+class TakeOrderCubit extends Cubit<TakeOrderState> {
+  TakeOrderCubit() : super(TakeOrderStateInitial());
 
   initPage() async {
     List<MenuItem>? menuList = await ManagementService().getMenuList();
-    emit(TakeAwayStateInitial(menuList: menuList));
+    emit(TakeOrderStateInitial(menuList: menuList));
   }
 
   void onCustomerNameChange(String name) {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     emit(currentState.copyWith(customerName: name));
   }
 
   void onNoteChange(String note) {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     emit(currentState.copyWith(note: note));
   }
 
   void onSearchQueryChange(String query) {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     final filtered = currentState.menuList!
         .where((item) => item.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
@@ -34,7 +34,7 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
   }
 
   void onAddItem(MenuItem item) {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     Map<MenuItem, int>? updated =
         Map<MenuItem, int>.from(currentState.selectedItems ?? {});
     updated[item] = (updated[item] ?? 0) + 1;
@@ -42,7 +42,7 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
   }
 
   void onRemoveItem(MenuItem item) {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     final items = Map<MenuItem, int>.from(currentState.selectedItems ?? {});
 
     if (items.containsKey(item)) {
@@ -54,14 +54,14 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
   }
 
   getTotalPrice() {
-    var currentState = state as TakeAwayStateInitial;
+    var currentState = state as TakeOrderStateInitial;
     final total = currentState.selectedItems?.entries
         .fold<double>(0, (sum, item) => sum + item.key.price);
     return total;
   }
 
   onSubmit(int? tableNumber) async {
-    final currentState = state as TakeAwayStateInitial;
+    final currentState = state as TakeOrderStateInitial;
 
     final selectedItems = currentState.selectedItems ?? {};
     final menuList = currentState.menuList ?? [];
@@ -86,10 +86,10 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
       waiter: "Cashier",
     );
     try {
-      await OrderService().addTakeAwayOrder(newOrder);
-      emit(TakeAwayStateSuccess());
+      await OrderService().addTakeOrder(newOrder);
+      emit(TakeOrderStateSuccess());
     } catch (e) {
-      emit(TakeAwayStateFailure(message: e.toString()));
+      emit(TakeOrderStateFailure(message: e.toString()));
     }
   }
 }

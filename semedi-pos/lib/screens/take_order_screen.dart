@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_confirmation.dialog.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
-import 'package:semedi_pos/cubit/login/takeAway/take_away_cubit.dart';
+import 'package:semedi_pos/cubit/login/takeAway/take_order_cubit.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/text_validators.dart';
@@ -17,10 +17,10 @@ class TakeOrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => TakeAwayCubit()..initPage(),
-      child: BlocConsumer<TakeAwayCubit, TakeAwayState>(
+      create: (_) => TakeOrderCubit()..initPage(),
+      child: BlocConsumer<TakeOrderCubit, TakeOrderState>(
         listener: (context, state) {
-          if (state is TakeAwayStateSuccess) {
+          if (state is TakeOrderStateSuccess) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -29,7 +29,7 @@ class TakeOrderScreen extends StatelessWidget {
               ),
             );
           }
-          if (state is TakeAwayStateFailure) {
+          if (state is TakeOrderStateFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -43,8 +43,8 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _mapStateToWidget(BuildContext context, TakeAwayState state) {
-    if (state is TakeAwayStateInitial) {
+  Widget _mapStateToWidget(BuildContext context, TakeOrderState state) {
+    if (state is TakeOrderStateInitial) {
       return _buildScreenBody(context, state);
     }
     return const Scaffold(
@@ -54,7 +54,7 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Scaffold _buildScreenBody(BuildContext context, TakeAwayStateInitial state) {
+  Scaffold _buildScreenBody(BuildContext context, TakeOrderStateInitial state) {
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: AppColors.offWhite),
@@ -85,7 +85,7 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, TakeAwayStateInitial state) {
+  Widget _buildBody(BuildContext context, TakeOrderStateInitial state) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -111,7 +111,7 @@ class TakeOrderScreen extends StatelessWidget {
   Widget _buildCustomerNameField(BuildContext context) {
     return TxtFormField(
       labelText: "Customer Name",
-      onChanged: context.read<TakeAwayCubit>().onCustomerNameChange,
+      onChanged: context.read<TakeOrderCubit>().onCustomerNameChange,
       validator: TextValidators.fieldRequired,
     );
   }
@@ -119,14 +119,14 @@ class TakeOrderScreen extends StatelessWidget {
   Widget _buildSearchField(BuildContext context) {
     return TxtFormField(
       labelText: "Search Menu",
-      onChanged: context.read<TakeAwayCubit>().onSearchQueryChange,
+      onChanged: context.read<TakeOrderCubit>().onSearchQueryChange,
     );
   }
 
   Widget _buildSelectedItemsSection(
-      BuildContext context, TakeAwayStateInitial state) {
+      BuildContext context, TakeOrderStateInitial state) {
     final selectedItems = state.selectedItems ?? {};
-    final cubit = context.read<TakeAwayCubit>();
+    final cubit = context.read<TakeOrderCubit>();
 
     if (selectedItems.isEmpty) return const SizedBox();
 
@@ -171,9 +171,9 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context, TakeAwayStateInitial state) {
+  Widget _buildMenuSection(BuildContext context, TakeOrderStateInitial state) {
     final menuItems = state.filteredMenuItems ?? state.menuList ?? [];
-    final cubit = context.read<TakeAwayCubit>();
+    final cubit = context.read<TakeOrderCubit>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +207,7 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(MenuItem item, TakeAwayCubit cubit) {
+  Widget _buildMenuCard(MenuItem item, TakeOrderCubit cubit) {
     return GestureDetector(
       onTap: item.isAvailable ? () => cubit.onAddItem(item) : null,
       child: Card(
@@ -233,8 +233,9 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomActions(BuildContext context, TakeAwayStateInitial state) {
-    final cubit = context.read<TakeAwayCubit>();
+  Widget _buildBottomActions(
+      BuildContext context, TakeOrderStateInitial state) {
+    final cubit = context.read<TakeOrderCubit>();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -266,8 +267,8 @@ class TakeOrderScreen extends StatelessWidget {
   }
 
   void showConfirmOrderDialog(
-      BuildContext context, TakeAwayStateInitial state) {
-    final cubit = BlocProvider.of<TakeAwayCubit>(context);
+      BuildContext context, TakeOrderStateInitial state) {
+    final cubit = BlocProvider.of<TakeOrderCubit>(context);
     final total = cubit.getTotalPrice();
 
     showDialog(
