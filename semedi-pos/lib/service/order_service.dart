@@ -52,7 +52,10 @@ class OrderService {
         )
         .snapshots()
         .map((querySnapshot) {
-      final orders = querySnapshot.docs.map((doc) => doc.data()).toList();
+      final orders = querySnapshot.docs
+          .map((doc) => doc.data())
+          .where((order) => order.status != OrderStatusEnum.unpaid)
+          .toList();
 
       return orders;
     });
