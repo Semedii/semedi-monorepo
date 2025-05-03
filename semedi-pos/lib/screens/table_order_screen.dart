@@ -6,7 +6,7 @@ import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order.dart';
-import 'package:semedi_pos/screens/take_away_order_screen.dart';
+import 'package:semedi_pos/screens/take_order_screen.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
@@ -73,7 +73,15 @@ class TableOrderScreen extends StatelessWidget {
         AppButton(
           text: 'Add Extra',
           elevation: 20,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => TakeOrderScreen(
+                          isDineIn: true,
+                          tableNumber: tableNumber,
+                        )));
+          },
         ),
         const SizedBox(width: 20),
         _buildPrintButton(context, tableOrders)

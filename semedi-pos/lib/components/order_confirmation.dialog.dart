@@ -6,7 +6,8 @@ import 'package:semedi_pos/utils/app_colors.dart';
 class OrderConfirmDialog extends StatelessWidget {
   const OrderConfirmDialog({
     required this.selectedItems,
-    required this.customerName,
+    this.customerName,
+    this.tableNumber,
     required this.total,
     required this.submitOrder,
     this.note,
@@ -14,7 +15,8 @@ class OrderConfirmDialog extends StatelessWidget {
   });
 
   final Map<MenuItem, int> selectedItems;
-  final String customerName;
+  final String? customerName;
+  final int? tableNumber;
   final double total;
   final String? note;
   final Function() submitOrder;
@@ -80,6 +82,8 @@ class OrderConfirmDialog extends StatelessWidget {
   }
 
   Container _buildTableInfo() {
+    String orderInfo =
+        tableNumber == null ? 'Order for $customerName' : 'Table: $tableNumber';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
@@ -87,7 +91,7 @@ class OrderConfirmDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        'Order for $customerName',
+        orderInfo,
         style: TextStyle(
           fontWeight: FontWeight.w500,
           color: AppColors.deepBlue,

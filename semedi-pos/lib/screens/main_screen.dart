@@ -9,7 +9,7 @@ import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
-import 'package:semedi_pos/screens/take_away_order_screen.dart';
+import 'package:semedi_pos/screens/take_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
@@ -403,7 +403,7 @@ class MainScreen extends StatelessWidget {
     return AppButton(
       onPressed: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => TakeAwayOrderScreen()));
+            MaterialPageRoute(builder: (context) => TakeOrderScreen()));
       },
       elevation: 12,
       isSmall: true,

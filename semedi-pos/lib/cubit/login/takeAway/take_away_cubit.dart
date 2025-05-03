@@ -60,7 +60,7 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
     return total;
   }
 
-  onSubmit() async {
+  onSubmit(int? tableNumber) async {
     final currentState = state as TakeAwayStateInitial;
 
     final selectedItems = currentState.selectedItems ?? {};
@@ -78,6 +78,7 @@ class TakeAwayCubit extends Cubit<TakeAwayState> {
 
     final newOrder = OrderModel(
       customerName: currentState.customerName,
+      tableNumber: tableNumber,
       itemsWithQuantity: itemsWithQuantity,
       itemsWithPrices: itemsWithPrices,
       status: OrderStatusEnum.ordered,

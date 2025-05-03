@@ -8,11 +8,12 @@ import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/text_validators.dart';
 
-class TakeAwayOrderScreen extends StatelessWidget {
-  TakeAwayOrderScreen({super.key});
+class TakeOrderScreen extends StatelessWidget {
+  TakeOrderScreen({this.isDineIn = false, this.tableNumber, super.key});
 
   final _formKey = GlobalKey<FormState>();
-
+  final bool isDineIn;
+  final int? tableNumber;
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -74,7 +75,7 @@ class TakeAwayOrderScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Text(
-        "Take Away Order",
+        isDineIn ? 'Table: $tableNumber' : "Take Away Order",
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -92,7 +93,7 @@ class TakeAwayOrderScreen extends StatelessWidget {
           key: _formKey,
           child: Column(
             children: [
-              _buildCustomerNameField(context),
+              if (!isDineIn) _buildCustomerNameField(context),
               const SizedBox(height: 12),
               _buildSearchField(context),
               const SizedBox(height: 12),
@@ -252,6 +253,9 @@ class TakeAwayOrderScreen extends StatelessWidget {
                 if (state.selectedItems!.isNotEmpty) {
                   showConfirmOrderDialog(context, state);
                 }
+              } else if (state.selectedItems != null &&
+                  state.selectedItems!.isNotEmpty) {
+                showConfirmOrderDialog(context, state);
               }
             },
             text: "Submit Order",
@@ -270,9 +274,10 @@ class TakeAwayOrderScreen extends StatelessWidget {
         context: context,
         builder: (context) => OrderConfirmDialog(
               selectedItems: state.selectedItems!,
-              customerName: state.customerName!,
+              customerName: state.customerName,
+              tableNumber: tableNumber,
               total: total,
-              submitOrder: () => cubit.onSubmit(),
+              submitOrder: () => cubit.onSubmit(tableNumber),
               note: state.note,
             ));
   }
