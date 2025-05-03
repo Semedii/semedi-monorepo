@@ -165,6 +165,8 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildStatsHeader(OrderLoaded state) {
+    int paidOrders = state.paidOrders?.length ?? 0;
+    int unpaidOrders = state.unPaidOrders?.length ?? 0;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       decoration: BoxDecoration(
@@ -188,8 +190,8 @@ class MainScreen extends StatelessWidget {
             ),
             const SizedBox(width: 24),
             _buildStatCard(
-              title: 'Paid Orders',
-              value: state.paidOrders?.length.toString() ?? '0',
+              title: 'Completed Orders',
+              value: (paidOrders + unpaidOrders).toString(),
               icon: Icons.check_circle,
               color: AppColors.green,
             ),

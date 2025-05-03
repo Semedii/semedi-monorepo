@@ -41,8 +41,12 @@ class ReportScreen extends StatelessWidget {
     for (final order in unPaidOrders) {
       if (order.tableNumber == null) {
         unPaidTakeAway += order.total;
+        takeAwayTotal += order.total;
+        noOfTakeAwayOrders++;
       } else {
         unPaidDineIn += order.total;
+        dineInTotal += order.total;
+        noOfDineInOrders++;
       }
     }
 

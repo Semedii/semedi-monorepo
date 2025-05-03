@@ -120,7 +120,7 @@ class WaitersPerfomanceScreen extends StatelessWidget {
             waiter.totalOrders.toString(),
             color: AppColors.warmOrange,
           ),
-          _buildDataCell(waiter.unpaidOrdersTotal.toString()),
+          _buildDataCell('\$${waiter.unpaidOrdersTotal.toString()}'),
           _buildDataCell('\$${waiter.totalSales.toStringAsFixed(2)}'),
           _buildVIewButton(context, waiter),
         ],
