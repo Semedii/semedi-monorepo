@@ -13,6 +13,7 @@ class OrderModel {
   final double total;
   final String waiter;
   final String? paymentInfo;
+  final bool? isKitchenRequired;
 
   OrderModel({
     this.customerName,
@@ -25,6 +26,7 @@ class OrderModel {
     required this.waiter,
     this.note,
     this.orderNumber,
+    this.isKitchenRequired = true,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
@@ -41,6 +43,7 @@ class OrderModel {
       'total': total,
       'waiter': waiter,
       'namePhone': paymentInfo,
+      'isKitchenRequired': isKitchenRequired,
     };
   }
 
@@ -63,6 +66,7 @@ class OrderModel {
       total: (data['total'] as num?)?.toDouble() ?? 0,
       waiter: data['waiter'] ?? "unknown",
       paymentInfo: data['namePhone'],
+      isKitchenRequired: data['isKitchenRequired'] ?? true,
     );
   }
 
@@ -75,6 +79,7 @@ class OrderModel {
     required DateTime timestamp,
     required double total,
     required String waiter,
+    bool isKitchenRequired = true,
   }) {
     return OrderModel(
       tableNumber: tableNumber,
@@ -87,6 +92,7 @@ class OrderModel {
       total: total,
       waiter: waiter,
       paymentInfo: paymentInfo,
+      isKitchenRequired: isKitchenRequired,
     );
   }
 }

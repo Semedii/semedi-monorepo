@@ -1,59 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
+import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class OrderConfirmDialog extends StatelessWidget {
   const OrderConfirmDialog({
-    required this.orderItemsWithQuantity,
     required this.tableNumber,
-    required this.total,
-    required this.submitOrder,
-    this.note,
+    required this.orderCubit,
     super.key,
   });
 
-  final Map<String, int> orderItemsWithQuantity;
   final int tableNumber;
-  final double total;
-  final Function() submitOrder;
-  final String? note;
+  final OrderCubit orderCubit;
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      insetPadding: const EdgeInsets.all(20),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.offWhite,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(context),
-                const Divider(height: 24),
-                _buildTableInfo(),
-                const SizedBox(height: 16),
-                _buildOrderItemList(),
-                if (note?.isNotEmpty ?? false) _buildSpecialNote(),
-                const Divider(height: 24),
-                _buildTotalPrice(),
-                const SizedBox(height: 24),
-                _buildActionButtons(context),
-              ],
-            ),
-          ),
-        ),
+    return BlocProvider.value(
+      value: orderCubit,
+      child: BlocBuilder<OrderCubit, OrderState>(
+        builder: (context, state) {
+          if (state is OrderIdle) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              insetPadding: const EdgeInsets.all(20),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: SingleChildScrollView(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.offWhite,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildHeader(context),
+                        _buildKitchenRequiredToggle(context, state),
+                        const Divider(height: 24),
+                        _buildTableInfo(),
+                        const SizedBox(height: 16),
+                        _buildOrderItemList(context),
+                        if (state.note?.isNotEmpty ?? false)
+                          _buildSpecialNote(state),
+                        const Divider(height: 24),
+                        _buildTotalPrice(context),
+                        const SizedBox(height: 24),
+                        _buildActionButtons(context),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
@@ -78,6 +86,22 @@ class OrderConfirmDialog extends StatelessWidget {
     );
   }
 
+  Row _buildKitchenRequiredToggle(BuildContext context, OrderIdle state) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text("Kitchen Required"),
+        Switch(
+          value: state.isKitchenRequired,
+          onChanged:
+              BlocProvider.of<OrderCubit>(context).onIsKitchenRequiredChanged,
+          activeColor: AppColors.green,
+          inactiveTrackColor: AppColors.darkGrey.withOpacity(0.5),
+        )
+      ],
+    );
+  }
+
   Container _buildTableInfo() {
     String info = tableNumber == 10001 ? 'Take Away' : 'Table $tableNumber';
     return Container(
@@ -96,7 +120,10 @@ class OrderConfirmDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderItemList() {
+  Widget _buildOrderItemList(BuildContext context) {
+    final Map<String, int> orderItemsWithQuantity =
+        BlocProvider.of<OrderCubit>(context).getOrderItemQuantity();
+
     return Column(
       children: orderItemsWithQuantity.entries.map((entry) {
         return Padding(
@@ -128,7 +155,7 @@ class OrderConfirmDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSpecialNote() {
+  Widget _buildSpecialNote(OrderIdle state) {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
@@ -140,7 +167,7 @@ class OrderConfirmDialog extends StatelessWidget {
             constraints: const BoxConstraints(maxHeight: 100),
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
-              child: Text(note!),
+              child: Text(state.note!),
             ),
           ),
         ],
@@ -148,7 +175,8 @@ class OrderConfirmDialog extends StatelessWidget {
     );
   }
 
-  Row _buildTotalPrice() {
+  Row _buildTotalPrice(BuildContext context) {
+    final total = BlocProvider.of<OrderCubit>(context).getTotalPrice();
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -197,7 +225,7 @@ class OrderConfirmDialog extends StatelessWidget {
         text: 'CONFIRM',
         onPressed: () {
           Navigator.pop(context);
-          submitOrder();
+          BlocProvider.of<OrderCubit>(context).submitOrder(tableNumber);
         },
       ),
     );

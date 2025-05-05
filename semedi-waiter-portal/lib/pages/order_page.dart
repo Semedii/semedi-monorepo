@@ -234,17 +234,12 @@ class OrderPage extends StatelessWidget {
 
   void showConfirmOrderDialog(BuildContext context, OrderIdle state) {
     final cubit = BlocProvider.of<OrderCubit>(context);
-    final orderItemsWithQuantity = cubit.getOrderItemQuantity();
-    final total = cubit.getTotalPrice();
 
     showDialog(
       context: context,
       builder: (context) => OrderConfirmDialog(
-        orderItemsWithQuantity: orderItemsWithQuantity,
         tableNumber: tableNumber,
-        total: total,
-        submitOrder: () => cubit.submitOrder(tableNumber),
-        note: state.note,
+        orderCubit: cubit,
       ),
     );
   }

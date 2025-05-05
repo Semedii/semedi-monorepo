@@ -11,6 +11,7 @@ final class OrderIdle extends OrderState {
   final OrderStatusEnum status;
   final String searchQuery;
   final String? note;
+  final bool isKitchenRequired;
 
   OrderIdle({
     required this.selectedItems,
@@ -19,6 +20,7 @@ final class OrderIdle extends OrderState {
     this.status = OrderStatusEnum.ordered,
     this.searchQuery = '',
     this.note,
+    this.isKitchenRequired = true,
   });
 
   OrderIdle copyWith({
@@ -27,6 +29,7 @@ final class OrderIdle extends OrderState {
     OrderStatusEnum? status,
     String? searchQuery,
     String? note,
+    bool? isKitchenRequired,
   }) {
     return OrderIdle(
       selectedItems: selectedItems ?? this.selectedItems,
@@ -35,6 +38,7 @@ final class OrderIdle extends OrderState {
       status: status ?? this.status,
       searchQuery: searchQuery ?? this.searchQuery,
       note: note ?? this.note,
+      isKitchenRequired: isKitchenRequired ?? this.isKitchenRequired,
     );
   }
 }

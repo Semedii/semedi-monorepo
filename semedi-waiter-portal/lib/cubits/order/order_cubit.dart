@@ -35,6 +35,11 @@ class OrderCubit extends Cubit<OrderState> {
     emit(currentState.copyWith(note: note));
   }
 
+  void onIsKitchenRequiredChanged(bool? isKitchenRequired) {
+    var currentState = state as OrderIdle;
+    emit(currentState.copyWith(isKitchenRequired: isKitchenRequired));
+  }
+
   void onRemoveItem(int index) {
     var currentState = state as OrderIdle;
     final newItems = List<MenuItem>.from(currentState.selectedItems);
@@ -84,6 +89,7 @@ class OrderCubit extends Cubit<OrderState> {
         currentState.selectedItems,
         tableNumber,
         currentState.note,
+        currentState.isKitchenRequired,
       );
       emit(OrderSuccess(orderNumber: orderNumber.toString()));
     } catch (e) {

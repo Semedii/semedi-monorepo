@@ -13,13 +13,14 @@ class OrderService {
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
+    bool? isKitchenRequired,
   ) async {
     try {
       String? waiter = await secureStorageService.read('waiter_name');
       String? restaurantName = await _getRestaurantName();
       int orderNumber = await _getLastOrderNumber() + 1;
-      OrderModel order =
-          _prepareOrderData(selectedItems, tableNumber, note, waiter);
+      OrderModel order = _prepareOrderData(
+          selectedItems, tableNumber, note, waiter, isKitchenRequired);
       final orderRef = db
           .collection('shops')
           .doc(restaurantName)
@@ -84,6 +85,7 @@ class OrderService {
     int tableNumber,
     String? note,
     String? waiter,
+    bool? isKitchenRequired,
   ) {
     final itemsWithQuantity = <String, int>{};
     final itemsWithPrices = <String, double>{};
@@ -106,6 +108,7 @@ class OrderService {
       status: OrderStatusEnum.ordered,
       timestamp: DateTime.now(),
       total: total,
+      isKitchenRequired: isKitchenRequired,
       waiter: waiter ?? "unknown",
     );
   }
