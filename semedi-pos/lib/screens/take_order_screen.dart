@@ -249,10 +249,12 @@ class TakeOrderScreen extends StatelessWidget {
           const SizedBox(height: 10),
           AppButton(
             onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  state.selectedItems != null) {
-                if (state.selectedItems!.isNotEmpty) {
-                  showConfirmOrderDialog(context, state);
+              if (!isDineIn) {
+                if (_formKey.currentState!.validate() &&
+                    state.selectedItems != null) {
+                  if (state.selectedItems!.isNotEmpty) {
+                    showConfirmOrderDialog(context, state);
+                  }
                 }
               } else if (state.selectedItems != null &&
                   state.selectedItems!.isNotEmpty) {
