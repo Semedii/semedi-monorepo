@@ -13,7 +13,7 @@ class OrderModel {
   final double total;
   final String waiter;
   final String? paymentInfo;
-  final bool? isKitchenRequired;
+  final bool isKitchenRequired;
 
   OrderModel({
     this.customerName,

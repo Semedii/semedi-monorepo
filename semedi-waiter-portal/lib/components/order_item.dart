@@ -190,7 +190,7 @@ class OrderItem extends StatelessWidget {
           style: TextStyle(color: AppColors.deepBlue),
         ),
         if (isReady) _buildDeliverButton(),
-        if (isOrdered) _buildCancelButton(),
+        if (isOrdered || !order.isKitchenRequired) _buildCancelButton(),
         if (isDelivered || isPaymentNotRecieved) ...{
           _buildRequestPayApprovalButton(context),
         }

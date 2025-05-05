@@ -13,7 +13,7 @@ class OrderService {
     List<MenuItem> selectedItems,
     int tableNumber,
     String? note,
-    bool? isKitchenRequired,
+    bool isKitchenRequired,
   ) async {
     try {
       String? waiter = await secureStorageService.read('waiter_name');
@@ -85,7 +85,7 @@ class OrderService {
     int tableNumber,
     String? note,
     String? waiter,
-    bool? isKitchenRequired,
+    bool isKitchenRequired,
   ) {
     final itemsWithQuantity = <String, int>{};
     final itemsWithPrices = <String, double>{};
@@ -105,7 +105,8 @@ class OrderService {
       note: note,
       itemsWithQuantity: itemsWithQuantity,
       itemsWithPrices: itemsWithPrices,
-      status: OrderStatusEnum.ordered,
+      status:
+          isKitchenRequired ? OrderStatusEnum.ordered : OrderStatusEnum.ready,
       timestamp: DateTime.now(),
       total: total,
       isKitchenRequired: isKitchenRequired,
