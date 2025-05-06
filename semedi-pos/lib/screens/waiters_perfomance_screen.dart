@@ -18,25 +18,11 @@ class WaitersPerfomanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('WAITERS PERFORMANCE REPORT',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-              color: AppColors.offWhite,
-            )),
-        backgroundColor: AppColors.deepBlue,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.offWhite),
-      ),
-      body: BlocProvider(
-        create: (context) => WaitersPerfomanceCubit(_orderService)..initPage(),
-        child: BlocConsumer<WaitersPerfomanceCubit, WaitersPerfomanceState>(
-          listener: _getListener,
-          builder: _mapStateToWidget,
-        ),
+    return BlocProvider(
+      create: (context) => WaitersPerfomanceCubit(_orderService)..initPage(),
+      child: BlocConsumer<WaitersPerfomanceCubit, WaitersPerfomanceState>(
+        listener: _getListener,
+        builder: _mapStateToWidget,
       ),
     );
   }
@@ -51,28 +37,55 @@ class WaitersPerfomanceScreen extends StatelessWidget {
     return const SizedBox.shrink();
   }
 
-  Padding _buildPageBody(
+  Widget _buildPageBody(
     BuildContext context,
     WaitersPerfomanceLoaded state,
   ) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Expanded(
-            child: Container(
-              decoration: _buildBoxDecoration(),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: _buildDataTable(context, state),
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 24),
+            Expanded(
+              child: Container(
+                decoration: _buildBoxDecoration(),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _buildDataTable(context, state),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          _buildActionButtons(context, state),
-        ],
+            const SizedBox(height: 16),
+            _buildActionButtons(context, state),
+          ],
+        ),
       ),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    final cubit = BlocProvider.of<WaitersPerfomanceCubit>(context);
+    return AppBar(
+      title: Text('WAITERS PERFORMANCE REPORT',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+            color: AppColors.offWhite,
+          )),
+      backgroundColor: AppColors.deepBlue,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: AppColors.offWhite),
+      actions: [
+        IconButton(
+          padding: const EdgeInsets.only(right: 16),
+          onPressed: cubit.initPage,
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh',
+        )
+      ],
     );
   }
 
