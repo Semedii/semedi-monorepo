@@ -1,0 +1,2 @@
+/Users/semedy/StudioProjects/personal/semedi_kitchen/android/app/.cxx/Debug/1gf42k10/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/semedy/StudioProjects/personal/semedi_kitchen/android/app/.cxx/Debug/1gf42k10/armeabi-v7a/CMakeFiles/rebuild_cache.dir
