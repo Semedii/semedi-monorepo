@@ -86,7 +86,7 @@ class LoginScreen extends StatelessWidget {
 
   Text _buildHeaderTitle() {
     return Text(
-      'SEMEDI POS',
+      'eDine',
       style: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.bold,
