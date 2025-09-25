@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/cubit/login/login_cubit.dart';
+import 'package:semedi_pos/service/service_locator.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -13,7 +14,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: BlocProvider(
-        create: (context) => LoginCubit(),
+        create: (context) => LoginCubit(getIt(), getIt()),
         child: BlocConsumer<LoginCubit, LoginState>(
           listener: (context, state) {
             if (state is LoginFailure) {

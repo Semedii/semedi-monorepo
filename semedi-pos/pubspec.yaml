@@ -47,6 +47,11 @@ dependencies:
   open_file: ^3.5.10
   audioplayers: ^6.4.0
   printing: ^5.14.2
+  supabase_flutter: ^2.10.1
+  flutter_dotenv: ^6.0.0
+  jwt_decoder: ^2.0.1
+  provider: ^6.1.5+1
+  get_it: ^8.2.0
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +90,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/sounds/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

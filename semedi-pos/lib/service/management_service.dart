@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
-import 'package:semedi_pos/service/auth_service.dart';
 
 import 'package:semedi_pos/service/secure_storage_service.dart';
 
@@ -51,8 +50,8 @@ class ManagementService {
 
   addNewWaiter(Waiter waiter, String password) async {
     try {
-      await AuthService()
-          .createUserWithEmailAndPassword(waiter.email, password);
+      // await AuthService()
+      //     .createUserWithEmailAndPassword(waiter.email, password);
       await db
           .collection('users')
           .doc('waiterRoot')

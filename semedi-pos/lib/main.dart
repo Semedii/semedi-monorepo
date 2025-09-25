@@ -1,19 +1,32 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:semedi_pos/cubit/login/login_cubit.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:semedi_pos/authentication/auth_provider.dart';
 import 'package:semedi_pos/firebase_options.dart';
-import 'package:semedi_pos/models/cashier.dart';
 import 'package:semedi_pos/screens/login_screen.dart';
 import 'package:semedi_pos/screens/main_screen.dart';
-import 'package:semedi_pos/service/auth_service.dart';
+import 'package:semedi_pos/service/service_locator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  await dotenv.load(fileName: ".env");
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['ANON_KEY'] ?? '',
+  );
+  await setup();
+  runApp(
+    ChangeNotifierProvider<AuthProvider>(
+      create: (_) => getIt(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,28 +34,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => LoginCubit()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: StreamBuilder<Cashier?>(
-          stream: AuthService().authStateWithUser,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            }
-            if (snapshot.hasData && snapshot.data != null) {
-              return MainScreen();
-            } else {
-              return BlocProvider.value(
-                value: BlocProvider.of<LoginCubit>(context),
-                child: const LoginScreen(),
-              );
-            }
-          },
-        ),
+    return MaterialApp(
+      home: Consumer<AuthProvider>(
+        builder: (context, authProvider, child) {
+          if (authProvider.isLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return authProvider.isAuthenticated
+              ? MainScreen()
+              : const LoginScreen();
+        },
       ),
     );
   }
