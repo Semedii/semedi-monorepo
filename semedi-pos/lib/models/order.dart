@@ -28,7 +28,7 @@ class OrderModel {
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  // Convert to Firestore format
+  //Todo: delete
   Map<String, dynamic> toFirestore() {
     return {
       'customerName': customerName,
@@ -43,6 +43,7 @@ class OrderModel {
     };
   }
 
+  //Todo: delete
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return OrderModel(
