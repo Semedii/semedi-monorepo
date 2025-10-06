@@ -73,7 +73,7 @@ class HomeCubit extends Cubit<HomeState> {
   List<OrderModel> getActiveOrders() {
     final currentState = state as HomeLoaded;
     final activeOrders = currentState.orders
-        .where((order) => order.status != OrderStatusEnum.paid)
+        .where((order) => order.status != OrderStatusEnum.paid.name)
         .toList();
     return activeOrders;
   }
@@ -81,7 +81,7 @@ class HomeCubit extends Cubit<HomeState> {
   List<OrderModel> getPaidOrders() {
     final currentState = state as HomeLoaded;
     final activeOrders = currentState.orders
-        .where((order) => order.status == OrderStatusEnum.paid)
+        .where((order) => order.status == OrderStatusEnum.paid.name)
         .toList();
 
     return activeOrders;
