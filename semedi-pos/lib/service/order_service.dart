@@ -14,11 +14,16 @@ class OrderService {
   Stream<List<OrderModel>> getActiveOrders() {
     return _supabase
         .from('orders')
-        .select(
-            'id, status, created_at, profiles(full_name),dining_tables(table_number), order_items(quantity, menu_items(name, price))')
-        .eq('status', 'pending')
-        .asStream()
-        .map((rows) => rows.map((e) => OrderModel.fromJson(e)).toList());
+        .stream(primaryKey: ['id']).asyncMap((_) async {
+      final response = await _supabase.from('orders').select('''
+              id, status, created_at, 
+              profiles(full_name), 
+              dining_tables(table_number), 
+              order_items(quantity, menu_items(name, price))
+            ''').neq('status', 'paid');
+
+      return response.map((e) => OrderModel.fromJson(e)).toList();
+    });
   }
 
   Future<List<OrderModel>?> getOrdersByStatus(String status) async {
