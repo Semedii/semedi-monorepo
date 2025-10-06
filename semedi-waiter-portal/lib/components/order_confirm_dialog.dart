@@ -46,7 +46,7 @@ class OrderConfirmDialog extends StatelessWidget {
                         const Divider(height: 24),
                         _buildTableInfo(),
                         const SizedBox(height: 16),
-                        _buildOrderItemList(context),
+                        _buildOrderItemList(context, state),
                         if (state.note?.isNotEmpty ?? false)
                           _buildSpecialNote(state),
                         const Divider(height: 24),
@@ -120,12 +120,9 @@ class OrderConfirmDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderItemList(BuildContext context) {
-    final Map<String, int> orderItemsWithQuantity =
-        BlocProvider.of<OrderCubit>(context).getOrderItemQuantity();
-
+  Widget _buildOrderItemList(BuildContext context, OrderIdle state) {
     return Column(
-      children: orderItemsWithQuantity.entries.map((entry) {
+      children: state.orderItems.map((item) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
@@ -139,7 +136,7 @@ class OrderConfirmDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '${entry.value}',
+                  '${item.itemPrice}',
                   style: TextStyle(
                     color: AppColors.deepBlue,
                     fontWeight: FontWeight.bold,
@@ -147,7 +144,7 @@ class OrderConfirmDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(entry.key)),
+              Expanded(child: Text(item.itemName ?? '')),
             ],
           ),
         );
@@ -176,13 +173,12 @@ class OrderConfirmDialog extends StatelessWidget {
   }
 
   Row _buildTotalPrice(BuildContext context) {
-    final total = BlocProvider.of<OrderCubit>(context).getTotalPrice();
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold)),
         Text(
-          '\$${total.toStringAsFixed(2)}',
+          '\$',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

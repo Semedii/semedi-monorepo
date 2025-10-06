@@ -6,6 +6,7 @@ import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/models/order_item.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/utils/app_colors.dart';
 
@@ -71,7 +72,7 @@ class OrderPage extends StatelessWidget {
                       children: [
                         _buildSelectedItemsSection(
                           context,
-                          state.selectedItems,
+                          state.orderItems,
                         ),
                         const SizedBox(height: 16),
                         Divider(thickness: 2, color: AppColors.deepBlue),
@@ -126,10 +127,10 @@ class OrderPage extends StatelessWidget {
   }
 
   Widget _buildSelectedItemsSection(
-      BuildContext context, List<MenuItem> selectedItems) {
+      BuildContext context, List<OrderItem> selectedItems) {
     return selectedItems.isEmpty
         ? _buildNoSelectedItemsText()
-        : _buildSelectedItemsList(context);
+        : _buildSelectedItemsList(context, selectedItems);
   }
 
   Widget _buildNoSelectedItemsText() {
@@ -144,18 +145,17 @@ class OrderPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedItemsList(BuildContext context) {
+  Widget _buildSelectedItemsList(
+      BuildContext context, List<OrderItem> selectedItems) {
     final orderCubit = BlocProvider.of<OrderCubit>(context);
-    final orderItemsWithQuantity = orderCubit.getOrderItemQuantity();
-    final itemList = orderItemsWithQuantity.entries.toList();
 
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: itemList.length,
+      itemCount: selectedItems.length,
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        final entry = itemList[index];
+        final item = selectedItems[index];
         return Row(
           children: [
             Container(
@@ -167,7 +167,7 @@ class OrderPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '${entry.value}x',
+                '${item.itemQuantity}x',
                 style: TextStyle(
                   color: AppColors.deepBlue,
                   fontWeight: FontWeight.bold,
@@ -175,7 +175,7 @@ class OrderPage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(entry.key)),
+            Expanded(child: Text(item.itemName ?? '')),
             IconButton(
               onPressed: () => orderCubit.onRemoveItem(index),
               icon: Icon(

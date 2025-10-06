@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:semedi/models/order.dart';
-
+import 'package:semedi/models/order_model.dart';
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
@@ -20,27 +19,23 @@ class HomeCubit extends Cubit<HomeState> {
       : _orderService = orderService,
         super(const HomeInitial());
   final AudioPlayer _audioPlayer = AudioPlayer();
+
   void listenToOrders() async {
     emit(const HomeLoading());
     final int totalTables = await MenuService().getTotalTableNumber();
-    final waiterName = await _secureStorageService.read('waiter_name');
-    String? restaurantName = await _secureStorageService.read('restaurant');
 
     List<OrderModel> previousOrders = [];
 
     _ordersSubscription?.cancel();
 
-    _ordersSubscription =
-        _orderService.getAllOrders(waiterName, restaurantName).listen(
+    _ordersSubscription = _orderService.getAllOrders().listen(
       (orders) async {
         if (_shouldPlaySound(previousOrders, orders)) {
           _playNotificationSound();
         }
 
         previousOrders = orders;
-
-        String? restaurantName = await _secureStorageService.read('restaurant');
-        emit(HomeLoaded(orders, totalTables, restaurantName));
+        emit(HomeLoaded(orders, totalTables, 'restaurantName'));
       },
       onError: (error) {
         emit(HomeError('Failed to load orders: $error'));
@@ -51,12 +46,12 @@ class HomeCubit extends Cubit<HomeState> {
   bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
     final prevReadyIds = prev
         .where((order) => order.status == OrderStatusEnum.ready)
-        .map((order) => order.orderNumber)
+        .map((order) => order.id)
         .toList();
 
     return current.any((order) =>
         order.status == OrderStatusEnum.ready &&
-        !prevReadyIds.contains(order.orderNumber));
+        !prevReadyIds.contains(order.id));
   }
 
   Future<void> _playNotificationSound() async {
@@ -96,7 +91,7 @@ class HomeCubit extends Cubit<HomeState> {
     if (orderNumber != null) {
       _orderService.updateOrderStatus(
         orderNumber: orderNumber,
-        newStatus: OrderStatusEnum.delivered,
+        newStatus: OrderStatusEnum.served,
       );
       listenToOrders();
     }

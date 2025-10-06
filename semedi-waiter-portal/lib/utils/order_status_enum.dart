@@ -2,7 +2,7 @@ enum OrderStatusEnum {
   ordered,
   preparing,
   ready,
-  delivered,
+  served,
   payPending,
   paymentNotRecieved,
   paid,

@@ -1,0 +1,50 @@
+import 'order_item.dart';
+
+class OrderModel {
+  final String id;
+  final int tableNumber;
+  final String waiterName;
+  final String status;
+  final String? note;
+  final List<OrderItem> items;
+  final DateTime createdAt;
+
+  OrderModel({
+    required this.id,
+    required this.tableNumber,
+    required this.waiterName,
+    required this.status,
+    this.note,
+    required this.items,
+    required this.createdAt,
+  });
+
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    final orderItems = (json['order_items'] as List<dynamic>? ?? [])
+        .map((e) => OrderItem.fromJson(e))
+        .toList();
+
+    return OrderModel(
+      id: (json['id'] as String),
+      tableNumber: json['dining_tables']['table_number'],
+      waiterName: json['profiles']['full_name'],
+      status: json['status'],
+      items: orderItems,
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'waiter_name': waiterName,
+      'status': status,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  double get totalPrice {
+    return items.fold(
+        0, (sum, item) => sum + (item.itemPrice! * item.itemQuantity!));
+  }
+}

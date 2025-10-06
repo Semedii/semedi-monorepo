@@ -5,7 +5,7 @@ import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
 import 'package:semedi/main.dart';
-import 'package:semedi/models/order.dart';
+import 'package:semedi/models/order_model.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
@@ -174,9 +174,9 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  OrderItem _buildOrderItem(
+  OrderItemCard _buildOrderItem(
       BuildContext context, OrderModel order, bool isPaid) {
-    return OrderItem(
+    return OrderItemCard(
       order: order,
       onDeliver: isPaid ? null : () => _onDeliverOrder(context, order),
       onCancel: isPaid ? null : () => _onCancelOrder(context, order),
@@ -185,16 +185,15 @@ class HomePage extends StatelessWidget {
   }
 
   void _onDeliverOrder(BuildContext context, OrderModel order) {
-    BlocProvider.of<HomeCubit>(context).onDeliverOrder(order.orderNumber);
+    context.read<HomeCubit>().onDeliverOrder(order.id);
   }
 
   void _onCancelOrder(BuildContext context, OrderModel order) {
-    BlocProvider.of<HomeCubit>(context).onCancelOrder(order.orderNumber);
+    context.read<HomeCubit>().onCancelOrder(order.id);
   }
 
   void _onRequestPay(BuildContext context, OrderModel order, String namePhone) {
-    BlocProvider.of<HomeCubit>(context)
-        .onRequestPay(order.orderNumber, namePhone);
+    context.read<HomeCubit>().onRequestPay(order.id, namePhone);
   }
 
   void _showTableSelection(BuildContext context, HomeLoaded state) {

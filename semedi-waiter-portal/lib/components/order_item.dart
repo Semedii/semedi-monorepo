@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/txt_form_field.dart';
-import 'package:semedi/models/order.dart';
+import 'package:semedi/models/order_item.dart';
+import 'package:semedi/models/order_model.dart';
 import 'package:semedi/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 import 'package:semedi/utils/text_validators.dart';
 
-class OrderItem extends StatelessWidget {
+class OrderItemCard extends StatelessWidget {
   final OrderModel order;
   final Function()? onDeliver;
   final Function()? onCancel;
   final Function(String namePhone) onRequestPay;
-  OrderItem({
+  OrderItemCard({
     super.key,
     required this.order,
     this.onCancel,
@@ -60,12 +61,13 @@ class OrderItem extends StatelessWidget {
   Column _buildOrderAndTableNumber() {
     String tableOrName = order.tableNumber != null
         ? "TABLE ${order.tableNumber}"
-        : "Take Away: ${order.customerName}";
+        //todo
+        : "Take Away: ${order.waiterName}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Order #${order.orderNumber}',
+          'Order #${order.id}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -91,7 +93,7 @@ class OrderItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        order.status.name.toUpperCase(),
+        order.status.toUpperCase(),
         style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
@@ -104,36 +106,34 @@ class OrderItem extends StatelessWidget {
   Column _buildItemList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: order.itemsWithQuantity.entries
-          .map((entry) => _buildItemCard(entry))
-          .toList(),
+      children: order.items.map((item) => _buildItemCard(item)).toList(),
     );
   }
 
-  Padding _buildItemCard(MapEntry<String, int> entry) {
+  Padding _buildItemCard(OrderItem item) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            width: 24,
             height: 24,
             alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: AppColors.deepBlue.withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '${entry.value}',
+              item.itemName!,
               style: TextStyle(
                 color: AppColors.deepBlue,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          const SizedBox(width: 12),
           Text(
-            entry.key,
+            '${item.itemQuantity}',
             style: const TextStyle(fontSize: 14),
           ),
         ],
@@ -165,10 +165,9 @@ class OrderItem extends StatelessWidget {
   }
 
   Text _buildTimestamp() {
-    String text =
-        order.status == OrderStatusEnum.delivered ? 'Delivered' : 'Ordered';
+    String text = order.status == OrderStatusEnum.served ? 'Served' : 'Ordered';
     return Text(
-      '$text at ${_getTimeFromDateTime(order.timestamp)}',
+      '$text at ${_getTimeFromDateTime(order.createdAt)}',
       style: TextStyle(
         color: AppColors.darkGrey,
         fontSize: 12,
@@ -177,16 +176,16 @@ class OrderItem extends StatelessWidget {
   }
 
   Row _buildWaiterAndActionButton(BuildContext context) {
-    bool isDelivered = order.status == OrderStatusEnum.delivered;
-    bool isOrdered = order.status == OrderStatusEnum.ordered;
-    bool isReady = order.status == OrderStatusEnum.ready;
+    bool isDelivered = order.status == OrderStatusEnum.served.name;
+    bool isOrdered = order.status == OrderStatusEnum.ordered.name;
+    bool isReady = order.status == OrderStatusEnum.ready.name;
     bool isPaymentNotRecieved =
         order.status == OrderStatusEnum.paymentNotRecieved;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          order.waiter,
+          order.waiterName,
           style: TextStyle(color: AppColors.deepBlue),
         ),
         if (isReady) _buildDeliverButton(),
@@ -284,19 +283,19 @@ class OrderItem extends StatelessWidget {
         });
   }
 
-  Color _getStatusChipColor(OrderStatusEnum status) {
+  Color _getStatusChipColor(String status) {
     switch (status) {
-      case OrderStatusEnum.ordered:
+      case 'ordered':
         return AppColors.darkGrey;
-      case OrderStatusEnum.preparing:
+      case 'preparing':
         return AppColors.warmOrange;
-      case OrderStatusEnum.ready:
+      case 'ready':
         return AppColors.green;
-      case OrderStatusEnum.delivered:
+      case 'delivered':
         return AppColors.deepBlue;
-      case OrderStatusEnum.payPending:
+      case 'payPending':
         return AppColors.amberGold;
-      case OrderStatusEnum.paymentNotRecieved:
+      case 'paymentNotRecieved':
         return AppColors.softRed;
       default:
         return Colors.grey;

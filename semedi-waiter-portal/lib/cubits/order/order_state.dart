@@ -5,7 +5,7 @@ sealed class OrderState {}
 final class OrderInitial extends OrderState {}
 
 final class OrderIdle extends OrderState {
-  final List<MenuItem> selectedItems;
+  final List<OrderItem> orderItems;
   final List<MenuItem> allMenuItems;
   final List<MenuItem> filteredMenuItems;
   final OrderStatusEnum status;
@@ -14,7 +14,7 @@ final class OrderIdle extends OrderState {
   final bool isKitchenRequired;
 
   OrderIdle({
-    required this.selectedItems,
+    required this.orderItems,
     required this.allMenuItems,
     required this.filteredMenuItems,
     this.status = OrderStatusEnum.ordered,
@@ -24,7 +24,7 @@ final class OrderIdle extends OrderState {
   });
 
   OrderIdle copyWith({
-    List<MenuItem>? selectedItems,
+    List<OrderItem>? orderItems,
     List<MenuItem>? filteredMenuItems,
     OrderStatusEnum? status,
     String? searchQuery,
@@ -32,7 +32,7 @@ final class OrderIdle extends OrderState {
     bool? isKitchenRequired,
   }) {
     return OrderIdle(
-      selectedItems: selectedItems ?? this.selectedItems,
+      orderItems: orderItems ?? this.orderItems,
       allMenuItems: allMenuItems,
       filteredMenuItems: filteredMenuItems ?? this.filteredMenuItems,
       status: status ?? this.status,

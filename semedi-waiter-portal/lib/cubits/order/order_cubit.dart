@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/models/order_item.dart';
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
@@ -16,7 +17,7 @@ class OrderCubit extends Cubit<OrderState> {
     List<MenuItem> allMenuItems = await _menuService.getMenu();
     emit(
       OrderIdle(
-        selectedItems: [],
+        orderItems: [],
         allMenuItems: allMenuItems,
         filteredMenuItems: allMenuItems,
       ),
@@ -25,8 +26,13 @@ class OrderCubit extends Cubit<OrderState> {
 
   void onSelectedItem(MenuItem item) {
     var currentState = state as OrderIdle;
+    OrderItem orderItem = OrderItem(
+        itemId: item.id,
+        itemName: item.name,
+        itemPrice: item.price,
+        itemQuantity: 1);
     emit(currentState.copyWith(
-      selectedItems: [...currentState.selectedItems, item],
+      orderItems: [...currentState.orderItems, orderItem],
     ));
   }
 
@@ -42,9 +48,9 @@ class OrderCubit extends Cubit<OrderState> {
 
   void onRemoveItem(int index) {
     var currentState = state as OrderIdle;
-    final newItems = List<MenuItem>.from(currentState.selectedItems);
+    final newItems = List<OrderItem>.from(currentState.orderItems);
     newItems.removeAt(index);
-    emit(currentState.copyWith(selectedItems: newItems));
+    emit(currentState.copyWith(orderItems: newItems));
   }
 
   void updateSearchQuery(String query) {
@@ -64,29 +70,12 @@ class OrderCubit extends Cubit<OrderState> {
     ));
   }
 
-  getOrderItemQuantity() {
-    var currentState = state as OrderIdle;
-    final itemsWithQuantity =
-        currentState.selectedItems.fold<Map<String, int>>({}, (map, item) {
-      map[item.name] = (map[item.name] ?? 0) + 1;
-      return map;
-    });
-    return itemsWithQuantity;
-  }
-
-  getTotalPrice() {
-    var currentState = state as OrderIdle;
-    final total = currentState.selectedItems
-        .fold<double>(0, (sum, item) => sum + item.price);
-    return total;
-  }
-
   submitOrder(int tableNumber) async {
     var currentState = state as OrderIdle;
     emit(OrderLoading());
     try {
       var orderNumber = await _orderService.addNewOrder(
-        currentState.selectedItems,
+        currentState.orderItems,
         tableNumber,
         currentState.note,
         currentState.isKitchenRequired,
