@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
+import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/service/secure_storage_service.dart';
 
 class ThermalReceiptService {
@@ -13,8 +14,7 @@ class ThermalReceiptService {
     String? tableNumber,
     String? customerName,
     required String waiter,
-    required Map<String, int> items,
-    required Map<String, double> prices,
+    required List<OrderItem> items,
     required double total,
     int? exchangeRate,
     required DateTime dateTime,
@@ -43,7 +43,7 @@ class ThermalReceiptService {
                   waiter,
                 ),
                 pw.SizedBox(height: 8),
-                _buildItemsTable(items, prices),
+                _buildItemsTable(items),
                 pw.SizedBox(height: 8),
                 _buildTotalsSection(total, exchangeRate),
                 pw.SizedBox(height: 8),
@@ -89,10 +89,7 @@ class ThermalReceiptService {
     );
   }
 
-  static pw.Widget _buildItemsTable(
-    Map<String, int> items,
-    Map<String, double> prices,
-  ) {
+  static pw.Widget _buildItemsTable(List<OrderItem> items) {
     return pw.Table(
       columnWidths: {
         0: const pw.FlexColumnWidth(3),
@@ -111,11 +108,11 @@ class ThermalReceiptService {
             pw.Text('Price', style: _boldStyle()),
           ],
         ),
-        ...items.entries.map((item) => pw.TableRow(
+        ...items.map((item) => pw.TableRow(
               children: [
-                pw.Text(item.key, style: _normalStyle()),
-                pw.Text(item.value.toString(), style: _normalStyle()),
-                pw.Text('\$${prices[item.key]?.toStringAsFixed(2) ?? '0.00'}',
+                pw.Text(item.itemName, style: _normalStyle()),
+                pw.Text(item.itemQuantity.toString(), style: _normalStyle()),
+                pw.Text('\$${item.itemPrice.toStringAsFixed(2)}',
                     style: _normalStyle()),
               ],
             )),

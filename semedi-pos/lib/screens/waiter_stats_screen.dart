@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/cubit/waiterStat/waiter_stat_cubit.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_item.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/models/waiters_perfomance.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
@@ -303,7 +304,8 @@ class WaiterStatsScreen extends StatelessWidget {
   Widget _buildOrderTable(OrderModel order) {
     final tableOrName = order.tableNumber != null
         ? "TABLE ${order.tableNumber}"
-        : "Take Away: ${order.customerName ?? 'N/A'}";
+        //todo customer name
+        : "Take Away: ${order ?? 'N/A'}";
 
     return Text(
       tableOrName,
@@ -318,7 +320,7 @@ class WaiterStatsScreen extends StatelessWidget {
 
   Widget _buildOrderTotal(OrderModel order) {
     return Text(
-      '\$${order.total.toStringAsFixed(2)}',
+      '\$${order.totalPrice.toStringAsFixed(2)}',
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -334,7 +336,7 @@ class WaiterStatsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ...order.itemsWithQuantity.entries.map(
+            ...order.items.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: _buildOrderItemRow(item, order),
@@ -343,7 +345,7 @@ class WaiterStatsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                "Ordered at: ${DateFormat.jm().format(order.timestamp)}",
+                "Ordered at: ${DateFormat.jm().format(order.createdAt)}",
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 12,
@@ -356,7 +358,7 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderItemRow(MapEntry<String, int> item, OrderModel order) {
+  Widget _buildOrderItemRow(OrderItem item, OrderModel order) {
     return Row(
       children: [
         _buildItemQuantity(item),
@@ -367,7 +369,7 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemQuantity(MapEntry<String, int> item) {
+  Widget _buildItemQuantity(OrderItem item) {
     return Container(
       width: 24,
       height: 24,
@@ -377,7 +379,7 @@ class WaiterStatsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        '${item.value}',
+        '${item.itemQuantity}',
         style: TextStyle(
           color: AppColors.deepBlue,
           fontWeight: FontWeight.bold,
@@ -386,10 +388,10 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemName(MapEntry<String, int> item) {
+  Widget _buildItemName(OrderItem item) {
     return Expanded(
       child: Text(
-        item.key,
+        item.itemName,
         style: TextStyle(
           color: AppColors.darkGrey,
         ),
@@ -398,10 +400,9 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
-    final price = order.itemsWithPrices[item.key] ?? 0.0;
+  Widget _buildItemPrice(OrderModel order, OrderItem item) {
     return Text(
-      '\$ $price',
+      '\$ ${item.itemPrice}',
       style: TextStyle(
         color: AppColors.darkGrey.withOpacity(0.7),
       ),
@@ -419,24 +420,24 @@ class WaiterStatsScreen extends StatelessWidget {
         children: [
           _buildWaiterName(order),
           const SizedBox(height: 12),
-          if (order.orderNumber != null) ...[
+          ...[
             if (isSmallScreen)
               Column(
                 children: [
-                  _buildMarkPaidButton(cubit, order.orderNumber!),
+                  _buildMarkPaidButton(cubit, order.id),
                   const SizedBox(height: 8),
-                  _buildUnPaidButton(cubit, order.orderNumber!),
+                  _buildUnPaidButton(cubit, order.id),
                 ],
               )
             else
               Row(
                 children: [
                   Expanded(
-                    child: _buildMarkPaidButton(cubit, order.orderNumber!),
+                    child: _buildMarkPaidButton(cubit, order.id),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildUnPaidButton(cubit, order.orderNumber!),
+                    child: _buildUnPaidButton(cubit, order.id),
                   ),
                 ],
               ),
@@ -448,7 +449,7 @@ class WaiterStatsScreen extends StatelessWidget {
 
   Widget _buildWaiterName(OrderModel order) {
     return Text(
-      'Waiter: ${order.waiter}',
+      'Waiter: ${order.waiterName}',
       style: TextStyle(
         color: AppColors.darkGrey.withOpacity(0.6),
         fontSize: 12,
@@ -484,11 +485,11 @@ class WaiterStatsScreen extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(OrderStatusEnum status) {
+  Color _getStatusColor(String status) {
     switch (status) {
-      case OrderStatusEnum.paid:
+      case 'paid':
         return AppColors.green;
-      case OrderStatusEnum.unpaid:
+      case 'unpaid':
         return AppColors.softRed;
       default:
         return Colors.grey;

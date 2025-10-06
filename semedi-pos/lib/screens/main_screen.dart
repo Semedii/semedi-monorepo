@@ -4,7 +4,7 @@ import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';

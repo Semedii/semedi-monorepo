@@ -4,9 +4,11 @@ import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 
 import 'package:semedi_pos/service/secure_storage_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
+  final _supabase = Supabase.instance.client;
   Future<List<MenuItem>?> getMenuList() async {
     String? restaurant = await _getRestaurantName();
     final querySnapshot = await db
@@ -23,14 +25,8 @@ class ManagementService {
   }
 
   getTotalTableNumber() async {
-    String? restaurant = await _getRestaurantName();
-    final querySnapshot = await db
-        .collection('shops')
-        .doc(restaurant)
-        .collection('metadata')
-        .doc('totalTables')
-        .get();
-    int tableNumber = querySnapshot.data()?['totalTables'];
+    final int tableNumber = await _supabase.from('dining_tables').count();
+
     return tableNumber;
   }
 

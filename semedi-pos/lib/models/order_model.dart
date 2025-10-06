@@ -18,12 +18,16 @@ class OrderModel {
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    final orderItems = (json['order_items'] as List<dynamic>? ?? [])
+        .map((e) => OrderItem.fromJson(e))
+        .toList();
+
     return OrderModel(
-      id: json['id'] as String,
+      id: (json['id'] as String),
       tableNumber: json['dining_tables']['table_number'],
-      waiterName: json['profiles']['full_name'] as String,
-      status: json['status'] as String,
-      items: [],
+      waiterName: json['profiles']['full_name'],
+      status: json['status'],
+      items: orderItems,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -35,5 +39,10 @@ class OrderModel {
       'status': status,
       'created_at': createdAt.toIso8601String(),
     };
+  }
+
+  double get totalPrice {
+    return items.fold(
+        0, (sum, item) => sum + (item.itemPrice * item.itemQuantity));
   }
 }

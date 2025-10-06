@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 
@@ -15,11 +15,11 @@ class WaiterStatCubit extends Cubit<WaiterStatState> {
         await _orderService.getOrdersByWaiter(waiterName);
     waitersOrders?.sort((a, b) {
       if (a.status == b.status) {
-        return b.timestamp.compareTo(a.timestamp);
+        return b.createdAt.compareTo(a.createdAt);
       }
-      return a.status == OrderStatusEnum.unpaid ? -1 : 1;
+      return a.status == 'unpaid' ? -1 : 1;
     });
-    emit(WaiterStatLoaded(waitersOrders: waitersOrders));
+    emit(WaiterStatLoaded(waitersOrders: []));
   }
 
   void changeOrderStatus(

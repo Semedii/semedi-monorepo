@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:semedi_pos/models/order.dart';
-import 'package:semedi_pos/models/order_model.dart' as order;
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/service/secure_storage_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'order_state.dart';
 
@@ -26,27 +24,20 @@ class OrderCubit extends Cubit<OrderState> {
   void listenToOrders() async {
     emit(OrderLoading());
 
-    final List<order.OrderModel> paidOrders =
+    final List<OrderModel> paidOrders =
         await _orderService.getOrdersByStatus('paid') ?? [];
 
-    final List<order.OrderModel> unPaidOrders =
-        await _orderService.getOrdersByStatus('unpaid') ?? [];
+    final List<OrderModel> unPaidOrders =
+        await _orderService.getOrdersByStatus('pending') ?? [];
 
     double totalRevenue = 0.0;
     final int? exchangeRate = await managementService.getExchangeRate();
 
-    // for (var order in paidOrders) {
-    //   totalRevenue += order.total;
-    // }
-    // for (var order in unPaidOrders) {
-    //   totalRevenue += order.total;
-    // }
     _ordersSubscription?.cancel();
-    String restaurant = await _getRestaurantName()!;
     int tableNumber = await ManagementService().getTotalTableNumber();
-    _ordersSubscription = _orderService.getActiveOrders(restaurant).listen(
+    _ordersSubscription = _orderService.getActiveOrders().listen(
       (orders) async {
-        final List<order.OrderModel> payPendingOrders =
+        final List<OrderModel> payPendingOrders =
             await _orderService.getOrdersByStatus('payPending') ?? [];
         if (payPendingOrders.isNotEmpty) {
           await _playNotificationSound();
@@ -55,10 +46,11 @@ class OrderCubit extends Cubit<OrderState> {
         }
         emit(OrderLoaded(
           activeOrders: orders,
-          paidOrders: [], //paidOrders,
+          paidOrders: paidOrders,
           totalRevenue: totalRevenue,
-          unPaidOrders: [], //unPaidOrders,
-          restaurant: restaurant,
+          unPaidOrders: unPaidOrders,
+          //todo
+          restaurant: 'restaurant',
           tableNumbers: tableNumber,
           exchangeRate: exchangeRate,
         ));
@@ -66,7 +58,7 @@ class OrderCubit extends Cubit<OrderState> {
       onError: (error) {
         emit(OrderLoadingFailed(message: 'Failed to load orders: $error'));
       },
-    );
+    ) as StreamSubscription<List<OrderModel>>?;
   }
 
   Future<void> _playNotificationSound() async {
@@ -93,7 +85,8 @@ class OrderCubit extends Cubit<OrderState> {
   getTakeAwayOrders() {
     var currentState = state as OrderLoaded;
     List<OrderModel>? takeAwayOrders = currentState.activeOrders
-        ?.where((order) => order.customerName != null)
+        //todo
+        ?.where((order) => order.tableNumber == null) //todo
         .toList();
     return takeAwayOrders;
   }
@@ -116,11 +109,6 @@ class OrderCubit extends Cubit<OrderState> {
       throw Exception(e);
     }
     listenToOrders();
-  }
-
-  _getRestaurantName() async {
-    String? restaurant = await SecureStorageService().read('restaurant');
-    return restaurant;
   }
 
   List<OrderModel>? getTableOrders(int tableNumber) {

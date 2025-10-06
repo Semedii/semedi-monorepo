@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_item.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
@@ -72,7 +73,8 @@ class OrderCard extends StatelessWidget {
 
   Text _buildPaymentInfo(OrderModel order) {
     return Text(
-      "From: ${order.paymentInfo}",
+      //todo payment info
+      "From: ${order.status}",
       style: const TextStyle(
         color: Colors.black,
         fontWeight: FontWeight.bold,
@@ -94,7 +96,8 @@ class OrderCard extends StatelessWidget {
   Widget _buildOrderTable(BuildContext context, OrderModel order) {
     String tableOrName = order.tableNumber != null
         ? "TABLE ${order.tableNumber}"
-        : "Take Away: ${order.customerName}";
+        //todo customer name
+        : "Take Away: ${order.waiterName}";
     return Row(
       children: [
         _buildPrintButton(context, order),
@@ -138,7 +141,7 @@ class OrderCard extends StatelessWidget {
 
   Text _buildOrderNumber(OrderModel order) {
     return Text(
-      order.orderNumber ?? '',
+      order.id.split('-').first,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -149,7 +152,7 @@ class OrderCard extends StatelessWidget {
 
   Text _buildOrderTotal(OrderModel order) {
     return Text(
-      '\$${order.total.toStringAsFixed(2)}',
+      '\$${order.totalPrice.toStringAsFixed(2)}',
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -169,7 +172,7 @@ class OrderCard extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           physics: const ClampingScrollPhysics(),
-          children: order.itemsWithQuantity.entries
+          children: order.items
               .map((item) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
@@ -187,9 +190,9 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildItemName(MapEntry<String, int> item) {
+  Widget _buildItemName(OrderItem item) {
     return Text(
-      item.key,
+      item.itemName,
       style: TextStyle(
         color: AppColors.darkGrey,
       ),
@@ -197,7 +200,7 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Container _buildItemQuantity(MapEntry<String, int> item) {
+  Container _buildItemQuantity(OrderItem item) {
     return Container(
       width: 24,
       height: 24,
@@ -207,7 +210,7 @@ class OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        '${item.value}',
+        '${item.itemQuantity}',
         style: TextStyle(
           color: AppColors.deepBlue,
           fontWeight: FontWeight.bold,
@@ -216,10 +219,9 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Text _buildItemPrice(OrderModel order, MapEntry<String, int> item) {
-    final price = order.itemsWithPrices[item.key] ?? 0.0;
+  Text _buildItemPrice(OrderModel order, OrderItem item) {
     return Text(
-      '\$ $price',
+      '\$ ${item.itemPrice}',
       style: TextStyle(
         color: AppColors.darkGrey.withOpacity(0.7),
       ),
@@ -245,15 +247,16 @@ class OrderCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Waiter: ${order.waiter}',
+          'Waiter: ${order.waiterName}',
           style: TextStyle(
             color: AppColors.darkGrey.withOpacity(0.6),
             fontSize: 12,
           ),
         ),
+        //todo
         if (order.tableNumber == null &&
             order.status == OrderStatusEnum.ordered) ...{
-          _buildCancelButton(context, order.orderNumber!),
+          _buildCancelButton(context, order.id),
         }
       ],
     );
@@ -268,9 +271,9 @@ class OrderCard extends StatelessWidget {
   Column _buildPayPendingButtons(BuildContext context, OrderModel order) {
     return Column(
       children: [
-        _buildPaymentRecievedButton(context, order.orderNumber!),
+        _buildPaymentRecievedButton(context, order.id),
         const SizedBox(height: 12),
-        _buildPaymentNotRecievedButton(context, order.orderNumber!),
+        _buildPaymentNotRecievedButton(context, order.id),
       ],
     );
   }
@@ -278,9 +281,9 @@ class OrderCard extends StatelessWidget {
   Column _buildPayActionButtons(BuildContext context, OrderModel order) {
     return Column(
       children: [
-        _buildMarkPaidButton(context, order.orderNumber!),
+        _buildMarkPaidButton(context, order.id),
         const SizedBox(height: 12),
-        _buildUnPaidButton(context, order.orderNumber!),
+        _buildUnPaidButton(context, order.id),
       ],
     );
   }
@@ -343,17 +346,17 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(OrderStatusEnum status) {
+  Color _getStatusColor(String status) {
     switch (status) {
-      case OrderStatusEnum.ordered:
+      case 'ordered':
         return AppColors.darkGrey;
-      case OrderStatusEnum.preparing:
+      case 'preparing':
         return AppColors.warmOrange;
-      case OrderStatusEnum.ready:
+      case 'ready':
         return AppColors.green;
-      case OrderStatusEnum.delivered:
+      case 'delivered':
         return AppColors.deepBlue;
-      case OrderStatusEnum.payPending:
+      case 'payPending':
         return AppColors.amberGold;
       default:
         return Colors.grey;
@@ -366,15 +369,14 @@ class OrderCard extends StatelessWidget {
   ) async {
     try {
       final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
-        orderNumber: order.orderNumber ?? 'N/A',
+        orderNumber: order.id,
         tableNumber: order.tableNumber.toString(),
-        customerName: order.customerName,
-        waiter: order.waiter,
-        items: order.itemsWithQuantity,
-        prices: order.itemsWithPrices,
-        total: order.total,
+        customerName: order.waiterName, // todo customer name
+        waiter: order.waiterName,
+        items: order.items,
+        total: order.totalPrice,
         exchangeRate: exchangeRate,
-        dateTime: order.timestamp,
+        dateTime: order.createdAt,
       );
 
       await Printing.layoutPdf(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/waiters_perfomance_screen.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -29,29 +29,31 @@ class ReportScreen extends StatelessWidget {
     double noOfTakeAwayOrders = 0;
 
     for (final order in paidOrders) {
+      //todo
       if (order.tableNumber == null) {
-        takeAwayTotal += order.total;
+        takeAwayTotal += order.totalPrice;
         noOfTakeAwayOrders++;
       } else {
-        dineInTotal += order.total;
+        dineInTotal += order.totalPrice;
         noOfDineInOrders++;
       }
     }
 
     for (final order in unPaidOrders) {
+      //todo
       if (order.tableNumber == null) {
-        unPaidTakeAway += order.total;
-        takeAwayTotal += order.total;
+        unPaidTakeAway += order.totalPrice;
+        takeAwayTotal += order.totalPrice;
         noOfTakeAwayOrders++;
       } else {
-        unPaidDineIn += order.total;
-        dineInTotal += order.total;
+        unPaidDineIn += order.totalPrice;
+        dineInTotal += order.totalPrice;
         noOfDineInOrders++;
       }
     }
 
     for (final order in unPaidOrders) {
-      unPaidTotal += order.total;
+      unPaidTotal += order.totalPrice;
     }
 
     final dineInVat = dineInTotal * 0.05;

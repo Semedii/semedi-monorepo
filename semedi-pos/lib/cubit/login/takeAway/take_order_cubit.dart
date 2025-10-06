@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
-import 'package:semedi_pos/models/order.dart';
+import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 part 'take_order_state.dart';
 
+//todo whole file
 class TakeOrderCubit extends Cubit<TakeOrderState> {
   TakeOrderCubit() : super(TakeOrderStateInitial());
 
@@ -75,18 +76,22 @@ class TakeOrderCubit extends Cubit<TakeOrderState> {
       for (var item in menuList)
         if (item.name.trim().isNotEmpty) item.name: item.price,
     };
-
+//todo
     final newOrder = OrderModel(
-      customerName: currentState.customerName,
-      tableNumber: tableNumber,
-      itemsWithQuantity: itemsWithQuantity,
-      itemsWithPrices: itemsWithPrices,
-      status: OrderStatusEnum.ordered,
-      total: getTotalPrice(),
-      waiter: "Cashier",
-    );
+        id: '2',
+        tableNumber: 2,
+        waiterName: 'waiterName',
+        status: 'status',
+        items: [],
+        createdAt: DateTime.now());
     try {
-      await OrderService().addTakeOrder(newOrder);
+      await OrderService().addTakeOrder(OrderModel(
+          id: '2',
+          tableNumber: 2,
+          waiterName: 'waiterName',
+          status: 'status',
+          items: [],
+          createdAt: DateTime.now()));
       emit(TakeOrderStateSuccess());
     } catch (e) {
       emit(TakeOrderStateFailure(message: e.toString()));
