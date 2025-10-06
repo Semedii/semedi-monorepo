@@ -3,33 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/waiter.dart';
 
-import 'package:semedi_pos/service/secure_storage_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ManagementService {
   final db = FirebaseFirestore.instance;
   final _supabase = Supabase.instance.client;
   Future<List<MenuItem>?> getMenuList() async {
-    String? restaurant = await _getRestaurantName();
-    final querySnapshot = await db
-        .collection('shops')
-        .doc(restaurant)
-        .collection('menu')
-        .withConverter<MenuItem>(
-          fromFirestore: (snapshot, _) => MenuItem.fromFirestore(snapshot),
-          toFirestore: (_, __) =>
-              throw UnsupportedError('Writes not supported'),
-        )
-        .get();
-    return querySnapshot.docs.map((doc) => doc.data()).toList();
+    final response =
+        await _supabase.from('menu_items').select('name, price, available');
+
+    return response.map((json) => MenuItem.fromJson(json)).toList();
   }
 
   getTotalTableNumber() async {
     final int tableNumber = await _supabase.from('dining_tables').count();
-
     return tableNumber;
   }
 
+//todo
   Future<List<Waiter>> getWaitersList() async {
     final querySnapshot = await db
         .collection('users')
@@ -44,6 +35,7 @@ class ManagementService {
     return querySnapshot.docs.map((doc) => doc.data()).toList();
   }
 
+//todo
   addNewWaiter(Waiter waiter, String password) async {
     try {
       // await AuthService()
@@ -60,23 +52,16 @@ class ManagementService {
 
   Future<void> addMenu(MenuItem newItem) async {
     try {
-      String? restaurant = await _getRestaurantName();
-      final existingItem = await db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('menu')
-          .where('name', isEqualTo: newItem.name)
-          .get();
+      final response = await _supabase
+          .from('menu_items')
+          .select('name')
+          .ilike('name', newItem.name);
 
-      if (existingItem.docs.isNotEmpty) {
+      if (response.isNotEmpty) {
         throw Exception('Menu item with this name already exists');
+      } else {
+        await _supabase.from('menu_items').insert(newItem.toJson());
       }
-
-      await db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('menu')
-          .add(newItem.toFirestore());
     } catch (e) {
       throw Exception(e);
     }
@@ -84,18 +69,16 @@ class ManagementService {
 
   Future<void> deleteMenu(MenuItem menu) async {
     try {
-      String? restaurant = await _getRestaurantName();
-      var menuQuery = await db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('menu')
-          .where('name', isEqualTo: menu.name)
-          .get();
+      final response = await _supabase
+          .from('menu_items')
+          .select('name')
+          .ilike('name', menu.name);
 
-      if (menuQuery.docs.isEmpty) {
+      if (response.isEmpty) {
         return;
+      } else {
+        await _supabase.from('menu_items').delete().eq('name', menu.name);
       }
-      await menuQuery.docs.first.reference.delete();
     } catch (e) {
       throw Exception(e);
     }
@@ -106,19 +89,10 @@ class ManagementService {
     required MenuItem newItem,
   }) async {
     try {
-      String? restaurant = await _getRestaurantName();
-      final menuQuery = await db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('menu')
-          .where('name', isEqualTo: oldItem.name)
-          .get();
-
-      if (menuQuery.docs.isEmpty) {
-        throw Exception('Menu item not found');
-      }
-
-      await menuQuery.docs.first.reference.update(newItem.toFirestore());
+      await _supabase
+          .from('menu_items')
+          .update(newItem.toJson())
+          .eq('name', oldItem.name);
     } catch (e) {
       throw Exception(e);
     }
@@ -126,15 +100,10 @@ class ManagementService {
 
   Future<void> incrementTotalTables() async {
     try {
-      String? restaurant = await _getRestaurantName();
-      final docRef = db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('metadata')
-          .doc('totalTables');
-
-      await docRef.update({
-        'totalTables': FieldValue.increment(1),
+      await _supabase.from('dining_tables').insert({
+        'restaurant_id':
+            _supabase.auth.currentUser?.userMetadata?['restaurant_id'],
+        'status': 'available'
       });
     } catch (e) {
       throw Exception(e);
@@ -143,27 +112,23 @@ class ManagementService {
 
   Future<void> decrementTotalTables() async {
     try {
-      String? restaurant = await _getRestaurantName();
-      final docRef = db
-          .collection('shops')
-          .doc(restaurant)
-          .collection('metadata')
-          .doc('totalTables');
-
-      await docRef.update({
-        'totalTables': FieldValue.increment(-1),
-      });
+      final lastTableNumber = await getTotalTableNumber();
+      await _supabase
+          .from('dining_tables')
+          .delete()
+          .eq('table_number', lastTableNumber);
     } catch (e) {
       throw Exception(e);
     }
   }
 
+  //todo
+
   Future<void> setExchangeRate(int exchangeRate) async {
     try {
-      String? restaurant = await _getRestaurantName();
       await db
           .collection('shops')
-          .doc(restaurant)
+          .doc('restaurant')
           .collection('metadata')
           .doc('exchangeRate')
           .set({'rate': exchangeRate});
@@ -172,12 +137,13 @@ class ManagementService {
     }
   }
 
+  //todo
+
   Future<int?> getExchangeRate() async {
     try {
-      String? restaurant = await _getRestaurantName();
       final snapshot = await db
           .collection('shops')
-          .doc(restaurant)
+          .doc('restaurant')
           .collection('metadata')
           .doc('exchangeRate')
           .get();
@@ -196,10 +162,5 @@ class ManagementService {
     } catch (e) {
       throw Exception(e);
     }
-  }
-
-  Future<String?> _getRestaurantName() async {
-    String? restaurant = await SecureStorageService().read('restaurant');
-    return restaurant;
   }
 }

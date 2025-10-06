@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MenuItem {
   final String name;
@@ -13,24 +13,20 @@ class MenuItem {
     this.searchKeywords = const [],
   });
 
-  factory MenuItem.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?;
-    if (data == null || data.isEmpty) {
-      return MenuItem(name: '', price: 0.0, isAvailable: false);
-    }
-
+  factory MenuItem.fromJson(Map<String, dynamic> json) {
     return MenuItem(
-      name: data['name'] ?? 'Unnamed Item',
-      price: double.tryParse(data['price']?.toString() ?? '') ?? 0.0,
-      isAvailable: data['isAvailable'] ?? false,
-    );
+        name: json['name'],
+        price: double.parse(json['price'].toString()),
+        isAvailable: json['available']);
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toJson() {
     return {
       'name': name,
       'price': price,
-      'isAvailable': isAvailable,
+      'available': isAvailable,
+      'restaurant_id': Supabase
+          .instance.client.auth.currentUser!.userMetadata?['restaurant_id'],
     };
   }
 }
