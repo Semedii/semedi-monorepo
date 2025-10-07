@@ -255,7 +255,7 @@ class OrderCard extends StatelessWidget {
         ),
         //todo
         if (order.tableNumber == null &&
-            order.status == OrderStatusEnum.ordered) ...{
+            order.status == OrderStatusEnum.pending.name) ...{
           _buildCancelButton(context, order.id),
         }
       ],
@@ -348,13 +348,13 @@ class OrderCard extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'ordered':
+      case 'pending':
         return AppColors.darkGrey;
       case 'preparing':
         return AppColors.warmOrange;
       case 'ready':
         return AppColors.green;
-      case 'delivered':
+      case 'served':
         return AppColors.deepBlue;
       case 'payPending':
         return AppColors.amberGold;

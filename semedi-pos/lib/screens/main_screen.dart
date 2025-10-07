@@ -378,7 +378,7 @@ class MainScreen extends StatelessWidget {
       onPressed: () {
         showExchangeRateField(context);
       },
-      elevation: 12,
+      elevation: 2,
       isSmall: true,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -405,7 +405,7 @@ class MainScreen extends StatelessWidget {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => TakeOrderScreen()));
       },
-      elevation: 12,
+      elevation: 2,
       isSmall: true,
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

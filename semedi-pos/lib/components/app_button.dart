@@ -32,7 +32,7 @@ class AppButton extends StatelessWidget {
           elevation: elevation,
           backgroundColor: isOutlined ? null : color ?? AppColors.deepBlue,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(80),
               side: BorderSide(color: color ?? AppColors.deepBlue)),
         ),
         child: child ??

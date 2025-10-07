@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
-import 'package:semedi_pos/service/secure_storage_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'order_state.dart';
 
@@ -33,6 +33,9 @@ class OrderCubit extends Cubit<OrderState> {
     double totalRevenue = 0.0;
     final int? exchangeRate = await managementService.getExchangeRate();
 
+    final restaurantData =
+        await Supabase.instance.client.from('restaurants').select('name');
+
     _ordersSubscription?.cancel();
     int tableNumber = await ManagementService().getTotalTableNumber();
     _ordersSubscription = _orderService.getActiveOrders().listen(
@@ -50,7 +53,7 @@ class OrderCubit extends Cubit<OrderState> {
           totalRevenue: totalRevenue,
           unPaidOrders: unPaidOrders,
           //todo
-          restaurant: 'restaurant',
+          restaurant: (restaurantData.first['name'] as String),
           tableNumbers: tableNumber,
           exchangeRate: exchangeRate,
         ));
