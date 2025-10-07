@@ -26,14 +26,20 @@ class OrderCubit extends Cubit<OrderState> {
 
   void onSelectedItem(MenuItem item) {
     var currentState = state as OrderIdle;
-    OrderItem orderItem = OrderItem(
-        itemId: item.id,
-        itemName: item.name,
-        itemPrice: item.price,
-        itemQuantity: 1);
-    emit(currentState.copyWith(
-      orderItems: [...currentState.orderItems, orderItem],
-    ));
+    List<OrderItem> updatedItems = List.from(currentState.orderItems);
+    int existingIndex = updatedItems.indexWhere((i) => i.itemId == item.id);
+    if (existingIndex != -1) {
+      final OrderItem existingItem = updatedItems[existingIndex];
+      updatedItems[existingIndex] =
+          existingItem.copyWith(itemQuantity: existingItem.itemQuantity! + 1);
+    } else {
+      updatedItems.add(OrderItem(
+          itemId: item.id,
+          itemName: item.name,
+          itemPrice: item.price,
+          itemQuantity: 1));
+    }
+    emit(currentState.copyWith(orderItems: updatedItems));
   }
 
   void onNoteChanged(String? note) {

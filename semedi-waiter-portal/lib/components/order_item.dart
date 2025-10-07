@@ -67,7 +67,7 @@ class OrderItemCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Order #${order.id}',
+          'Order #${order.id.split('-').first}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -285,13 +285,13 @@ class OrderItemCard extends StatelessWidget {
 
   Color _getStatusChipColor(String status) {
     switch (status) {
-      case 'ordered':
+      case 'pending':
         return AppColors.darkGrey;
       case 'preparing':
         return AppColors.warmOrange;
       case 'ready':
         return AppColors.green;
-      case 'delivered':
+      case 'served':
         return AppColors.deepBlue;
       case 'payPending':
         return AppColors.amberGold;
@@ -304,6 +304,6 @@ class OrderItemCard extends StatelessWidget {
 
   String? _getTimeFromDateTime(DateTime? timestamp) {
     if (timestamp == null) return null;
-    return DateFormat('h:mm a').format(timestamp);
+    return DateFormat('h:mm a').format(timestamp.toLocal());
   }
 }

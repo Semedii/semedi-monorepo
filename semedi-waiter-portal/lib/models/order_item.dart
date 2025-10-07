@@ -18,4 +18,18 @@ class OrderItem {
   Map<String, dynamic> toJson() {
     return {'menu_item_id': itemId, 'quantity': itemQuantity};
   }
+
+  OrderItem copyWith({
+    String? itemId,
+    String? itemName,
+    double? itemPrice,
+    int? itemQuantity,
+  }) {
+    return OrderItem(
+      itemId: itemId ?? this.itemId,
+      itemName: itemName ?? this.itemName,
+      itemPrice: itemPrice ?? this.itemPrice,
+      itemQuantity: itemQuantity ?? this.itemQuantity,
+    );
+  }
 }
