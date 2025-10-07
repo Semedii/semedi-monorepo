@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi/authentication/auth_provider.dart';
 
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
@@ -292,7 +293,7 @@ class HomePage extends StatelessWidget {
   }
 
   void _performLogout(BuildContext context) {
-    authService.logout();
+    getIt<AuthProvider>().logout();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const MyApp()),
       (route) => false,
