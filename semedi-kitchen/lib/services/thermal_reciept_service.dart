@@ -2,26 +2,27 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:intl/intl.dart';
+import 'package:semedi_kitchen/models/order_item.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 
+//Todo: reciept
 class ThermalReceiptService {
   static const double receiptWidth = 58 * PdfPageFormat.mm;
   static const double padding = 4.0;
 
-  // Generate PDF and return as bytes
   static Future<Uint8List> generateOrderReceiptBytes({
     required String orderNumber,
-    required String tableNumber,
+    String? tableNumber,
+    String? customerName,
     required String waiter,
-    required Map<String, int> items,
-    required Map<String, double> prices,
+    required List<OrderItem> items,
     required double total,
+    int? exchangeRate,
     required DateTime dateTime,
   }) async {
     final pdf = pw.Document();
 
-    final String? restaurantName =
-        await SecureStorageService().read("restaurant");
+    String? restaurantName = await SecureStorageService().read("restaurant");
 
     pdf.addPage(
       pw.Page(
@@ -33,13 +34,19 @@ class ThermalReceiptService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                _buildCenteredHeader(restaurantName?.toUpperCase() ?? ""),
+                _buildCenteredHeader(restaurantName ?? ""),
                 pw.SizedBox(height: 8),
-                _buildOrderInfo(orderNumber, dateTime, tableNumber, waiter),
+                _buildOrderInfo(
+                  orderNumber,
+                  dateTime,
+                  tableNumber,
+                  customerName,
+                  waiter,
+                ),
                 pw.SizedBox(height: 8),
-                _buildItemsTable(items, prices),
+                _buildItemsTable(items),
                 pw.SizedBox(height: 8),
-                _buildTotalsSection(total),
+                _buildTotalsSection(total, exchangeRate),
                 pw.SizedBox(height: 8),
                 _buildFooter(),
               ],
@@ -54,21 +61,26 @@ class ThermalReceiptService {
 
   static pw.Widget _buildCenteredHeader(String restaurantName) {
     return pw.Center(
-      child: pw.Text('$restaurantName RESTAURANT', style: _boldStyle(size: 12)),
+      child: pw.Text('${restaurantName.toUpperCase()} RESTAURANT',
+          style: _boldStyle(size: 12)),
     );
   }
 
   static pw.Widget _buildOrderInfo(
     String orderNumber,
     DateTime dateTime,
-    String tableNumber,
+    String? tableNumber,
+    String? customerName,
     String waiter,
   ) {
+    String orderLabel = customerName != null
+        ? 'TakeAway: $customerName'
+        : 'Table: $tableNumber';
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text('Order #$orderNumber', style: _boldStyle()),
-        pw.Text('Table: $tableNumber', style: _normalStyle()),
+        pw.Text(orderLabel, style: _normalStyle()),
         pw.SizedBox(height: 4),
         pw.Text(DateFormat('MM/dd/yyyy hh:mm a').format(dateTime),
             style: _normalStyle()),
@@ -78,10 +90,7 @@ class ThermalReceiptService {
     );
   }
 
-  static pw.Widget _buildItemsTable(
-    Map<String, int> items,
-    Map<String, double> prices,
-  ) {
+  static pw.Widget _buildItemsTable(List<OrderItem> items) {
     return pw.Table(
       columnWidths: {
         0: const pw.FlexColumnWidth(3),
@@ -100,11 +109,11 @@ class ThermalReceiptService {
             pw.Text('Price', style: _boldStyle()),
           ],
         ),
-        ...items.entries.map((item) => pw.TableRow(
+        ...items.map((item) => pw.TableRow(
               children: [
-                pw.Text(item.key, style: _normalStyle()),
-                pw.Text(item.value.toString(), style: _normalStyle()),
-                pw.Text('\$${prices[item.key]?.toStringAsFixed(2) ?? '0.00'}',
+                pw.Text(item.itemName, style: _normalStyle()),
+                pw.Text(item.itemQuantity.toString(), style: _normalStyle()),
+                pw.Text('\$${item.itemPrice.toStringAsFixed(2)}',
                     style: _normalStyle()),
               ],
             )),
@@ -112,7 +121,10 @@ class ThermalReceiptService {
     );
   }
 
-  static pw.Widget _buildTotalsSection(double total) {
+  static pw.Widget _buildTotalsSection(double total, int? exchangeRate) {
+    final tax = double.parse((total * 0.05).toStringAsFixed(2));
+    final grandTotal = total + tax;
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.end,
       children: [
@@ -127,7 +139,7 @@ class ThermalReceiptService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text('Tax (5%):'),
-            pw.Text('\$${(total * 0.05).toStringAsFixed(2)}'),
+            pw.Text('\$${tax.toStringAsFixed(2)}'),
           ],
         ),
         pw.Divider(thickness: 0.5),
@@ -135,10 +147,20 @@ class ThermalReceiptService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text('TOTAL:', style: _boldStyle()),
-            pw.Text('\$${(total * 1.1).toStringAsFixed(2)}',
-                style: _boldStyle()),
+            pw.Text('\$${grandTotal.toStringAsFixed(2)}', style: _boldStyle()),
           ],
         ),
+        if (exchangeRate != null)
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('TOTAL SLSH:', style: _boldStyle()),
+              pw.Text(
+                NumberFormat('#,###.00').format(grandTotal * exchangeRate),
+                style: _boldStyle(),
+              )
+            ],
+          ),
       ],
     );
   }
@@ -152,8 +174,8 @@ class ThermalReceiptService {
           pw.SizedBox(height: 8),
           pw.Divider(thickness: 0.5),
           pw.Text('Powered by:', style: _normalStyle(size: 6)),
-          pw.Text('SEMEDI', style: _boldStyle()),
-          pw.Text('www.semedi.dev', style: _normalStyle(size: 6)),
+          pw.Text('SemediX', style: _boldStyle()),
+          pw.Text('www.semedix.dev', style: _normalStyle(size: 6)),
           pw.SizedBox(height: 4),
           pw.Text(
             'Generated on ${DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now())}',

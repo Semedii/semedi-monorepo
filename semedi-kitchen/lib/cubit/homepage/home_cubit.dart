@@ -6,6 +6,7 @@ import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'home_state.dart';
 
@@ -22,10 +23,12 @@ class HomeCubit extends Cubit<HomeState> {
   void listenToOrders() async {
     emit(HomeLoading());
 
+    final restaurantData =
+        await Supabase.instance.client.from('restaurants').select('name');
+
     _ordersSubscription?.cancel();
 
-    String? restaurant = await _secureStorageService.read('restaurant');
-    _ordersSubscription = _orderService.getActiveOrders(restaurant!).listen(
+    _ordersSubscription = _orderService.getActiveOrders().listen(
       (orders) async {
         if (_shouldPlaySound(_previousOrders, orders)) {
           await _playNotificationSound();
@@ -35,7 +38,7 @@ class HomeCubit extends Cubit<HomeState> {
 
         emit(HomeLoaded(
           activeOrders: orders,
-          restaurantName: restaurant,
+          restaurantName: (restaurantData.first['name'] as String),
         ));
       },
       onError: (error) {
@@ -47,12 +50,12 @@ class HomeCubit extends Cubit<HomeState> {
   bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
     final prevOrderedIds = prev
         .where((order) => order.status == OrderStatusEnum.ordered)
-        .map((order) => order.orderNumber)
+        .map((order) => order.id)
         .toList();
 
     return current.any((order) =>
-        order.status == OrderStatusEnum.ordered &&
-        !prevOrderedIds.contains(order.orderNumber));
+        order.status == OrderStatusEnum.pending.name &&
+        !prevOrderedIds.contains(order.id));
   }
 
   Future<void> _playNotificationSound() async {
@@ -95,7 +98,7 @@ class HomeCubit extends Cubit<HomeState> {
   getPreparingOrdersNumber() {
     var currentState = state as HomeLoaded;
     int number = currentState.activeOrders
-        .where((order) => order.status == OrderStatusEnum.preparing)
+        .where((order) => order.status == OrderStatusEnum.pending.name)
         .length;
     return number;
   }

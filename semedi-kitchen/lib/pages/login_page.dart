@@ -3,21 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/components/txt_form_field.dart';
 import 'package:semedi_kitchen/cubit/login/login_cubit.dart';
-import 'package:semedi_kitchen/services/auth_service.dart';
-import 'package:semedi_kitchen/services/secure_storage_service.dart';
 import 'package:semedi_kitchen/services/service_locator.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-  final _authService = getIt<AuthService>();
-  final _secureStorageService = getIt<SecureStorageService>();
+  const LoginPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.offWhite,
       body: BlocProvider(
-        create: (context) => LoginCubit(_authService, _secureStorageService),
+        create: (context) => LoginCubit(getIt(), getIt()),
         child: BlocConsumer<LoginCubit, LoginState>(
           listener: (context, state) {
             if (state is LoginFailure) {

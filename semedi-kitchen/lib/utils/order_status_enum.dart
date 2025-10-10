@@ -1,7 +1,7 @@
 enum OrderStatusEnum {
   ordered,
-  preparing,
+  pending,
   ready,
-  delivered,
+  served,
   paid,
 }

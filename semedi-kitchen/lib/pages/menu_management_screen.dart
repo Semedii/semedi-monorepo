@@ -93,7 +93,7 @@ class MenuManagementScreen extends StatelessWidget {
       value: item.isAvailable,
       activeColor: AppColors.green,
       inactiveTrackColor: AppColors.softRed.withOpacity(0.5),
-      onChanged: (_) => cubit.onMenuToggle(item),
+      onChanged: (value) => cubit.onMenuToggle(item, value),
     );
   }
 }

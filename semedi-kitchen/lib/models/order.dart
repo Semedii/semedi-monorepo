@@ -1,49 +1,48 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:semedi_kitchen/utils/order_status_enum.dart';
+import 'package:semedi_kitchen/models/order_item.dart';
 
 class OrderModel {
-  String? orderNumber;
-  final String? customerName;
-  final int? tableNumber;
-  final Map<String, int> itemsWithQuantity;
-  final Map<String, double> itemsWithPrices;
-  final OrderStatusEnum status;
-  final String? note;
-  final DateTime timestamp;
-  final double total;
-  final String waiter;
+  final String id;
+  final int tableNumber;
+  final String waiterName;
+  final String status;
+  final List<OrderItem> items;
+  final DateTime createdAt;
 
   OrderModel({
-    this.customerName,
-    this.tableNumber,
-    required this.itemsWithQuantity,
-    required this.itemsWithPrices,
+    required this.id,
+    required this.tableNumber,
+    required this.waiterName,
     required this.status,
-    required this.total,
-    required this.waiter,
-    this.note,
-    this.orderNumber,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
+    required this.items,
+    required this.createdAt,
+  });
 
-  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    final orderItems = (json['order_items'] as List<dynamic>? ?? [])
+        .map((e) => OrderItem.fromJson(e))
+        .toList();
+
     return OrderModel(
-      orderNumber: doc.id,
-      customerName: data['customerName'],
-      tableNumber: data['tableNumber'],
-      itemsWithQuantity: Map<String, int>.from(data['itemsWithQuantity'] ?? {}),
-      itemsWithPrices: Map<String, double>.from(data['itemsWithPrices'] ?? {}),
-      status: OrderStatusEnum.values.firstWhere(
-        (e) => e.name == data['status'],
-        orElse: () => OrderStatusEnum.ordered,
-      ),
-      note: data['note'],
-      timestamp: data['timestamp'] != null
-          ? (data['timestamp'] as Timestamp).toDate()
-          : null,
-      total: (data['total'] as num?)?.toDouble() ?? 0,
-      waiter: data['waiter'] ?? "unknown",
+      id: (json['id'] as String),
+      tableNumber: json['dining_tables']['table_number'],
+      waiterName: json['profiles']['full_name'],
+      status: json['status'],
+      items: orderItems,
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'waiter_name': waiterName,
+      'status': status,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  double get totalPrice {
+    return items.fold(
+        0, (sum, item) => sum + (item.itemPrice * item.itemQuantity));
   }
 }

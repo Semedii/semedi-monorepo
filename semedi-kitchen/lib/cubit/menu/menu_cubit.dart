@@ -10,13 +10,14 @@ class MenuCubit extends Cubit<MenuState> {
 
   initPage() async {
     emit(MenuLoading());
-    final List<MenuItem> menuList = await _menuService.getMenuList();
-    emit(MenuLoaded(menuList: menuList));
+    final List<MenuItem>? menuList = await _menuService.getMenuList();
+    emit(MenuLoaded(menuList: menuList ?? []));
   }
 
-  onMenuToggle(MenuItem menu) async {
+  onMenuToggle(MenuItem menu, bool? value) async {
+    if (value == null) return;
     emit(MenuLoading());
-    await _menuService.disableOrEnableMenu(menu: menu);
+    await _menuService.disableOrEnableMenu(menu: menu, value: value);
     initPage();
   }
 }

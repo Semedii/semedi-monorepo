@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
+import 'package:semedi_kitchen/models/order_item.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
 import 'package:semedi_kitchen/services/auth_service.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
@@ -251,10 +252,11 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildOrderTable(BuildContext context, OrderModel order) {
-    bool isTakeAway = order.customerName != null && order.tableNumber == null;
+    bool isTakeAway =
+        false; //todo order.customerName != null && order.tableNumber == null;
     String tableInfo = order.tableNumber != null
         ? 'Table: ${order.tableNumber}'
-        : 'TakeAway for ${order.customerName}';
+        : 'TakeAway for ${order.waiterName}'; //todo
     return Row(
       children: [
         IconButton(
@@ -269,7 +271,7 @@ class HomePage extends StatelessWidget {
         Column(
           children: [
             Text(
-              order.orderNumber ?? '',
+              order.id.split('-').first,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -301,7 +303,7 @@ class HomePage extends StatelessWidget {
 
   Text _buildOrderStatus(OrderModel order) {
     return Text(
-      order.status.name.toUpperCase(),
+      order.status.toUpperCase(),
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -323,7 +325,7 @@ class HomePage extends StatelessWidget {
         children: [
           Expanded(
             child: ListView(
-              children: order.itemsWithQuantity.entries
+              children: order.items
                   .map(
                     (item) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -339,20 +341,20 @@ class HomePage extends StatelessWidget {
                   .toList(),
             ),
           ),
-          if (order.note != null && order.note!.isNotEmpty) _buildNote(order),
+          //todo if (order.note != null && order.note!.isNotEmpty) _buildNote(order),
         ],
       ),
     );
   }
 
-  Container _buildItemQuantity(MapEntry<String, int> item) {
+  Container _buildItemQuantity(OrderItem item) {
     return Container(
       width: 24,
       height: 24,
       alignment: Alignment.center,
       decoration: _buildItemQuantityDecoration(),
       child: Text(
-        '${item.value}x',
+        '${item.itemQuantity}x',
         style: TextStyle(
           color: AppColors.deepBlue,
           fontWeight: FontWeight.bold,
@@ -368,14 +370,14 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _buildItemName(MapEntry<String, int> item) =>
-      Expanded(child: Text(item.key));
+  Expanded _buildItemName(OrderItem item) =>
+      Expanded(child: Text(item.itemName));
 
   Padding _buildNote(OrderModel order) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
-        'Note: ${order.note!}',
+        'Note: ${order.id}', //todo
         style: TextStyle(
           color: AppColors.softRed,
           fontStyle: FontStyle.italic,
@@ -398,7 +400,7 @@ class HomePage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Text(
-        order.waiter,
+        order.waiterName,
         style: TextStyle(color: AppColors.deepBlue),
       ),
     );
@@ -415,11 +417,11 @@ class HomePage extends StatelessWidget {
           //   _buildCancelChip(cubit, order.orderNumber!),
           // },
           const SizedBox(width: 8),
-          if (order.status == OrderStatusEnum.ordered) ...{
-            _buildPrepareButton(cubit, order.orderNumber!),
+          if (order.status == OrderStatusEnum.pending.name) ...{
+            _buildPrepareButton(cubit, order.id),
           },
-          if (order.status == OrderStatusEnum.preparing) ...{
-            _buildMarkReadyButton(cubit, order.orderNumber!),
+          if (order.status == OrderStatusEnum.ordered.name) ...{
+            _buildMarkReadyButton(cubit, order.id),
           }
         ],
       ),
@@ -446,7 +448,7 @@ class HomePage extends StatelessWidget {
     return AppButton(
       color: AppColors.warmOrange,
       onPressed: () =>
-          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.preparing),
+          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.pending),
       text: 'Start preparing',
     );
   }
@@ -460,13 +462,13 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(OrderStatusEnum status) {
-    switch (status) {
-      case OrderStatusEnum.ordered:
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'ordered':
         return AppColors.darkGrey.withOpacity(0.5);
-      case OrderStatusEnum.preparing:
+      case 'pending':
         return AppColors.warmOrange;
-      case OrderStatusEnum.ready:
+      case 'ready':
         return AppColors.green;
       default:
         return Colors.grey;
@@ -479,13 +481,14 @@ class HomePage extends StatelessWidget {
   ) async {
     try {
       final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
-        orderNumber: order.orderNumber ?? 'N/A',
+        orderNumber: order.id,
         tableNumber: order.tableNumber.toString(),
-        waiter: order.waiter,
-        items: order.itemsWithQuantity,
-        prices: order.itemsWithPrices,
-        total: order.total,
-        dateTime: order.timestamp,
+        customerName: order.waiterName, // todo customer name
+        waiter: order.waiterName,
+        items: order.items,
+        total: order.totalPrice,
+        exchangeRate: 10000, //todo
+        dateTime: order.createdAt,
       );
 
       await Printing.layoutPdf(
