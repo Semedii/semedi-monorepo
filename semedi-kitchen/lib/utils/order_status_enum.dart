@@ -1,6 +1,6 @@
 enum OrderStatusEnum {
-  ordered,
   pending,
+  preparing,
   ready,
   served,
   paid,

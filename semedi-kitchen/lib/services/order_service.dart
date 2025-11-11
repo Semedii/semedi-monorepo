@@ -17,7 +17,7 @@ class OrderService {
               profiles(full_name), 
               dining_tables(table_number), 
               order_items(quantity, menu_items(name, price))
-            ''').neq('status', 'paid');
+            ''').inFilter('status', ['pending', 'preparing', 'ready']);
 
       return response.map((e) => OrderModel.fromJson(e)).toList();
     });

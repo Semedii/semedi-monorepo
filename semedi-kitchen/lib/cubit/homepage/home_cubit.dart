@@ -49,7 +49,9 @@ class HomeCubit extends Cubit<HomeState> {
 
   bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
     final prevOrderedIds = prev
-        .where((order) => order.status == OrderStatusEnum.ordered)
+        .where((order) =>
+            order.status.toLowerCase() ==
+            OrderStatusEnum.pending.name.toLowerCase())
         .map((order) => order.id)
         .toList();
 
@@ -90,7 +92,7 @@ class HomeCubit extends Cubit<HomeState> {
   getNewOrdersNumber() {
     var currentState = state as HomeLoaded;
     int number = currentState.activeOrders
-        .where((order) => order.status == OrderStatusEnum.ordered)
+        .where((order) => order.status == OrderStatusEnum.pending.name)
         .length;
     return number;
   }

@@ -420,7 +420,7 @@ class HomePage extends StatelessWidget {
           if (order.status == OrderStatusEnum.pending.name) ...{
             _buildPrepareButton(cubit, order.id),
           },
-          if (order.status == OrderStatusEnum.ordered.name) ...{
+          if (order.status == OrderStatusEnum.preparing.name) ...{
             _buildMarkReadyButton(cubit, order.id),
           }
         ],
@@ -448,7 +448,7 @@ class HomePage extends StatelessWidget {
     return AppButton(
       color: AppColors.warmOrange,
       onPressed: () =>
-          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.pending),
+          cubit.onOrderStatusChange(orderNumber, OrderStatusEnum.preparing),
       text: 'Start preparing',
     );
   }
@@ -464,9 +464,9 @@ class HomePage extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'ordered':
-        return AppColors.darkGrey.withOpacity(0.5);
       case 'pending':
+        return AppColors.darkGrey.withOpacity(0.5);
+      case 'preparing':
         return AppColors.warmOrange;
       case 'ready':
         return AppColors.green;
