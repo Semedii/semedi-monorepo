@@ -25,7 +25,7 @@ class WaitersPerfomanceCubit extends Cubit<WaitersPerfomanceState> {
 
       final existingPerformance = performanceMap[waiterName];
 
-      final isPaid = order.status == OrderStatusEnum.paid;
+      final isPaid = order.status == OrderStatusEnum.paid.name;
 
       if (existingPerformance != null) {
         performanceMap[waiterName] = WaitersPerfomance(
