@@ -33,8 +33,9 @@ class HomePage extends StatelessWidget {
 
   Widget _mapStateToWidget(BuildContext context, HomeState state) {
     if (state is HomeLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: AppColors.offWhite,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -53,6 +54,7 @@ class HomePage extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: AppColors.offWhite,
         appBar: _buildAppBar(context, state),
         body: _buildTabBarView(context, state),
       ),
@@ -61,6 +63,7 @@ class HomePage extends StatelessWidget {
 
   AppBar _buildAppBar(BuildContext context, HomeLoaded state) {
     return AppBar(
+      backgroundColor: AppColors.offWhite,
       leading: _buildMenuButton(context),
       title: _buildAppBarTitle(state),
       centerTitle: true,
@@ -81,11 +84,12 @@ class HomePage extends StatelessWidget {
 
   TabBar _buildTabBar() {
     return const TabBar(
-      tabs: [
-        Tab(text: 'ACTIVE ORDERS'),
-        Tab(text: 'PAID ORDERS'),
-      ],
-    );
+        tabs: [
+          Tab(text: 'ACTIVE ORDERS'),
+          Tab(text: 'PAID ORDERS'),
+        ],
+        labelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+        indicatorColor: Color(0xFF2563EB));
   }
 
   TabBarView _buildTabBarView(BuildContext context, HomeLoaded state) {
@@ -121,16 +125,16 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          _buildDineInButton(context, state),
+          _buildNewOrderButton(context, state),
           const SizedBox(height: 12),
         ],
       ),
     );
   }
 
-  AppButton _buildDineInButton(BuildContext context, HomeLoaded state) {
+  AppButton _buildNewOrderButton(BuildContext context, HomeLoaded state) {
     return AppButton(
-      text: "DINE-IN",
+      text: "New Order",
       onPressed: () => _showTableSelection(context, state),
     );
   }
@@ -144,18 +148,24 @@ class HomePage extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.65,
       child: Column(
         children: [
-          _buildOrdersListTitle(isPaid),
+          _buildOrdersListTitle(context, isPaid),
           _buildOrdersListView(context, orders, isPaid: isPaid),
         ],
       ),
     );
   }
 
-  Padding _buildOrdersListTitle(bool isPaid) {
+  Padding _buildOrdersListTitle(BuildContext context, bool isPaid) {
+    final activeOrdersLength =
+        BlocProvider.of<HomeCubit>(context).getActiveOrders().length;
+    final paidOrderLength =
+        BlocProvider.of<HomeCubit>(context).getPaidOrders().length;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(
-        isPaid ? 'PAID ORDERS' : 'ACTIVE ORDERS',
+        isPaid
+            ? 'PAID ORDERS: $paidOrderLength'
+            : 'ACTIVE ORDERS: $activeOrdersLength',
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
@@ -200,6 +210,7 @@ class HomePage extends StatelessWidget {
   void _showTableSelection(BuildContext context, HomeLoaded state) {
     final cubit = BlocProvider.of<HomeCubit>(context);
     showModalBottomSheet(
+      backgroundColor: AppColors.offWhite,
       context: context,
       builder: (ctx) => _buildTablesGrid(context, cubit, state),
     );
@@ -235,15 +246,17 @@ class HomePage extends StatelessWidget {
 
   ButtonStyle _buildTableButtonStyle(HomeCubit cubit, int index) {
     return ButtonStyle(
+      backgroundColor: WidgetStateProperty.all(AppColors.offWhite),
       side: cubit.isTableOccupied(index + 1)
           ? WidgetStateProperty.all(BorderSide(color: AppColors.warmOrange))
-          : null,
+          : WidgetStateProperty.all(BorderSide(color: AppColors.green)),
     );
   }
 
   Text _buildTableButtonText(int index) {
     return Text(
       'Table ${index + 1}',
+      style: TextStyle(color: AppColors.deepBlue, fontWeight: FontWeight.w500),
       textAlign: TextAlign.center,
     );
   }
@@ -259,6 +272,7 @@ class HomePage extends StatelessWidget {
 
   void _showLogoutConfirmation(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: AppColors.offWhite,
       context: context,
       builder: (context) => _buildLogoutConfirmationContent(context),
     );

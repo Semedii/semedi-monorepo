@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/utils/app_colors.dart';
 
 class MenuItemCard extends StatelessWidget {
   final MenuItem item;
@@ -14,7 +15,7 @@ class MenuItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: item.isAvailable ? null : Colors.grey[300],
+      color: item.isAvailable ? AppColors.offWhite : Colors.grey[300],
       child: InkWell(
         onTap: item.isAvailable ? onTap : null,
         child: Padding(

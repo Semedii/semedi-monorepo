@@ -27,11 +27,12 @@ class OrderItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: AppColors.offWhite,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.black.withValues(alpha: .5))),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -89,7 +90,7 @@ class OrderItemCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: _getStatusChipColor(order.status),
+        color: _getStatusColor(order.status),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -121,7 +122,7 @@ class OrderItemCard extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: AppColors.deepBlue.withOpacity(0.1),
+              color: AppColors.deepBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -219,7 +220,7 @@ class OrderItemCard extends StatelessWidget {
       onTap: onDeliver,
       child: Chip(
         side: BorderSide(color: AppColors.deepBlue),
-        elevation: 8,
+        elevation: 1,
         shadowColor: AppColors.deepBlue,
         label: Text(
           'Deliver',
@@ -235,7 +236,7 @@ class OrderItemCard extends StatelessWidget {
       onTap: () => showNotifyCashierDialog(context),
       child: Chip(
         side: BorderSide(color: AppColors.green),
-        elevation: 8,
+        elevation: 1,
         shadowColor: AppColors.green,
         label: Text(
           'Notify Cashier',
@@ -283,7 +284,7 @@ class OrderItemCard extends StatelessWidget {
         });
   }
 
-  Color _getStatusChipColor(String status) {
+  Color _getStatusColor(String status) {
     switch (status) {
       case 'pending':
         return AppColors.darkGrey;

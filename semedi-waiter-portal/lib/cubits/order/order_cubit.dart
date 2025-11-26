@@ -52,10 +52,29 @@ class OrderCubit extends Cubit<OrderState> {
     emit(currentState.copyWith(isKitchenRequired: isKitchenRequired));
   }
 
-  void onRemoveItem(int index) {
+  void onDecrementItem(int index) {
     var currentState = state as OrderIdle;
     final newItems = List<OrderItem>.from(currentState.orderItems);
-    newItems.removeAt(index);
+    final item = newItems[index];
+
+    if (item.itemQuantity != null && item.itemQuantity! > 1) {
+      newItems[index] = item.copyWith(itemQuantity: item.itemQuantity! - 1);
+    } else {
+      newItems.removeAt(index);
+    }
+
+    emit(currentState.copyWith(orderItems: newItems));
+  }
+
+  void onIncrementItem(int index) {
+    var currentState = state as OrderIdle;
+    final newItems = List<OrderItem>.from(currentState.orderItems);
+    final item = newItems[index];
+
+    if (item.itemQuantity != null) {
+      newItems[index] = item.copyWith(itemQuantity: item.itemQuantity! + 1);
+    }
+
     emit(currentState.copyWith(orderItems: newItems));
   }
 
@@ -74,6 +93,17 @@ class OrderCubit extends Cubit<OrderState> {
       searchQuery: query,
       filteredMenuItems: filtered,
     ));
+  }
+
+  double calculateOrderTotal() {
+    var currentState = state as OrderIdle;
+    double total = 0;
+
+    for (var order in currentState.orderItems) {
+      total += (order.itemPrice! * order.itemQuantity!);
+    }
+
+    return total;
   }
 
   submitOrder(int tableNumber) async {

@@ -5,7 +5,6 @@ import 'package:semedi/components/menu_item_card.dart';
 import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
-import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/utils/app_colors.dart';
@@ -98,7 +97,7 @@ class OrderPage extends StatelessWidget {
         color: AppColors.offWhite,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -119,9 +118,12 @@ class OrderPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SearchBar(
+        backgroundColor:
+            WidgetStateProperty.all(AppColors.offWhite.withValues(alpha: 0.8)),
         hintText: 'Search menu items...',
         onChanged: context.read<OrderCubit>().updateSearchQuery,
         leading: const Icon(Icons.search),
+        elevation: const WidgetStatePropertyAll(2),
       ),
     );
   }
@@ -156,34 +158,57 @@ class OrderPage extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final item = selectedItems[index];
-        return Row(
-          children: [
-            Container(
-              width: 28,
-              height: 28,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.deepBlue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '${item.itemQuantity}x',
-                style: TextStyle(
-                  color: AppColors.deepBlue,
-                  fontWeight: FontWeight.bold,
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Colors.grey.shade200,
+              width: 2,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                  child: Text(
+                item.itemName ?? '',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              )),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: AppColors.deepBlue.withValues(alpha: 0.2),
+                      width: 1),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () => orderCubit.onDecrementItem(index),
+                      child: Icon(Icons.remove, color: AppColors.deepBlue),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Text('Qty: '),
+                    Text(
+                      '${item.itemQuantity}',
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(width: 10),
+                    InkWell(
+                      onTap: () => orderCubit.onIncrementItem(index),
+                      child: Icon(Icons.add, color: AppColors.deepBlue),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(item.itemName ?? '')),
-            IconButton(
-              onPressed: () => orderCubit.onRemoveItem(index),
-              icon: Icon(
-                Icons.remove_circle,
-                color: AppColors.softRed,
-              ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

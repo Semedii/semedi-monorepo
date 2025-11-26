@@ -136,7 +136,7 @@ class OrderConfirmDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  '${item.itemPrice}',
+                  '${item.itemQuantity}',
                   style: TextStyle(
                     color: AppColors.deepBlue,
                     fontWeight: FontWeight.bold,
@@ -178,7 +178,7 @@ class OrderConfirmDialog extends StatelessWidget {
       children: [
         const Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold)),
         Text(
-          '\$',
+          '\$ ${orderCubit.calculateOrderTotal()}',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
