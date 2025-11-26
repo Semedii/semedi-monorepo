@@ -111,7 +111,7 @@ class HomePage extends StatelessWidget {
             title: 'New Orders',
             value: cubit.getNewOrdersNumber().toString(),
             icon: Icons.receipt,
-            color: AppColors.darkGrey.withOpacity(0.7),
+            color: AppColors.darkGrey.withValues(alpha: 0.7),
           ),
           _buildStatCard(
             title: 'Preparing Orders',
@@ -135,7 +135,7 @@ class HomePage extends StatelessWidget {
       color: Colors.white,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
           blurRadius: 8,
           offset: const Offset(0, 4),
         ),
@@ -219,7 +219,7 @@ class HomePage extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withValues(alpha: 0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
@@ -413,9 +413,6 @@ class HomePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // if (order.status != OrderStatusEnum.ordered) ...{
-          //   _buildCancelChip(cubit, order.orderNumber!),
-          // },
           const SizedBox(width: 8),
           if (order.status == OrderStatusEnum.pending.name) ...{
             _buildPrepareButton(cubit, order.id),
@@ -424,22 +421,6 @@ class HomePage extends StatelessWidget {
             _buildMarkReadyButton(cubit, order.id),
           }
         ],
-      ),
-    );
-  }
-
-  Widget _buildCancelChip(HomeCubit cubit, String orderNumber) {
-    return GestureDetector(
-      onTap: () => cubit.onCancelOrder(orderNumber),
-      child: Chip(
-        side: BorderSide(color: AppColors.softRed),
-        elevation: 4,
-        shadowColor: AppColors.softRed,
-        label: Text(
-          'Cancel',
-          style: TextStyle(color: AppColors.offWhite),
-        ),
-        backgroundColor: AppColors.softRed,
       ),
     );
   }

@@ -11,6 +11,7 @@ class MenuManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.offWhite,
       appBar: _buildAppBar(),
       body: BlocProvider(
         create: (context) => MenuCubit(_menuService)..initPage(),
@@ -48,10 +49,11 @@ class MenuManagementScreen extends StatelessWidget {
 
   Card _buildMenuItemCard(BuildContext context, MenuItem item) {
     return Card(
+      color: AppColors.offWhite,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: AppColors.deepBlue.withValues(alpha: 0.3))),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
