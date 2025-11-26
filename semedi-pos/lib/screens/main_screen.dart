@@ -294,7 +294,10 @@ class MainScreen extends StatelessWidget {
   }
 
   SliverPadding _buildTableGrid(
-      double width, OrderCubit cubit, OrderLoaded state) {
+    double width,
+    OrderCubit cubit,
+    OrderLoaded state,
+  ) {
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverGrid(
@@ -310,6 +313,7 @@ class MainScreen extends StatelessWidget {
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {
+            //Todo
             final tableNumber = index + 1;
             return GestureDetector(
               onTap: () {

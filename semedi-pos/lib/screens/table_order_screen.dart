@@ -5,7 +5,6 @@ import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
-import 'package:semedi_pos/models/order.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/take_order_screen.dart';
@@ -120,20 +119,24 @@ class TableOrderScreen extends StatelessWidget {
       if (tableOrders == null || tableOrders.isEmpty) {
         return;
       } //todo
+      List<OrderItem> items = [];
+      double total = 0;
+      for (var order in tableOrders) {
+        total += order.totalPrice;
+        for (var item in order.items) {
+          items.add(item);
+        }
+      }
+      final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
+          orderNumber: tableOrders.first.id,
+          waiter: tableOrders.first.waiterName,
+          items: items,
+          total: total,
+          dateTime: tableOrders.first.createdAt);
 
-      // final pdfBytes = await ThermalReceiptService.generateOrderReceiptBytes(
-      //     orderNumber: tableOrders.
-      //     tableNumber: tableOrders.first.tableNumber.toString(),
-      //     waiter: tableOrders.first.waiterName,
-      //     items: itemsWithQuantity,
-      //     prices: itemsWithPrices,
-      //     total: total,
-      //     exchangeRate: exchangeRate,
-      //     dateTime: tableOrders.last.createdAt);
-
-      // await Printing.layoutPdf(
-      //   onLayout: (PdfPageFormat format) async => pdfBytes,
-      // );
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdfBytes,
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error printing receipt: ${e.toString()}')),
