@@ -52,7 +52,7 @@ class OrderItemCard extends StatelessWidget {
             },
             const SizedBox(height: 12),
             _buildTimestamp(),
-            if (order.tableNumber != null) _buildWaiterAndActionButton(context),
+            _buildWaiterAndActionButton(context),
           ],
         ),
       ),
@@ -60,10 +60,6 @@ class OrderItemCard extends StatelessWidget {
   }
 
   Column _buildOrderAndTableNumber() {
-    String tableOrName = order.tableNumber != null
-        ? "TABLE ${order.tableNumber}"
-        //todo
-        : "Take Away: ${order.waiterName}";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -76,7 +72,7 @@ class OrderItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          tableOrName,
+          order.tableNumber.toString(),
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 14,
@@ -166,7 +162,8 @@ class OrderItemCard extends StatelessWidget {
   }
 
   Text _buildTimestamp() {
-    String text = order.status == OrderStatusEnum.served ? 'Served' : 'Ordered';
+    String text =
+        order.status == OrderStatusEnum.served.name ? 'Served' : 'Ordered';
     return Text(
       '$text at ${_getTimeFromDateTime(order.createdAt)}',
       style: TextStyle(
@@ -178,7 +175,6 @@ class OrderItemCard extends StatelessWidget {
 
   Row _buildWaiterAndActionButton(BuildContext context) {
     bool isDelivered = order.status == OrderStatusEnum.served.name;
-    bool isOrdered = order.status == OrderStatusEnum.ordered.name;
     bool isReady = order.status == OrderStatusEnum.ready.name;
     bool isPaymentNotRecieved =
         order.status == OrderStatusEnum.paymentNotRecieved;
@@ -190,28 +186,10 @@ class OrderItemCard extends StatelessWidget {
           style: TextStyle(color: AppColors.deepBlue),
         ),
         if (isReady) _buildDeliverButton(),
-        //commented out for ali jirde
-        //  if (isOrdered || !order.isKitchenRequired) _buildCancelButton(),
         if (isDelivered || isPaymentNotRecieved) ...{
           _buildRequestPayApprovalButton(context),
         }
       ],
-    );
-  }
-
-  _buildCancelButton() {
-    return GestureDetector(
-      onTap: onCancel,
-      child: Chip(
-        side: BorderSide(color: AppColors.softRed),
-        elevation: 8,
-        shadowColor: AppColors.softRed,
-        label: Text(
-          'Cancel',
-          style: TextStyle(color: AppColors.offWhite),
-        ),
-        backgroundColor: AppColors.softRed,
-      ),
     );
   }
 

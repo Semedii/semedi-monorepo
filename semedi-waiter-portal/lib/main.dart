@@ -6,7 +6,6 @@ import 'package:semedi/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/pages/login_page.dart';
-import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

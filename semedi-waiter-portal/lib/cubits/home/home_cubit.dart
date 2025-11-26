@@ -12,10 +12,10 @@ part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final OrderService _orderService;
-  final SecureStorageService _secureStorageService;
+  final SecureStorageService secureStorageService;
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
 
-  HomeCubit(OrderService orderService, this._secureStorageService)
+  HomeCubit(OrderService orderService, this.secureStorageService)
       : _orderService = orderService,
         super(const HomeInitial());
   final AudioPlayer _audioPlayer = AudioPlayer();
