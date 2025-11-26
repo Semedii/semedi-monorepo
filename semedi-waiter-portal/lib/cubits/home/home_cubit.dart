@@ -66,7 +66,8 @@ class HomeCubit extends Cubit<HomeState> {
     if (state is! HomeLoaded) return false;
     final currentState = state as HomeLoaded;
     return currentState.orders
-        .where((order) => order.status != OrderStatusEnum.paid)
+        .where(
+            (order) => order.status.toLowerCase() != OrderStatusEnum.paid.name)
         .any((order) => order.tableNumber == tableNumber);
   }
 
