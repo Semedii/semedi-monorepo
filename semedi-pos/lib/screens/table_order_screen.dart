@@ -35,6 +35,7 @@ class TableOrderScreen extends StatelessWidget {
                     .toList() ??
                 [];
             return Scaffold(
+              backgroundColor: AppColors.offWhite,
               appBar: _buildAppBar(context, tableOrders),
               body: SafeArea(
                 child: Padding(

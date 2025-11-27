@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
+import 'package:semedi_pos/components/payment_dialog.dart';
+import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
@@ -278,12 +280,12 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Column _buildPayActionButtons(BuildContext context, OrderModel order) {
-    return Column(
+  Row _buildPayActionButtons(BuildContext context, OrderModel order) {
+    return Row(
       children: [
-        _buildMarkPaidButton(context, order.id),
-        const SizedBox(height: 12),
-        _buildUnPaidButton(context, order.id),
+        Expanded(child: _buildUnPaidButton(context, order.id)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildMarkPaidButton(context, order.id)),
       ],
     );
   }
@@ -314,10 +316,25 @@ class OrderCard extends StatelessWidget {
 
   AppButton _buildMarkPaidButton(BuildContext context, String orderNumber) {
     return AppButton(
-      color: AppColors.green,
-      isSmall: false,
-      text: 'Mark as paid',
-      onPressed: () => onChangeOrderStatus(orderNumber, OrderStatusEnum.paid),
+        color: AppColors.green,
+        isSmall: false,
+        text: 'Paid',
+        onPressed: () => showPaymentDialog(
+            context) // onChangeOrderStatus(orderNumber, OrderStatusEnum.paid),
+        );
+  }
+
+  void showPaymentDialog(
+    BuildContext context,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return PaymentDialog(
+          order: order,
+        );
+      },
     );
   }
 
@@ -325,8 +342,9 @@ class OrderCard extends StatelessWidget {
     return AppButton(
         onPressed: () =>
             onChangeOrderStatus(orderNumber, OrderStatusEnum.unpaid),
-        color: AppColors.warmOrange,
+        color: AppColors.softRed,
         isSmall: false,
+        isOutlined: true,
         text: "Unpaid");
   }
 
