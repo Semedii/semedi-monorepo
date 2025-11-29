@@ -7,6 +7,7 @@ import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
 import 'package:semedi/main.dart';
 import 'package:semedi/models/order_model.dart';
+import 'package:semedi/pages/change_password_page.dart';
 import 'package:semedi/pages/order_page.dart';
 import 'package:semedi/services/auth_service.dart';
 import 'package:semedi/services/order_service.dart';
@@ -64,17 +65,19 @@ class HomePage extends StatelessWidget {
   AppBar _buildAppBar(BuildContext context, HomeLoaded state) {
     return AppBar(
       backgroundColor: AppColors.offWhite,
-      leading: _buildMenuButton(context),
       title: _buildAppBarTitle(state),
       centerTitle: true,
       bottom: _buildTabBar(),
+      actions: [
+        _buildSettings(context),
+      ],
     );
   }
 
-  IconButton _buildMenuButton(BuildContext context) {
+  Widget _buildSettings(BuildContext context) {
     return IconButton(
       onPressed: () => _showLogoutConfirmation(context),
-      icon: const Icon(Icons.menu),
+      icon: const Icon(Icons.settings),
     );
   }
 
@@ -284,7 +287,7 @@ class HomePage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildLogoutTitle(),
+          _buildChangePassword(context),
           const SizedBox(height: 16),
           _buildLogoutButton(context),
         ],
@@ -292,16 +295,28 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Text _buildLogoutTitle() {
-    return Text(
-      "Logout?".toUpperCase(),
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+  Widget _buildChangePassword(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.lock),
+      title: const Text('Change Password'),
+      trailing: const Icon(Icons.arrow_forward_ios),
+      onTap: () => _navigateToChangePassword(context),
+    );
+  }
+
+  void _navigateToChangePassword(BuildContext context) {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ChangePasswordPage(),
+      ),
     );
   }
 
   AppButton _buildLogoutButton(BuildContext context) {
     return AppButton(
-      text: "Confirm Logout",
+      text: "Logout",
       onPressed: () => _performLogout(context),
     );
   }

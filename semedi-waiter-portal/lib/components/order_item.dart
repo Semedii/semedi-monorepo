@@ -131,7 +131,7 @@ class OrderItemCard extends StatelessWidget {
           ),
           Text(
             '${item.itemQuantity}',
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ],
       ),

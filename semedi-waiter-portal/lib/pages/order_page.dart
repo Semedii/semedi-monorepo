@@ -45,13 +45,9 @@ class OrderPage extends StatelessWidget {
     return AppBar(
       title: Text(
         "Table $tableNumber - Order",
-        style: TextStyle(
-          color: AppColors.offWhite,
-        ),
       ),
       centerTitle: true,
-      backgroundColor: AppColors.deepBlue,
-      iconTheme: IconThemeData(color: AppColors.offWhite),
+      backgroundColor: AppColors.offWhite,
     );
   }
 
