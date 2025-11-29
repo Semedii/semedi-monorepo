@@ -137,28 +137,11 @@ class ManagementService {
     }
   }
 
-  //todo
-
   Future<int?> getExchangeRate() async {
     try {
-      final snapshot = await db
-          .collection('shops')
-          .doc('restaurant')
-          .collection('metadata')
-          .doc('exchangeRate')
-          .get();
-
-      if (!snapshot.exists) {
-        print('Exchange rate document does not exist');
-        return null;
-      }
-
-      print("Document snapshot: $snapshot");
-      print("Exchange rate: ${snapshot['rate']}");
-
-      int? exchangeRate = snapshot['rate'];
-
-      return exchangeRate;
+      final response = await _supabase.from('metadata').select('exchange_rate');
+      int? rate = response.first['exchange_rate'];
+      return rate;
     } catch (e) {
       throw Exception(e);
     }
