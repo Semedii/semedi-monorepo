@@ -126,12 +126,12 @@ class ManagementService {
 
   Future<void> setExchangeRate(int exchangeRate) async {
     try {
-      await db
-          .collection('shops')
-          .doc('restaurant')
-          .collection('metadata')
-          .doc('exchangeRate')
-          .set({'rate': exchangeRate});
+      await _supabase
+          .from('metadata')
+          .update({'exchange_rate': exchangeRate}).eq(
+        'restaurant_id',
+        _supabase.auth.currentUser?.userMetadata?['restaurant_id'],
+      );
     } catch (e) {
       throw Exception(e);
     }

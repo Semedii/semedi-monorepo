@@ -433,6 +433,7 @@ class MainScreen extends StatelessWidget {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: AppColors.offWhite,
             title: const Text("Enter Your Exchange Rate of 1\$"),
             content: Form(
               key: _formKey,
