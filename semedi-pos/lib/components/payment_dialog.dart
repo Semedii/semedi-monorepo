@@ -5,9 +5,20 @@ import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class PaymentDialog extends StatelessWidget {
-  PaymentDialog({required this.order, super.key});
+  PaymentDialog({required this.order, this.isPayAll = false, super.key})
+      : orderList = [],
+        total = 0;
+  PaymentDialog.payAll(
+      {required this.orderList,
+      required this.total,
+      this.isPayAll = true,
+      super.key})
+      : order = null;
 
-  final OrderModel order;
+  final OrderModel? order;
+  final bool isPayAll;
+  final List<OrderModel> orderList;
+  final double total;
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
@@ -24,13 +35,13 @@ class PaymentDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    amountController.text = order.totalPrice.toString();
+    amountController.text = order?.totalPrice.toString() ?? total.toString();
     return Dialog(
       backgroundColor: AppColors.offWhite,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minWidth: 360, // desktop friendly width
+          minWidth: 360,
           maxWidth: 480,
         ),
         child: Padding(
@@ -40,7 +51,14 @@ class PaymentDialog extends StatelessWidget {
             children: [
               _buildTitle(),
               const SizedBox(height: 24),
-              _buildAmountField(),
+              if (isPayAll) ...[
+                TxtFormField(
+                  controller: amountController,
+                  isReadOnly: true,
+                )
+              ] else ...[
+                _buildAmountField()
+              ],
               const SizedBox(height: 16),
               _buildPaymentMethodDropdown(),
               const SizedBox(height: 16),

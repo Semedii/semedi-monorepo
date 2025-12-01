@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
-import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/order_card.dart';
+import 'package:semedi_pos/components/payment_dialog.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
@@ -62,20 +62,40 @@ class TableOrderScreen extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context, List<OrderModel> tableOrders) {
+    double total = 0;
+    for (var order in tableOrders) {
+      total += order.totalPrice;
+    }
     return AppBar(
-      title: Text(
-        'Table $tableNumber',
-        style: const TextStyle(letterSpacing: 1.5),
-      ),
+      titleSpacing: 16,
+      elevation: 0.8,
       backgroundColor: AppColors.deepBlue,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
+      foregroundColor: AppColors.offWhite,
+      title: Row(
+        children: [
+          Text(
+            "Table $tableNumber    Total: \$$total",
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
       actions: [
-        AppButton(
-          text: 'Add Extra',
-          elevation: 20,
-          onPressed: () {
+        _buildAppBarButton(
+          Icons.print,
+          "Print",
+          () {
+            _generateAndPrintReceipt(context, tableOrders);
+          },
+        ),
+        _buildAppBarButton(Icons.payment, "Pay All",
+            () => showPaymentDialog(context, tableOrders, total)),
+        _buildAppBarButton(
+          Icons.add_circle_outline,
+          "Extras",
+          () {
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -85,21 +105,7 @@ class TableOrderScreen extends StatelessWidget {
                         )));
           },
         ),
-        const SizedBox(width: 20),
-        _buildPrintButton(context, tableOrders)
       ],
-    );
-  }
-
-  IconButton _buildPrintButton(
-      BuildContext context, List<OrderModel>? tableOrders) {
-    return IconButton(
-      onPressed: () => _generateAndPrintReceipt(context, tableOrders),
-      icon: Icon(
-        Icons.print,
-        color: AppColors.offWhite,
-      ),
-      tooltip: 'Print Reciept',
     );
   }
 
@@ -143,5 +149,31 @@ class TableOrderScreen extends StatelessWidget {
         SnackBar(content: Text('Error printing receipt: ${e.toString()}')),
       );
     }
+  }
+
+  _buildAppBarButton(IconData icon, String label, Function() onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: TextButton.icon(
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          foregroundColor: AppColors.offWhite,
+        ),
+        icon: Icon(icon, size: 20),
+        label: Text(label),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  void showPaymentDialog(
+      BuildContext context, List<OrderModel> orders, double total) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return PaymentDialog.payAll(orderList: orders, total: total);
+      },
+    );
   }
 }

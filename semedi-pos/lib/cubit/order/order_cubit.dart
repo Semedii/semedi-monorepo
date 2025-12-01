@@ -85,6 +85,20 @@ class OrderCubit extends Cubit<OrderState> {
     }
   }
 
+  void payAll(List<OrderModel> orders) async {
+    try {
+      for (var order in orders) {
+        await _orderService.changeOrderStatus(
+            orderNumber: order.id, status: OrderStatusEnum.paid);
+      }
+      listenToOrders();
+    } catch (e) {
+      emit(OrderLoadingFailed(
+          message: 'Failed to pay this order please try again: $e'));
+      listenToOrders();
+    }
+  }
+
   getTakeAwayOrders() {
     var currentState = state as OrderLoaded;
     List<OrderModel>? takeAwayOrders = currentState.activeOrders
