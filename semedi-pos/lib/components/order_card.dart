@@ -74,7 +74,6 @@ class OrderCard extends StatelessWidget {
 
   Text _buildPaymentInfo(OrderModel order) {
     return Text(
-      //todo payment info
       "From: ${order.note ?? ''}",
       style: const TextStyle(
         color: Colors.black,
