@@ -102,8 +102,6 @@ class OrderPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildNoteField(context),
-          const SizedBox(height: 12),
           _buildSubmitButton(context, state),
         ],
       ),
@@ -154,6 +152,8 @@ class OrderPage extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final item = selectedItems[index];
+        final noteController = TextEditingController();
+        noteController.text = item.note ?? '';
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           decoration: BoxDecoration(
@@ -163,44 +163,67 @@ class OrderPage extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                  child: Text(
-                item.itemName ?? '',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              )),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                      color: AppColors.deepBlue.withValues(alpha: 0.2),
-                      width: 1),
-                  borderRadius: BorderRadius.circular(99),
+          child: ExpansionTile(
+            title: Row(
+              children: [
+                Expanded(
+                    child: Text(
+                  item.itemName ?? '',
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
+                )),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: AppColors.deepBlue.withValues(alpha: 0.2),
+                        width: 1),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: () => orderCubit.onDecrementItem(index),
+                        child: Icon(Icons.remove, color: AppColors.deepBlue),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      const Text('Qty: '),
+                      Text(
+                        '${item.itemQuantity}',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: () => orderCubit.onIncrementItem(index),
+                        child: Icon(Icons.add, color: AppColors.deepBlue),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: () => orderCubit.onDecrementItem(index),
-                      child: Icon(Icons.remove, color: AppColors.deepBlue),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const Text('Qty: '),
-                    Text(
-                      '${item.itemQuantity}',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(width: 10),
-                    InkWell(
-                      onTap: () => orderCubit.onIncrementItem(index),
-                      child: Icon(Icons.add, color: AppColors.deepBlue),
-                    ),
-                  ],
+              ],
+            ),
+            subtitle: item.note != null ? Text(item.note!) : null,
+            children: [
+              TxtFormField(
+                controller: noteController,
+                labelText: 'Add note',
+                suffixIcon: Container(
+                  margin: const EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.deepBlue.withValues(alpha: 0.15),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      orderCubit.onNoteChanged(noteController.text, index);
+                    },
+                    icon: const Icon(Icons.check_rounded),
+                  ),
                 ),
               ),
             ],
@@ -236,13 +259,6 @@ class OrderPage extends StatelessWidget {
       childAspectRatio: 1.6,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-    );
-  }
-
-  _buildNoteField(BuildContext context) {
-    return TxtFormField(
-      labelText: 'Special note (modifications...)',
-      onChanged: BlocProvider.of<OrderCubit>(context).onNoteChanged,
     );
   }
 

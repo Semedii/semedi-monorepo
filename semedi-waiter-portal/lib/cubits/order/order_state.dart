@@ -10,8 +10,8 @@ final class OrderIdle extends OrderState {
   final List<MenuItem> filteredMenuItems;
   final OrderStatusEnum status;
   final String searchQuery;
-  final String? note;
   final bool isKitchenRequired;
+  final bool isExpanded; //for expansion tile in notes;
 
   OrderIdle({
     required this.orderItems,
@@ -19,8 +19,8 @@ final class OrderIdle extends OrderState {
     required this.filteredMenuItems,
     this.status = OrderStatusEnum.ordered,
     this.searchQuery = '',
-    this.note,
     this.isKitchenRequired = true,
+    this.isExpanded = false,
   });
 
   OrderIdle copyWith({
@@ -30,6 +30,7 @@ final class OrderIdle extends OrderState {
     String? searchQuery,
     String? note,
     bool? isKitchenRequired,
+    bool? isExpanded,
   }) {
     return OrderIdle(
       orderItems: orderItems ?? this.orderItems,
@@ -37,8 +38,8 @@ final class OrderIdle extends OrderState {
       filteredMenuItems: filteredMenuItems ?? this.filteredMenuItems,
       status: status ?? this.status,
       searchQuery: searchQuery ?? this.searchQuery,
-      note: note ?? this.note,
       isKitchenRequired: isKitchenRequired ?? this.isKitchenRequired,
+      isExpanded: isExpanded ?? this.isExpanded,
     );
   }
 }

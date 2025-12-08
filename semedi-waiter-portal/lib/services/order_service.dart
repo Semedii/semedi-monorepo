@@ -16,15 +16,16 @@ class OrderService {
   addNewOrder(
     List<OrderItem> orderItems,
     int tableNumber,
-    String? note,
     bool isKitchenRequired,
   ) async {
     final token = getIt<AuthProvider>().token;
     final waiterId = JwtDecoder.decode(token ?? '')['sub'];
     await _supabase.rpc('create_order_with_items', params: {
-      '_table_number': tableNumber,
-      '_items': orderItems.map((e) => e.toJson()).toList(),
-      '_waiter_id': waiterId
+      'order_data': {
+        'table_number': tableNumber,
+        'items': orderItems.map((e) => e.toJson()).toList(),
+        'waiter_id': waiterId
+      }
     });
   }
 

@@ -47,8 +47,7 @@ class OrderConfirmDialog extends StatelessWidget {
                         _buildTableInfo(),
                         const SizedBox(height: 16),
                         _buildOrderItemList(context, state),
-                        if (state.note?.isNotEmpty ?? false)
-                          _buildSpecialNote(state),
+                        _buildSpecialNote(state),
                         const Divider(height: 24),
                         _buildTotalPrice(context),
                         const SizedBox(height: 24),
@@ -163,9 +162,15 @@ class OrderConfirmDialog extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 100),
             child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Text(state.note!),
-            ),
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...state.orderItems.map((item) => item.note != null
+                        ? Text("${item.itemName}: ${item.note}")
+                        : const SizedBox.shrink())
+                  ],
+                )),
           ),
         ],
       ),
