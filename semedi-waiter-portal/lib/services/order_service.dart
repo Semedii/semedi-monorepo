@@ -63,8 +63,10 @@ class OrderService {
     required String namePhone,
   }) async {
     try {
-      await _supabase.from('orders').update(
-          {'status': OrderStatusEnum.payPending.name}).eq('id', orderId);
+      await _supabase.from('orders').update({
+        'status': OrderStatusEnum.payPending.name,
+        'note': namePhone
+      }).eq('id', orderId);
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');
     }
