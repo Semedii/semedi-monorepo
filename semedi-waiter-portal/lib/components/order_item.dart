@@ -214,6 +214,7 @@ class OrderItemCard extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: AlertDialog(
+              backgroundColor: AppColors.offWhite,
               title: const Text("From Name/Number"),
               content: Form(
                 key: _formkey,

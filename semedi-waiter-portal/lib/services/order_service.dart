@@ -59,11 +59,12 @@ class OrderService {
   }
 
   Future<void> requestPay({
-    required String orderNumber,
+    required String orderId,
     required String namePhone,
   }) async {
     try {
-      //todo
+      await _supabase.from('orders').update(
+          {'status': OrderStatusEnum.payPending.name}).eq('id', orderId);
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');
     }

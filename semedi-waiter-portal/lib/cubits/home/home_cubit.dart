@@ -98,10 +98,10 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  onRequestPay(String? orderNumber, String namePhone) {
-    if (orderNumber != null) {
+  onRequestPay(String? orderId, String namePhone) {
+    if (orderId != null) {
       _orderService.requestPay(
-        orderNumber: orderNumber,
+        orderId: orderId,
         namePhone: namePhone,
       );
       listenToOrders();
