@@ -270,12 +270,12 @@ class OrderCard extends StatelessWidget {
         : _buildPayActionButtons(context, order);
   }
 
-  Column _buildPayPendingButtons(BuildContext context, OrderModel order) {
-    return Column(
+  Widget _buildPayPendingButtons(BuildContext context, OrderModel order) {
+    return Row(
       children: [
-        _buildPaymentRecievedButton(context, order.id),
-        const SizedBox(height: 12),
-        _buildPaymentNotRecievedButton(context, order.id),
+        Expanded(child: _buildPaymentRecievedButton(context, order.id)),
+        const SizedBox(width: 12),
+        Expanded(child: _buildPaymentNotRecievedButton(context, order.id)),
       ],
     );
   }
@@ -296,7 +296,7 @@ class OrderCard extends StatelessWidget {
       isSmall: false,
       elevation: 8,
       color: AppColors.green,
-      text: "Payment recieved",
+      text: "recieved",
     );
   }
 
@@ -310,7 +310,7 @@ class OrderCard extends StatelessWidget {
       isSmall: false,
       elevation: 8,
       color: AppColors.softRed,
-      text: "Payment not recieved",
+      text: " not recieved",
     );
   }
 
