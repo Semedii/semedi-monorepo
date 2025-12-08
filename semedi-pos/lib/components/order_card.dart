@@ -292,9 +292,9 @@ class OrderCard extends StatelessWidget {
 
   Widget _buildPaymentRecievedButton(BuildContext context, String orderNumber) {
     return AppButton(
-      onPressed: () => onChangeOrderStatus(orderNumber, OrderStatusEnum.paid),
+      onPressed: () => showPaymentDialog(context),
       isSmall: false,
-      elevation: 8,
+      elevation: 2,
       color: AppColors.green,
       text: "recieved",
     );
@@ -308,7 +308,7 @@ class OrderCard extends StatelessWidget {
         OrderStatusEnum.served,
       ),
       isSmall: false,
-      elevation: 8,
+      elevation: 2,
       color: AppColors.softRed,
       text: " not recieved",
     );
@@ -318,10 +318,9 @@ class OrderCard extends StatelessWidget {
     return AppButton(
         color: AppColors.green,
         isSmall: false,
+        elevation: 2,
         text: 'Paid',
-        onPressed: () => showPaymentDialog(
-            context) // onChangeOrderStatus(orderNumber, OrderStatusEnum.paid),
-        );
+        onPressed: () => showPaymentDialog(context));
   }
 
   void showPaymentDialog(
@@ -345,6 +344,7 @@ class OrderCard extends StatelessWidget {
         color: AppColors.softRed,
         isSmall: false,
         isOutlined: true,
+        elevation: 2,
         text: "Unpaid");
   }
 
@@ -353,7 +353,7 @@ class OrderCard extends StatelessWidget {
       onTap: () => onCancelOrder(orderNumber),
       child: Chip(
         side: BorderSide(color: AppColors.softRed),
-        elevation: 8,
+        elevation: 2,
         shadowColor: AppColors.softRed,
         label: Text(
           'Cancel',
