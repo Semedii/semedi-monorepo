@@ -20,13 +20,14 @@ class OrderService {
   ) async {
     final token = getIt<AuthProvider>().token;
     final waiterId = JwtDecoder.decode(token ?? '')['sub'];
-    await _supabase.rpc('create_order_with_items', params: {
+    var response = await _supabase.rpc('create_order_with_items', params: {
       'order_data': {
         'table_number': tableNumber,
         'items': orderItems.map((e) => e.toJson()).toList(),
         'waiter_id': waiterId
       }
     });
+    return response;
   }
 
   Stream<List<OrderModel>> getAllOrders() {
@@ -34,7 +35,7 @@ class OrderService {
         .from('orders')
         .stream(primaryKey: ['id']).asyncMap((_) async {
       final response = await _supabase.from('orders').select('''
-              id, status, created_at, 
+              id, order_number, status, created_at, 
               profiles(full_name), 
               dining_tables(table_number), 
               order_items(quantity, menu_items(name, price))

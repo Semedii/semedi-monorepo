@@ -3,6 +3,7 @@ import 'package:semedi/models/menu.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/order_service.dart';
+import 'package:semedi/utils/extensions.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 part 'order_state.dart';
@@ -115,12 +116,12 @@ class OrderCubit extends Cubit<OrderState> {
     var currentState = state as OrderIdle;
     emit(OrderLoading());
     try {
-      var orderNumber = await _orderService.addNewOrder(
+      int orderNumber = await _orderService.addNewOrder(
         currentState.orderItems,
         tableNumber,
         currentState.isKitchenRequired,
       );
-      emit(OrderSuccess(orderNumber: orderNumber.toString()));
+      emit(OrderSuccess(orderNumber: orderNumber.formatOrderNumber()));
     } catch (e) {
       emit(OrderFailure(error: e.toString()));
       emit(currentState);

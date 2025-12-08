@@ -5,6 +5,7 @@ import 'package:semedi/models/order_item.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/utils/app_colors.dart';
 import 'package:intl/intl.dart';
+import 'package:semedi/utils/extensions.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 import 'package:semedi/utils/text_validators.dart';
 
@@ -64,7 +65,7 @@ class OrderItemCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Order #${order.id.split('-').first}',
+          'Table: ${order.tableNumber}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16,
@@ -72,9 +73,9 @@ class OrderItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          order.tableNumber.toString(),
-          style: TextStyle(
-            color: Colors.grey[600],
+          '#${order.orderNumber.formatOrderNumber()}',
+          style: const TextStyle(
+            color: Color.fromARGB(255, 27, 27, 27),
             fontSize: 14,
           ),
         ),
