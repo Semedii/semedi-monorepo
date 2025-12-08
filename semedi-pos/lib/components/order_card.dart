@@ -3,7 +3,6 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/payment_dialog.dart';
-import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
