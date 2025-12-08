@@ -17,6 +17,7 @@ class MenuItem {
     return MenuItem(
         id: json['id'],
         name: json['name'],
+        isAvailable: json['available'],
         price: double.parse(json['price'].toString()));
   }
 }
