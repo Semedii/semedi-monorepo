@@ -305,7 +305,7 @@ class OrderCard extends StatelessWidget {
     return AppButton(
       onPressed: () => onChangeOrderStatus(
         orderNumber,
-        OrderStatusEnum.paymentNotRecieved,
+        OrderStatusEnum.served,
       ),
       isSmall: false,
       elevation: 8,
