@@ -16,7 +16,7 @@ class OrderService {
         .from('orders')
         .stream(primaryKey: ['id']).asyncMap((_) async {
       final response = await _supabase.from('orders').select('''
-              id, status, created_at, 
+              id, status, created_at, note,
               profiles(full_name), 
               dining_tables(table_number), 
               order_items(quantity, menu_items(name, price))
@@ -30,7 +30,7 @@ class OrderService {
     final response = await _supabase
         .from('orders')
         .select(
-            'id, status, created_at, profiles(full_name),dining_tables(table_number), order_items(quantity, menu_items(name, price))')
+            'id, status, created_at, note, profiles(full_name),dining_tables(table_number), order_items(quantity, menu_items(name, price))')
         .eq('status', status);
 
     return (response as List<dynamic>)
@@ -55,7 +55,7 @@ class OrderService {
     final response = await _supabase
         .from('orders')
         .select(
-            'id, status, created_at, profiles(full_name),dining_tables(table_number), order_items(quantity, menu_items(name, price))')
+            'id, status, created_at, note, profiles(full_name),dining_tables(table_number), order_items(quantity, menu_items(name, price))')
         .eq('status', 'paid');
 
     return (response as List<dynamic>)

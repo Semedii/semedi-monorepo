@@ -5,6 +5,7 @@ class OrderModel {
   final int tableNumber;
   final String waiterName;
   final String status;
+  final String? note;
   final List<OrderItem> items;
   final DateTime createdAt;
 
@@ -13,6 +14,7 @@ class OrderModel {
     required this.tableNumber,
     required this.waiterName,
     required this.status,
+    this.note,
     required this.items,
     required this.createdAt,
   });
@@ -21,12 +23,12 @@ class OrderModel {
     final orderItems = (json['order_items'] as List<dynamic>? ?? [])
         .map((e) => OrderItem.fromJson(e))
         .toList();
-
     return OrderModel(
       id: (json['id'] as String),
       tableNumber: json['dining_tables']['table_number'],
       waiterName: json['profiles']['full_name'],
       status: json['status'],
+      note: json['note'],
       items: orderItems,
       createdAt: DateTime.parse(json['created_at'] as String),
     );

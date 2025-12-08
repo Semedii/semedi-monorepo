@@ -141,7 +141,7 @@ class OrderCubit extends Cubit<OrderState> {
     var currentState = state as OrderLoaded;
     bool isPayPending = currentState.activeOrders
             ?.where((order) => order.tableNumber == tableNumber)
-            .any((order) => order.status == OrderStatusEnum.payPending) ??
+            .any((order) => order.status == OrderStatusEnum.payPending.name) ??
         false;
     return isPayPending;
   }

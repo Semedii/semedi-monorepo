@@ -64,7 +64,7 @@ class OrderCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (order.status == OrderStatusEnum.payPending) ...{
+          if (order.status == OrderStatusEnum.payPending.name) ...{
             _buildPaymentInfo(order),
           },
           _buildOrderInfoAndPrint(context, order),
@@ -76,7 +76,7 @@ class OrderCard extends StatelessWidget {
   Text _buildPaymentInfo(OrderModel order) {
     return Text(
       //todo payment info
-      "From: ${order.status}",
+      "From: ${order.note ?? ''}",
       style: const TextStyle(
         color: Colors.black,
         fontWeight: FontWeight.bold,
@@ -265,7 +265,7 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, OrderModel order) {
-    return order.status == OrderStatusEnum.payPending
+    return order.status == OrderStatusEnum.payPending.name
         ? _buildPayPendingButtons(context, order)
         : _buildPayActionButtons(context, order);
   }
