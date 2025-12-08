@@ -6,7 +6,6 @@ class OrderModel {
   final int tableNumber;
   final String waiterName;
   final String status;
-  final String? note;
   final List<OrderItem> items;
   final DateTime createdAt;
 
@@ -16,7 +15,6 @@ class OrderModel {
     required this.tableNumber,
     required this.waiterName,
     required this.status,
-    this.note,
     required this.items,
     required this.createdAt,
   });

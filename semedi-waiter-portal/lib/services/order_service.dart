@@ -38,7 +38,7 @@ class OrderService {
               id, order_number, status, created_at, 
               profiles(full_name), 
               dining_tables(table_number), 
-              order_items(quantity, menu_items(name, price))
+              order_items(quantity, notes, menu_items(name, price))
             ''').neq('status', 'unpaid');
 
       return response.map((e) => OrderModel.fromJson(e)).toList();

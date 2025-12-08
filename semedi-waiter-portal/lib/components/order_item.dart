@@ -48,9 +48,6 @@ class OrderItemCard extends StatelessWidget {
             ),
             const Divider(height: 24),
             _buildItemList(),
-            if (order.note != null && order.note!.isNotEmpty) ...{
-              _buildNote(),
-            },
             const SizedBox(height: 12),
             _buildTimestamp(),
             _buildWaiterAndActionButton(context),
@@ -109,26 +106,33 @@ class OrderItemCard extends StatelessWidget {
   }
 
   Padding _buildItemCard(OrderItem item) {
+    print("sadfasdf ${item.note}");
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            height: 24,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: AppColors.deepBlue.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              item.itemName!,
-              style: TextStyle(
-                color: AppColors.deepBlue,
-                fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Container(
+                height: 24,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.deepBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  item.itemName!,
+                  style: TextStyle(
+                    color: AppColors.deepBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Text(item.note ?? '')
+            ],
           ),
           Text(
             '${item.itemQuantity}',
@@ -136,29 +140,6 @@ class OrderItemCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Column _buildNote() {
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(12),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.amber[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            'Note: ${order.note!}',
-            style: TextStyle(
-              color: AppColors.softRed,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
