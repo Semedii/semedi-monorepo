@@ -2,6 +2,7 @@ import 'package:semedi_kitchen/models/order_item.dart';
 
 class OrderModel {
   final String id;
+  final int orderNumber;
   final int tableNumber;
   final String waiterName;
   final String status;
@@ -10,6 +11,7 @@ class OrderModel {
 
   OrderModel({
     required this.id,
+    required this.orderNumber,
     required this.tableNumber,
     required this.waiterName,
     required this.status,
@@ -24,6 +26,7 @@ class OrderModel {
 
     return OrderModel(
       id: (json['id'] as String),
+      orderNumber: json['order_number'],
       tableNumber: json['dining_tables']['table_number'],
       waiterName: json['profiles']['full_name'],
       status: json['status'],

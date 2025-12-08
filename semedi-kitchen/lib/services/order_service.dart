@@ -13,10 +13,10 @@ class OrderService {
         .from('orders')
         .stream(primaryKey: ['id']).asyncMap((_) async {
       final response = await _supabase.from('orders').select('''
-              id, status, created_at, 
+              id, order_number, status, created_at, 
               profiles(full_name), 
               dining_tables(table_number), 
-              order_items(quantity, menu_items(name, price))
+              order_items(quantity, notes, menu_items(name, price))
             ''').inFilter('status', ['pending', 'preparing', 'ready']);
 
       return response.map((e) => OrderModel.fromJson(e)).toList();

@@ -13,6 +13,7 @@ import 'package:semedi_kitchen/services/service_locator.dart';
 import 'package:semedi_kitchen/services/thermal_reciept_service.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 import 'package:semedi_kitchen/models/order.dart';
+import 'package:semedi_kitchen/utils/extensions.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
 
 class HomePage extends StatelessWidget {
@@ -271,7 +272,7 @@ class HomePage extends StatelessWidget {
         Column(
           children: [
             Text(
-              order.id.split('-').first,
+              '#${order.orderNumber.formatOrderNumber()}',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -334,6 +335,11 @@ class HomePage extends StatelessWidget {
                           _buildItemQuantity(item),
                           const SizedBox(width: 12),
                           _buildItemName(item),
+                          const SizedBox(width: 12),
+                          Text(
+                            item.note?.toUpperCase() ?? '',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          )
                         ],
                       ),
                     ),
@@ -341,7 +347,6 @@ class HomePage extends StatelessWidget {
                   .toList(),
             ),
           ),
-          //todo if (order.note != null && order.note!.isNotEmpty) _buildNote(order),
         ],
       ),
     );
@@ -365,26 +370,13 @@ class HomePage extends StatelessWidget {
 
   BoxDecoration _buildItemQuantityDecoration() {
     return BoxDecoration(
-      color: AppColors.deepBlue.withOpacity(0.1),
+      color: AppColors.deepBlue.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(6),
     );
   }
 
   Expanded _buildItemName(OrderItem item) =>
       Expanded(child: Text(item.itemName));
-
-  Padding _buildNote(OrderModel order) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Text(
-        'Note: ${order.id}', //todo
-        style: TextStyle(
-          color: AppColors.softRed,
-          fontStyle: FontStyle.italic,
-        ),
-      ),
-    );
-  }
 
   Widget _buildCardFooter(BuildContext context, OrderModel order) {
     return Column(
@@ -446,7 +438,7 @@ class HomePage extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return AppColors.darkGrey.withOpacity(0.5);
+        return AppColors.darkGrey;
       case 'preparing':
         return AppColors.warmOrange;
       case 'ready':
