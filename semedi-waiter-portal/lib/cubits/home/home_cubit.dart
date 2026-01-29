@@ -15,6 +15,7 @@ class HomeCubit extends Cubit<HomeState> {
   final OrderService _orderService;
   final SecureStorageService secureStorageService;
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
+  StreamSubscription<List<DiningTables>>? _tablesSubscription;
 
   HomeCubit(OrderService orderService, this.secureStorageService)
       : _orderService = orderService,
@@ -23,14 +24,24 @@ class HomeCubit extends Cubit<HomeState> {
 
   void listenToOrders() async {
     emit(const HomeLoading());
-    final List<DiningTables> diningTables =
-        await DiningTablesService().getDiningTables();
+
     final restaurantName = await secureStorageService.read('restaurant_name');
 
     List<OrderModel> previousOrders = [];
+    List<DiningTables> previousDiningTables = [];
 
     _ordersSubscription?.cancel();
+    _tablesSubscription?.cancel();
 
+    _tablesSubscription = DiningTablesService().getDiningTablesStream().listen(
+      (tables) {
+        previousDiningTables = tables;
+        emit(HomeLoaded(previousOrders, tables, restaurantName));
+      },
+      onError: (error) {
+        emit(HomeError('Failed to load dining tables: $error'));
+      },
+    );
     _ordersSubscription = _orderService.getAllOrders().listen(
       (orders) async {
         if (_shouldPlaySound(previousOrders, orders)) {
@@ -38,7 +49,7 @@ class HomeCubit extends Cubit<HomeState> {
         }
 
         previousOrders = orders;
-        emit(HomeLoaded(orders, diningTables, restaurantName));
+        emit(HomeLoaded(orders, previousDiningTables, restaurantName));
       },
       onError: (error) {
         emit(HomeError('Failed to load orders: $error'));
@@ -48,12 +59,12 @@ class HomeCubit extends Cubit<HomeState> {
 
   bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
     final prevReadyIds = prev
-        .where((order) => order.status == OrderStatusEnum.ready)
+        .where((order) => order.status == OrderStatusEnum.ready.name)
         .map((order) => order.id)
         .toList();
 
     return current.any((order) =>
-        order.status == OrderStatusEnum.ready &&
+        order.status == OrderStatusEnum.ready.name &&
         !prevReadyIds.contains(order.id));
   }
 

@@ -138,7 +138,7 @@ class HomePage extends StatelessWidget {
   AppButton _buildNewOrderButton(BuildContext context, HomeLoaded state) {
     return AppButton(
       text: "New Order",
-      onPressed: () => _showTableSelection(context, state),
+      onPressed: () => _showTableSelection(context),
     );
   }
 
@@ -210,12 +210,22 @@ class HomePage extends StatelessWidget {
     context.read<HomeCubit>().onRequestPay(order.id, namePhone);
   }
 
-  void _showTableSelection(BuildContext context, HomeLoaded state) {
+  void _showTableSelection(BuildContext context) {
     final cubit = BlocProvider.of<HomeCubit>(context);
     showModalBottomSheet(
       backgroundColor: AppColors.offWhite,
       context: context,
-      builder: (ctx) => _buildTablesGrid(context, cubit, state),
+      builder: (ctx) {
+        return BlocBuilder<HomeCubit, HomeState>(
+          bloc: cubit,
+          builder: (ctx, state) {
+            if (state is! HomeLoaded) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return _buildTablesGrid(ctx, cubit, state);
+          },
+        );
+      },
     );
   }
 

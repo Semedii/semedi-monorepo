@@ -15,4 +15,9 @@ class DiningTablesService {
 
     return response.map((json) => DiningTables.fromJson(json)).toList();
   }
+
+  Stream<List<DiningTables>> getDiningTablesStream() {
+    return _supabase.from('dining_tables').stream(primaryKey: ['id']).map(
+        (rows) => rows.map((json) => DiningTables.fromJson(json)).toList());
+  }
 }
