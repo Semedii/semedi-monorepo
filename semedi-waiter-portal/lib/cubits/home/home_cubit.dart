@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/models/order_model.dart';
-import 'package:semedi/services/menu_service.dart';
+import 'package:semedi/services/dining_tables_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
@@ -22,7 +23,9 @@ class HomeCubit extends Cubit<HomeState> {
 
   void listenToOrders() async {
     emit(const HomeLoading());
-    final int totalTables = await MenuService().getTotalTableNumber();
+    final List<DiningTables> diningTables =
+        await DiningTablesService().getDiningTables();
+    final restaurantName = await secureStorageService.read('restaurant_name');
 
     List<OrderModel> previousOrders = [];
 
@@ -35,7 +38,7 @@ class HomeCubit extends Cubit<HomeState> {
         }
 
         previousOrders = orders;
-        emit(HomeLoaded(orders, totalTables, 'restaurantName'));
+        emit(HomeLoaded(orders, diningTables, restaurantName));
       },
       onError: (error) {
         emit(HomeError('Failed to load orders: $error'));

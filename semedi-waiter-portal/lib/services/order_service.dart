@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:semedi/authentication/auth_provider.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/services/secure_storage_service.dart';
@@ -15,16 +13,13 @@ class OrderService {
 
   addNewOrder(
     List<OrderItem> orderItems,
-    int tableNumber,
+    String tableId,
     bool isKitchenRequired,
   ) async {
-    final token = getIt<AuthProvider>().token;
-    final waiterId = JwtDecoder.decode(token ?? '')['sub'];
     var response = await _supabase.rpc('create_order_with_items', params: {
       'order_data': {
-        'table_number': tableNumber,
+        'table_id': tableId,
         'items': orderItems.map((e) => e.toJson()).toList(),
-        'waiter_id': waiterId
       }
     });
     return response;
@@ -36,9 +31,9 @@ class OrderService {
         .stream(primaryKey: ['id']).asyncMap((_) async {
       final response = await _supabase.from('orders').select('''
               id, order_number, status, created_at, 
-              profiles(full_name), 
+              users(full_name), 
               dining_tables(table_number), 
-              order_items(quantity, notes, menu_items(name, price))
+              order_items(quantity, note, menu_items(name, price))
             ''').neq('status', 'unpaid');
 
       return response.map((e) => OrderModel.fromJson(e)).toList();

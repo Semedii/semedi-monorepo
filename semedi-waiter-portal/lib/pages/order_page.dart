@@ -5,15 +5,16 @@ import 'package:semedi/components/menu_item_card.dart';
 import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
+import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class OrderPage extends StatelessWidget {
-  final int tableNumber;
+  final DiningTables table;
 
   const OrderPage({
-    required this.tableNumber,
+    required this.table,
     super.key,
   });
 
@@ -44,7 +45,7 @@ class OrderPage extends StatelessWidget {
   AppBar _buildAppBar() {
     return AppBar(
       title: Text(
-        "Table $tableNumber - Order",
+        "Table ${table.tableNumber} - Order",
       ),
       centerTitle: true,
       backgroundColor: AppColors.offWhite,
@@ -275,7 +276,7 @@ class OrderPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => OrderConfirmDialog(
-        tableNumber: tableNumber,
+        table: table,
         orderCubit: cubit,
       ),
     );

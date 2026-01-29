@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
+import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/utils/app_colors.dart';
 
 class OrderConfirmDialog extends StatelessWidget {
   const OrderConfirmDialog({
-    required this.tableNumber,
+    required this.table,
     required this.orderCubit,
     super.key,
   });
 
-  final int tableNumber;
+  final DiningTables table;
   final OrderCubit orderCubit;
 
   @override
@@ -102,7 +103,8 @@ class OrderConfirmDialog extends StatelessWidget {
   }
 
   Container _buildTableInfo() {
-    String info = tableNumber == 10001 ? 'Take Away' : 'Table $tableNumber';
+    String info =
+        table.tableNumber == 10001 ? 'Take Away' : 'Table ${table.tableNumber}';
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
@@ -226,7 +228,7 @@ class OrderConfirmDialog extends StatelessWidget {
         text: 'CONFIRM',
         onPressed: () {
           Navigator.pop(context);
-          BlocProvider.of<OrderCubit>(context).submitOrder(tableNumber);
+          BlocProvider.of<OrderCubit>(context).submitOrder(table.id);
         },
       ),
     );

@@ -14,10 +14,4 @@ class MenuService {
 
     return response.map((json) => MenuItem.fromJson(json)).toList();
   }
-
-  getTotalTableNumber() async {
-    final int totalTables = await _supabase.from('dining_tables').count();
-
-    return totalTables;
-  }
 }

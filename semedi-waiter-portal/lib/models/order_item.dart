@@ -18,7 +18,7 @@ class OrderItem {
         itemName: menu['name'],
         itemPrice: (menu['price'] as num).toDouble(),
         itemQuantity: json['quantity'] as int,
-        note: json['notes']);
+        note: json['note']);
   }
 
   Map<String, dynamic> toJson() {

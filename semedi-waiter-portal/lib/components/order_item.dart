@@ -5,7 +5,6 @@ import 'package:semedi/models/order_item.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/utils/app_colors.dart';
 import 'package:intl/intl.dart';
-import 'package:semedi/utils/extensions.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 import 'package:semedi/utils/text_validators.dart';
 
@@ -70,7 +69,7 @@ class OrderItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '#${order.orderNumber.formatOrderNumber()}',
+          '#${order.orderNumber}',
           style: const TextStyle(
             color: Color.fromARGB(255, 27, 27, 27),
             fontSize: 14,
@@ -106,34 +105,41 @@ class OrderItemCard extends StatelessWidget {
   }
 
   Padding _buildItemCard(OrderItem item) {
-    print("sadfasdf ${item.note}");
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                height: 24,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.deepBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.deepBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   item.itemName!,
                   style: TextStyle(
                     color: AppColors.deepBlue,
                     fontWeight: FontWeight.bold,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(item.note ?? '')
-            ],
+                if ((item.note ?? '').isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      item.note!,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12),
           Text(
             '${item.itemQuantity}',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

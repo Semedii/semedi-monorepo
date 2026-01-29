@@ -6,6 +6,7 @@ import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
 import 'package:semedi/main.dart';
+import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/pages/change_password_page.dart';
 import 'package:semedi/pages/order_page.dart';
@@ -82,7 +83,7 @@ class HomePage extends StatelessWidget {
   }
 
   Text _buildAppBarTitle(HomeLoaded state) {
-    return Text("${state.restaurantName} Waiter Portal");
+    return Text("${state.restaurantName}");
   }
 
   TabBar _buildTabBar() {
@@ -224,8 +225,9 @@ class HomePage extends StatelessWidget {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: _buildGridDelegate(),
-      itemCount: state.totalTables,
-      itemBuilder: (ctx, index) => _buildTableButton(context, cubit, index),
+      itemCount: state.diningTables.length,
+      itemBuilder: (ctx, index) =>
+          _buildTableButton(context, cubit, state.diningTables[index]),
     );
   }
 
@@ -239,36 +241,36 @@ class HomePage extends StatelessWidget {
   }
 
   ElevatedButton _buildTableButton(
-      BuildContext context, HomeCubit cubit, int index) {
+      BuildContext context, HomeCubit cubit, DiningTables table) {
     return ElevatedButton(
-      style: _buildTableButtonStyle(cubit, index),
-      child: _buildTableButtonText(index),
-      onPressed: () => _navigateToOrderPage(context, index),
+      style: _buildTableButtonStyle(cubit, table),
+      child: _buildTableButtonText(table),
+      onPressed: () => _navigateToOrderPage(context, table),
     );
   }
 
-  ButtonStyle _buildTableButtonStyle(HomeCubit cubit, int index) {
+  ButtonStyle _buildTableButtonStyle(HomeCubit cubit, DiningTables table) {
     return ButtonStyle(
       backgroundColor: WidgetStateProperty.all(AppColors.offWhite),
-      side: cubit.isTableOccupied(index + 1)
-          ? WidgetStateProperty.all(BorderSide(color: AppColors.warmOrange))
-          : WidgetStateProperty.all(BorderSide(color: AppColors.green)),
+      side: table.status == 'available'
+          ? WidgetStateProperty.all(BorderSide(color: AppColors.green))
+          : WidgetStateProperty.all(BorderSide(color: AppColors.warmOrange)),
     );
   }
 
-  Text _buildTableButtonText(int index) {
+  Text _buildTableButtonText(DiningTables table) {
     return Text(
-      'Table ${index + 1}',
+      'Table ${table.tableNumber}',
       style: TextStyle(color: AppColors.deepBlue, fontWeight: FontWeight.w500),
       textAlign: TextAlign.center,
     );
   }
 
-  void _navigateToOrderPage(BuildContext context, int index) {
+  void _navigateToOrderPage(BuildContext context, DiningTables table) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => OrderPage(tableNumber: index + 1),
+        builder: (context) => OrderPage(table: table),
       ),
     );
   }

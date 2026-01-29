@@ -2,7 +2,7 @@ import 'order_item.dart';
 
 class OrderModel {
   final String id;
-  final int orderNumber;
+  final String orderNumber;
   final int tableNumber;
   final String waiterName;
   final String status;
@@ -28,20 +28,11 @@ class OrderModel {
       id: (json['id'] as String),
       orderNumber: json['order_number'],
       tableNumber: json['dining_tables']['table_number'],
-      waiterName: json['profiles']['full_name'],
+      waiterName: json['users']['full_name'],
       status: json['status'],
       items: orderItems,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'waiter_name': waiterName,
-      'status': status,
-      'created_at': createdAt.toIso8601String(),
-    };
   }
 
   double get totalPrice {
