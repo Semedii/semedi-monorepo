@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/authentication/auth_provider.dart';
-
 import 'package:semedi/components/app_button.dart';
 import 'package:semedi/components/order_item.dart';
 import 'package:semedi/cubits/home/home_cubit.dart';
@@ -234,7 +233,7 @@ class HomePage extends StatelessWidget {
   SliverGridDelegateWithFixedCrossAxisCount _buildGridDelegate() {
     return const SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 4,
-      childAspectRatio: 1.0,
+      childAspectRatio: 0.85,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
     );
@@ -243,26 +242,65 @@ class HomePage extends StatelessWidget {
   ElevatedButton _buildTableButton(
       BuildContext context, HomeCubit cubit, DiningTables table) {
     return ElevatedButton(
-      style: _buildTableButtonStyle(cubit, table),
-      child: _buildTableButtonText(table),
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(table.status == 'available'
+            ? AppColors.green.withValues(alpha: 0.8)
+            : AppColors.warmOrange),
+        padding: WidgetStateProperty.all(const EdgeInsets.all(8)),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        elevation: WidgetStateProperty.all(2),
+      ),
       onPressed: () => _navigateToOrderPage(context, table),
-    );
-  }
-
-  ButtonStyle _buildTableButtonStyle(HomeCubit cubit, DiningTables table) {
-    return ButtonStyle(
-      backgroundColor: WidgetStateProperty.all(AppColors.offWhite),
-      side: table.status == 'available'
-          ? WidgetStateProperty.all(BorderSide(color: AppColors.green))
-          : WidgetStateProperty.all(BorderSide(color: AppColors.warmOrange)),
-    );
-  }
-
-  Text _buildTableButtonText(DiningTables table) {
-    return Text(
-      'Table ${table.tableNumber}',
-      style: TextStyle(color: AppColors.deepBlue, fontWeight: FontWeight.w500),
-      textAlign: TextAlign.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.deepBlue,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '${table.tableNumber}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.people, size: 16, color: Colors.white),
+              const SizedBox(width: 4),
+              Text(
+                '${table.capacity}',
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              table.location ?? 'Unknown',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
