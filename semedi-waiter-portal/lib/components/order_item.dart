@@ -164,8 +164,6 @@ class OrderItemCard extends StatelessWidget {
   Row _buildWaiterAndActionButton(BuildContext context) {
     bool isDelivered = order.status == OrderStatusEnum.served.name;
     bool isReady = order.status == OrderStatusEnum.ready.name;
-    bool isPaymentNotRecieved =
-        order.status == OrderStatusEnum.paymentNotRecieved;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -174,7 +172,7 @@ class OrderItemCard extends StatelessWidget {
           style: TextStyle(color: AppColors.deepBlue),
         ),
         if (isReady) _buildDeliverButton(),
-        if (isDelivered || isPaymentNotRecieved) ...{
+        if (isDelivered) ...{
           _buildRequestPayApprovalButton(context),
         }
       ],

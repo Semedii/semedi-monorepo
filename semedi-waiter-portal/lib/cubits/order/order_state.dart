@@ -17,7 +17,7 @@ final class OrderIdle extends OrderState {
     required this.orderItems,
     required this.allMenuItems,
     required this.filteredMenuItems,
-    this.status = OrderStatusEnum.ordered,
+    this.status = OrderStatusEnum.pending,
     this.searchQuery = '',
     this.isKitchenRequired = true,
     this.isExpanded = false,

@@ -57,7 +57,7 @@ class OrderModel {
       itemsWithPrices: Map<String, double>.from(data['itemsWithPrices'] ?? {}),
       status: OrderStatusEnum.values.firstWhere(
         (e) => e.name == data['status'],
-        orElse: () => OrderStatusEnum.ordered,
+        orElse: () => OrderStatusEnum.pending,
       ),
       note: data['note'],
       timestamp: data['timestamp'] != null

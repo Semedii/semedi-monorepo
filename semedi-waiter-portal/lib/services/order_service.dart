@@ -41,13 +41,13 @@ class OrderService {
   }
 
   Future<void> updateOrderStatus({
-    required String orderNumber,
+    required String orderId,
     required OrderStatusEnum newStatus,
   }) async {
     try {
       await _supabase
           .from('orders')
-          .update({'status': newStatus.name}).eq('id', orderNumber);
+          .update({'status': newStatus.name}).eq('id', orderId);
     } catch (e) {
       throw Exception('Failed to update status: ${e.toString()}');
     }

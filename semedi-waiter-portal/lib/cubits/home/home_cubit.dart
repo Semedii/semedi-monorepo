@@ -102,10 +102,10 @@ class HomeCubit extends Cubit<HomeState> {
     return activeOrders;
   }
 
-  onDeliverOrder(String? orderNumber) {
-    if (orderNumber != null) {
+  onDeliverOrder(String? orderId) {
+    if (orderId != null) {
       _orderService.updateOrderStatus(
-        orderNumber: orderNumber,
+        orderId: orderId,
         newStatus: OrderStatusEnum.served,
       );
       listenToOrders();
