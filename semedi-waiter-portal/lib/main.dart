@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:semedi/pages/home_page.dart';
 import 'package:semedi/pages/login_page.dart';
 import 'package:semedi/services/service_locator.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +16,6 @@ void main() async {
   );
 
   await dotenv.load();
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['ANON_KEY'] ?? '',
-  );
   await setup();
   runApp(
     ChangeNotifierProvider<AuthProvider>(
