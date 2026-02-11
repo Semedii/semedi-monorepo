@@ -45,3 +45,9 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# OpenAPI generated client - regenerate with build_runner
+/api_client/
+# Or more precise if you want:
+api_client/**
+!api_client/.openapi-generator-ignore  # Optional: if you add custom files later
