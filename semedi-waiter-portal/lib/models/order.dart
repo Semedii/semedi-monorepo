@@ -1,5 +1,4 @@
 import 'package:semedi/utils/order_status_enum.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OrderModel {
   String? orderNumber;
@@ -39,7 +38,7 @@ class OrderModel {
       'itemsWithPrices': itemsWithPrices,
       'status': status.name,
       'note': note,
-      'timestamp': Timestamp.fromDate(timestamp),
+      'timestamp': '',
       'total': total,
       'waiter': waiter,
       'namePhone': paymentInfo,
@@ -47,7 +46,7 @@ class OrderModel {
     };
   }
 
-  factory OrderModel.fromFirestore(DocumentSnapshot doc) {
+  factory OrderModel.fromFirestore(doc) {
     final data = doc.data() as Map<String, dynamic>;
     return OrderModel(
       orderNumber: doc.id,
@@ -60,9 +59,7 @@ class OrderModel {
         orElse: () => OrderStatusEnum.pending,
       ),
       note: data['note'],
-      timestamp: data['timestamp'] != null
-          ? (data['timestamp'] as Timestamp).toDate()
-          : null,
+      timestamp: null,
       total: (data['total'] as num?)?.toDouble() ?? 0,
       waiter: data['waiter'] ?? "unknown",
       paymentInfo: data['namePhone'],

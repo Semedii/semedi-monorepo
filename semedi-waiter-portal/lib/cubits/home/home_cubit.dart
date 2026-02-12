@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi/models/area_zone.dart';
 import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/services/dining_tables_service.dart';
@@ -13,48 +14,56 @@ part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final OrderService _orderService;
+  final DiningTablesService _diningTablesService;
   final SecureStorageService secureStorageService;
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
   StreamSubscription<List<DiningTables>>? _tablesSubscription;
 
-  HomeCubit(OrderService orderService, this.secureStorageService)
-      : _orderService = orderService,
-        super(const HomeInitial());
+  HomeCubit(
+      this._diningTablesService, this._orderService, this.secureStorageService)
+      : super(const HomeInitial());
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  void listenToOrders() async {
+  fetchTables() async {
     emit(const HomeLoading());
-
     final restaurantName = await secureStorageService.read('restaurant_name');
+    final tablesWithZones = await _diningTablesService.getDiningTables();
+    emit(HomeLoaded(tablesWithZones, restaurantName));
+  }
 
-    List<OrderModel> previousOrders = [];
-    List<DiningTables> previousDiningTables = [];
+  void listenToOrders() async {
+    // emit(const HomeLoading());
 
-    _ordersSubscription?.cancel();
-    _tablesSubscription?.cancel();
+    // final restaurantName = await secureStorageService.read('restaurant_name');
 
-    _tablesSubscription = DiningTablesService().getDiningTablesStream().listen(
-      (tables) {
-        previousDiningTables = tables;
-        emit(HomeLoaded(previousOrders, tables, restaurantName));
-      },
-      onError: (error) {
-        emit(HomeError('Failed to load dining tables: $error'));
-      },
-    );
-    _ordersSubscription = _orderService.getAllOrders().listen(
-      (orders) async {
-        if (_shouldPlaySound(previousOrders, orders)) {
-          _playNotificationSound();
-        }
+    // List<OrderModel> previousOrders = [];
+    // List<DiningTables> previousDiningTables = [];
 
-        previousOrders = orders;
-        emit(HomeLoaded(orders, previousDiningTables, restaurantName));
-      },
-      onError: (error) {
-        emit(HomeError('Failed to load orders: $error'));
-      },
-    );
+    // _ordersSubscription?.cancel();
+    // _tablesSubscription?.cancel();
+
+    // _tablesSubscription = DiningTablesService().getDiningTablesStream().listen(
+    //   (tables) {
+    //     previousDiningTables = tables;
+    //     // emit(HomeLoaded(previousOrders, tables, restaurantName));
+    //   },
+    //   onError: (error) {
+    //     emit(HomeError('Failed to load dining tables: $error'));
+    //   },
+    // );
+    // _ordersSubscription = _orderService.getAllOrders().listen(
+    //   (orders) async {
+    //     if (_shouldPlaySound(previousOrders, orders)) {
+    //       _playNotificationSound();
+    //     }
+
+    //     previousOrders = orders;
+    //     // emit(HomeLoaded(orders, previousDiningTables, restaurantName));
+    //   },
+    //   onError: (error) {
+    //     emit(HomeError('Failed to load orders: $error'));
+    //   },
+    // );
   }
 
   bool _shouldPlaySound(List<OrderModel> prev, List<OrderModel> current) {
@@ -76,30 +85,30 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  bool isTableOccupied(int tableNumber) {
-    if (state is! HomeLoaded) return false;
-    final currentState = state as HomeLoaded;
-    return currentState.orders
-        .where(
-            (order) => order.status.toLowerCase() != OrderStatusEnum.paid.name)
-        .any((order) => order.tableNumber == tableNumber);
+  isTableOccupied(int tableNumber) {
+    // if (state is! HomeLoaded) return false;
+    // final currentState = state as HomeLoaded;
+    // return currentState.orders
+    //     .where(
+    //         (order) => order.status.toLowerCase() != OrderStatusEnum.paid.name)
+    //     .any((order) => order.tableNumber == tableNumber);
   }
 
-  List<OrderModel> getActiveOrders() {
-    final currentState = state as HomeLoaded;
-    final activeOrders = currentState.orders
-        .where((order) => order.status != OrderStatusEnum.paid.name)
-        .toList();
-    return activeOrders;
+  getActiveOrders() {
+    // final currentState = state as HomeLoaded;
+    // final activeOrders = currentState.orders
+    //     .where((order) => order.status != OrderStatusEnum.paid.name)
+    //     .toList();
+    // return activeOrders;
   }
 
-  List<OrderModel> getPaidOrders() {
-    final currentState = state as HomeLoaded;
-    final activeOrders = currentState.orders
-        .where((order) => order.status == OrderStatusEnum.paid.name)
-        .toList();
+  getPaidOrders() {
+    // final currentState = state as HomeLoaded;
+    // final activeOrders = currentState.orders
+    //     .where((order) => order.status == OrderStatusEnum.paid.name)
+    //     .toList();
 
-    return activeOrders;
+    // return activeOrders;
   }
 
   onDeliverOrder(String? orderId) {

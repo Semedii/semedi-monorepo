@@ -52,7 +52,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserMe"
+                }
               }
             }
           }
@@ -820,6 +822,29 @@
         "type": "object",
         "required": ["phone_number", "password"],
         "title": "UserLogin"
+      },
+      "UserMe": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "restaurant_name": {
+            "type": "string",
+            "title": "Restaurant Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        },
+        "type": "object",
+        "required": ["id", "full_name", "restaurant_name", "role"],
+        "title": "UserMe"
       },
       "UserRole": {
         "type": "string",

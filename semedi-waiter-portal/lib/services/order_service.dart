@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/models/order_model.dart';
 import 'package:semedi/services/secure_storage_service.dart';
@@ -6,7 +5,6 @@ import 'package:semedi/services/service_locator.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
 class OrderService {
-  final db = FirebaseFirestore.instance;
   final secureStorageService = getIt<SecureStorageService>();
 
   addNewOrder(

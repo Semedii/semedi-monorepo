@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:semedi/models/menu.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 import 'package:semedi/services/service_locator.dart';
 
 class MenuService {
-  final db = FirebaseFirestore.instance;
   final secureStorageService = getIt<SecureStorageService>();
   getMenu() async {
     // final response =

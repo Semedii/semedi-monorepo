@@ -13,11 +13,10 @@ class HomeLoading extends HomeState {
 }
 
 class HomeLoaded extends HomeState {
-  final List<OrderModel> orders;
-  final List<DiningTables> diningTables;
+  final List<AreaZone> diningTables;
   final String? restaurantName;
 
-  const HomeLoaded(this.orders, this.diningTables, this.restaurantName);
+  const HomeLoaded(this.diningTables, this.restaurantName);
 }
 
 class HomeError extends HomeState {

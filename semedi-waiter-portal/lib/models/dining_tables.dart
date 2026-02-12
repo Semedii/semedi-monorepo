@@ -3,22 +3,22 @@ final class DiningTables {
   final int tableNumber;
   final String? status;
   final int? capacity;
-  final String? location;
+  final String? zone;
 
   DiningTables(
       {required this.id,
       required this.tableNumber,
       this.status,
       this.capacity,
-      this.location});
+      this.zone});
 
   factory DiningTables.fromJson(Map<String, dynamic> json) {
     return DiningTables(
       id: json['id'],
-      tableNumber: json['table_number'],
+      tableNumber: json['number'],
       status: json['status'],
       capacity: json['capacity'],
-      location: json['location'],
+      zone: json['zone']['name'],
     );
   }
 }

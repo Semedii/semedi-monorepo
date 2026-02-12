@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:my_api_client/my_api_client.dart' show DefaultApi, OrdersApi;
 import 'package:semedi/authentication/auth_provider.dart';
 import 'package:semedi/services/auth_service.dart';
+import 'package:semedi/services/dining_tables_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/services/secure_storage_service.dart';
 
@@ -19,4 +20,8 @@ Future<void> setup() async {
   getIt.registerLazySingleton(() => AuthProvider());
   getIt.registerLazySingleton(
       () => AuthService(getIt<DefaultApi>(), getIt<DioClient>()));
+
+  getIt.registerLazySingleton(() => DiningTablesService(getIt()));
+
+  getIt.registerLazySingleton(() => OrderService());
 }
