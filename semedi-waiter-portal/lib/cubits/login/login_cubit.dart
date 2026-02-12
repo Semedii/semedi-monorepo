@@ -9,9 +9,9 @@ class LoginCubit extends Cubit<LoginState> {
   final AuthProvider _authProvider;
   LoginCubit(this._authService, this._authProvider) : super(LoginInitial());
 
-  void onEmailChanged(String? email) {
+  void onPhoneChanged(String? phone) {
     var currentState = state as LoginInitial;
-    emit(currentState.copyWith(email: email));
+    emit(currentState.copyWith(phone: phone));
   }
 
   void onPasswordChanged(String? password) {
@@ -23,24 +23,15 @@ class LoginCubit extends Cubit<LoginState> {
     var currentState = state as LoginInitial;
     emit(LoginLoading());
     try {
-      String? token = await _authService.signInWithEmailAndPassword(
-        currentState.email!,
+      await _authService.login(
+        currentState.phone!,
         currentState.password!,
       );
-
-      if (token != null) {
-        _authProvider.login(token);
-        emit(LoginSuccess(token: token));
-      } else {
-        emit(LoginFailure(message: "Login failed"));
-        emit(LoginInitial());
-      }
+      _authProvider.refreshState();
+      emit(LoginSuccess());
     } catch (e) {
-      if (e is! StateError) {
-        _authProvider.logout();
-        emit(LoginFailure(message: e.toString()));
-        emit(LoginInitial());
-      }
+      emit(LoginFailure(message: e.toString()));
+      emit(LoginInitial());
     }
   }
 }

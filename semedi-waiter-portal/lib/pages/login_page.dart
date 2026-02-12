@@ -154,7 +154,7 @@ class LoginPage extends StatelessWidget {
     return TxtFormField(
       labelText: "Enter Email",
       prefixIcon: const Icon(Icons.email),
-      onChanged: cubit.onEmailChanged,
+      onChanged: cubit.onPhoneChanged,
       validator: TextValidators.fieldRequired,
     );
   }

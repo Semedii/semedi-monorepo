@@ -1,22 +1,20 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:semedi/authentication/auth_provider.dart';
-import 'package:semedi/firebase_options.dart';
 import 'package:provider/provider.dart';
-import 'package:semedi/pages/home_page.dart';
-import 'package:semedi/pages/login_page.dart';
-import 'package:semedi/services/service_locator.dart';
+
+import 'authentication/auth_provider.dart';
+import 'pages/home_page.dart';
+import 'pages/login_page.dart';
+import 'services/auth_service.dart';
+import 'services/service_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
   await dotenv.load();
   await setup();
+
+  await getIt<AuthService>().initialize();
+
   runApp(
     ChangeNotifierProvider<AuthProvider>(
       create: (_) => getIt(),
@@ -33,11 +31,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
-          if (authProvider.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
           return authProvider.isAuthenticated ? HomePage() : LoginPage();
         },
       ),
