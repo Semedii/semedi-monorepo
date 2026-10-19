@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
@@ -11,8 +12,13 @@ class TakeOrderCubit extends Cubit<TakeOrderState> {
   TakeOrderCubit() : super(TakeOrderStateInitial());
 
   initPage() async {
-    List<MenuItem>? menuList = await ManagementService().getMenuList();
-    emit(TakeOrderStateInitial(menuList: menuList));
+    final List<MenuItem>? menuList = await ManagementService().getMenuList();
+    final List<MenuModifier>? modifiers =
+        await ManagementService().getModifierList();
+    emit(TakeOrderStateInitial(
+      menuList: menuList,
+      availableModifiers: modifiers ?? [],
+    ));
   }
 
   void onCustomerNameChange(String name) {
@@ -52,6 +58,22 @@ class TakeOrderCubit extends Cubit<TakeOrderState> {
     }
 
     emit(currentState.copyWith(selectedItems: items));
+  }
+
+  void onToggleModifier(MenuItem item, String modifierName) {
+    var currentState = state as TakeOrderStateInitial;
+    final modifiers =
+        Map<MenuItem, List<String>>.from(currentState.itemModifiers ?? {});
+    final itemMods = List<String>.from(modifiers[item] ?? []);
+
+    if (itemMods.contains(modifierName)) {
+      itemMods.remove(modifierName);
+    } else {
+      itemMods.add(modifierName);
+    }
+
+    modifiers[item] = itemMods;
+    emit(currentState.copyWith(itemModifiers: modifiers));
   }
 
   getTotalPrice() {

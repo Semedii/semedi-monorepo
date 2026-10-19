@@ -5,6 +5,7 @@ import 'package:semedi_pos/components/order_confirmation.dialog.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/cubit/login/takeAway/take_order_cubit.dart';
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/text_validators.dart';
 
@@ -131,7 +132,6 @@ class TakeOrderScreen extends StatelessWidget {
     if (selectedItems.isEmpty) return const SizedBox();
 
     return Container(
-      height: 200,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.deepBlue.withOpacity(0.3)),
@@ -148,26 +148,65 @@ class TakeOrderScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Expanded(
-            child: ListView(
-              children: selectedItems.entries.map((entry) {
-                final item = entry.key;
-                final quantity = entry.value;
-                return Row(
+          ...selectedItems.entries.map((entry) {
+            final item = entry.key;
+            final quantity = entry.value;
+            final selectedMods =
+                state.itemModifiers?[item] ?? [];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Text('${quantity}x ${item.name}'),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.remove_circle, color: Colors.red),
+                      icon:
+                          const Icon(Icons.remove_circle, color: Colors.red),
                       onPressed: () => cubit.onRemoveItem(item),
                     ),
                   ],
-                );
-              }).toList(),
-            ),
-          ),
+                ),
+                if (state.availableModifiers?.isNotEmpty ?? false)
+                  _buildModifierChips(
+                      item, state.availableModifiers!, selectedMods, cubit),
+                const SizedBox(height: 4),
+              ],
+            );
+          }),
         ],
       ),
+    );
+  }
+
+  Widget _buildModifierChips(
+    MenuItem item,
+    List<MenuModifier> modifiers,
+    List<String> selected,
+    TakeOrderCubit cubit,
+  ) {
+    return Wrap(
+      spacing: 6,
+      children: modifiers
+          .where((m) => m.isAvailable)
+          .map((modifier) {
+        final isSelected = selected.contains(modifier.name);
+        return GestureDetector(
+          onTap: () => cubit.onToggleModifier(item, modifier.name),
+          child: Chip(
+            label: Text(
+              modifier.name,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.darkGrey,
+                fontSize: 12,
+              ),
+            ),
+            backgroundColor:
+                isSelected ? AppColors.deepBlue : Colors.grey.shade200,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+          ),
+        );
+      }).toList(),
     );
   }
 
