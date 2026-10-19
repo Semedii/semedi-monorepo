@@ -11,6 +11,7 @@ import '../services/service_locator.dart';
 import '../utils/app_colors.dart';
 import 'change_password_page.dart';
 import 'history_page.dart';
+import 'settings_page.dart';
 import 'order_page.dart';
 import 'reservation_page.dart';
 import 'table_status_page.dart';
@@ -99,10 +100,22 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildSettings(BuildContext context) {
-    return IconButton(
-      onPressed: () => _showLogoutConfirmation(context),
+    return PopupMenuButton<String>(
       icon: const Icon(Icons.settings_outlined),
       tooltip: 'Settings',
+      onSelected: (value) {
+        if (value == 'settings') {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()));
+        }
+        if (value == 'logout') {
+          _showLogoutConfirmation(context);
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(value: 'settings', child: Text('Settings')),
+        const PopupMenuItem(value: 'logout', child: Text('Logout')),
+      ],
     );
   }
 
