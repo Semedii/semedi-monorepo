@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:semedi_pos/models/discount.dart';
 import 'package:semedi_pos/models/menu.dart';
 import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
@@ -19,12 +20,15 @@ class ManagementCubit extends Cubit<ManagementState> {
     final int totalTableNumber = await _managementService.getTotalTableNumber();
     final List<MenuModifier>? modifierList =
         await _managementService.getModifierList();
+    final List<Discount>? discountList =
+        await _managementService.getDiscountList();
 
     emit(ManagementLoaded(
       menuList: menuList ?? [],
       waiterList: waiterList,
       totalTableNumber: totalTableNumber,
       modifierList: modifierList ?? [],
+      discountList: discountList ?? [],
     ));
   }
 
@@ -103,6 +107,37 @@ class ManagementCubit extends Cubit<ManagementState> {
     emit(ManagementLoading());
     try {
       await _managementService.deleteModifier(modifier);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onAddDiscount(Discount discount) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.addDiscount(discount);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onEditDiscount(Discount newDiscount, Discount oldDiscount) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.updateDiscount(
+          oldDiscount: oldDiscount, newDiscount: newDiscount);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onDeleteDiscount(Discount discount) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.deleteDiscount(discount);
     } catch (e) {
       emit(ManagementFailure(e.toString()));
     }
