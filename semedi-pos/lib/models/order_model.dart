@@ -8,6 +8,7 @@ class OrderModel {
   final String? note;
   final List<OrderItem> items;
   final DateTime createdAt;
+  final String paymentMethod;
 
   OrderModel({
     required this.id,
@@ -17,6 +18,7 @@ class OrderModel {
     this.note,
     required this.items,
     required this.createdAt,
+    this.paymentMethod = 'cash',
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class OrderModel {
       note: json['note'],
       items: orderItems,
       createdAt: DateTime.parse(json['created_at'] as String),
+      paymentMethod: json['payment_method'] as String? ?? 'cash',
     );
   }
 

@@ -95,15 +95,22 @@ class ReportScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Center(
+        child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildTitleSection(formattedDate),
               const SizedBox(height: 24),
               _buildTable(salesData),
               const SizedBox(height: 16),
               _buildSaveButtons(context, salesData, formattedDate),
+              const SizedBox(height: 32),
+              _buildPaymentMethodBreakdown(paidOrders),
+              const SizedBox(height: 24),
+              _buildHourlyBreakdown(paidOrders),
+              const SizedBox(height: 24),
+              _buildAverageOrderValue(paidOrders),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -149,11 +156,13 @@ class ReportScreen extends StatelessWidget {
       children: [
         Text(
           "$restaurant Restaurant",
+          textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 40),
         ),
         const SizedBox(height: 12),
         Text(
           "SALES SUMMARY REPORT ($formattedDate)",
+          textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
         ),
       ],
@@ -161,7 +170,8 @@ class ReportScreen extends StatelessWidget {
   }
 
   Widget _buildTable(Map<String, double> salesData) {
-    return Expanded(
+    return SizedBox(
+      height: 280,
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
@@ -306,6 +316,197 @@ class ReportScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPaymentMethodBreakdown(List<OrderModel> orders) {
+    final Map<String, double> breakdown = {};
+    for (final order in orders) {
+      final method = order.paymentMethod;
+      breakdown[method] = (breakdown[method] ?? 0) + order.totalPrice;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Payment Method Breakdown',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.deepBlue,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          elevation: 1,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: breakdown.isEmpty
+                ? const Text('No data available')
+                : Column(
+                    children: breakdown.entries
+                        .map(
+                          (entry) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  entry.key.toUpperCase(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  _formatCurrency(entry.value),
+                                  style: TextStyle(color: AppColors.deepBlue),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHourlyBreakdown(List<OrderModel> orders) {
+    final Map<int, int> hourlyCount = {};
+    for (final order in orders) {
+      final hour = order.createdAt.hour;
+      hourlyCount[hour] = (hourlyCount[hour] ?? 0) + 1;
+    }
+
+    final sortedHours = hourlyCount.keys.toList()..sort();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Hourly Order Volume',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.deepBlue,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          elevation: 1,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: hourlyCount.isEmpty
+                ? const Text('No data available')
+                : Column(
+                    children: sortedHours
+                        .map(
+                          (hour) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 80,
+                                  child: Text(
+                                    '${hour.toString().padLeft(2, '0')}:00',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: LinearProgressIndicator(
+                                    value: hourlyCount[hour]! /
+                                        (orders.isNotEmpty
+                                            ? orders.length
+                                            : 1),
+                                    backgroundColor: Colors.grey.shade200,
+                                    color: AppColors.deepBlue,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text('${hourlyCount[hour]} orders'),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAverageOrderValue(List<OrderModel> orders) {
+    final totalRevenue = orders.fold(0.0, (sum, o) => sum + o.totalPrice);
+    final average = orders.isEmpty ? 0.0 : totalRevenue / orders.length;
+    final highest = orders.isEmpty
+        ? 0.0
+        : orders.map((o) => o.totalPrice).reduce((a, b) => a > b ? a : b);
+    final lowest = orders.isEmpty
+        ? 0.0
+        : orders.map((o) => o.totalPrice).reduce((a, b) => a < b ? a : b);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Order Value Analysis',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.deepBlue,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          elevation: 1,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildValueStat(
+                    'Average', _formatCurrency(average), AppColors.deepBlue),
+                _buildValueStat(
+                    'Highest', _formatCurrency(highest), AppColors.green),
+                _buildValueStat(
+                    'Lowest', _formatCurrency(lowest), AppColors.warmOrange),
+                _buildValueStat('Total Orders', orders.length.toString(),
+                    AppColors.darkGrey),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildValueStat(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+        ),
+      ],
     );
   }
 
