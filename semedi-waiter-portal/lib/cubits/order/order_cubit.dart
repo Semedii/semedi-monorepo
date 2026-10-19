@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/models/customer.dart';
 import 'package:semedi/models/menu_modifier.dart';
 import 'package:semedi/models/order_item.dart';
+import 'package:semedi/services/customer_service.dart';
 import 'package:semedi/services/menu_service.dart';
 import 'package:semedi/services/modifier_service.dart';
 import 'package:semedi/services/order_service.dart';
@@ -14,6 +16,7 @@ class OrderCubit extends Cubit<OrderState> {
   final MenuService _menuService = MenuService();
 
   final ModifierService _modifierService = ModifierService();
+  final CustomerService _customerService = CustomerService();
 
   OrderCubit() : super(OrderInitial());
 
@@ -33,6 +36,30 @@ class OrderCubit extends Cubit<OrderState> {
         availableModifiers: modifiers,
       ),
     );
+  }
+
+  void onSearchCustomer(String phone) async {
+    var currentState = state as OrderIdle;
+    try {
+      final customer = await _customerService.searchCustomer(phone);
+      emit(currentState.copyWith(selectedCustomer: customer));
+    } catch (e) {
+      //todo
+    }
+  }
+
+  void onClearCustomer() {
+    var currentState = state as OrderIdle;
+    emit(currentState.copyWith(clearCustomer: true));
+  }
+
+  void onCreateCustomer(String name, String phone) async {
+    try {
+      await _customerService.addCustomer(name, phone);
+      onSearchCustomer(phone);
+    } catch (e) {
+      //todo
+    }
   }
 
   void onToggleModifier(String itemName, String modifierName) {

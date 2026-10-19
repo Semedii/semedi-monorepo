@@ -5,6 +5,7 @@ import 'package:semedi/components/menu_item_card.dart';
 import 'package:semedi/components/order_confirm_dialog.dart';
 import 'package:semedi/components/txt_form_field.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
+import 'package:semedi/models/customer.dart';
 import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/pages/home_page.dart';
@@ -66,6 +67,8 @@ class OrderPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildCustomerLookup(context, state),
+                        const SizedBox(height: 8),
                         _buildSelectedItemsSection(
                           context,
                           state.orderItems,
@@ -138,6 +141,118 @@ class OrderPage extends StatelessWidget {
           'No items selected yet',
           style: TextStyle(color: Colors.grey),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCustomerLookup(BuildContext context, OrderIdle state) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    final phoneController = TextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (state.selectedCustomer != null)
+          _buildCustomerCard(context, state.selectedCustomer!, cubit)
+        else
+          Row(
+            children: [
+              Expanded(
+                child: TxtFormField(
+                  controller: phoneController,
+                  labelText: 'Search customer by phone',
+                  onChanged: (val) {
+                    if (val.length >= 3) cubit.onSearchCustomer(val);
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () =>
+                    _showAddCustomerDialog(context, cubit),
+                child: Text(
+                  'Add Customer',
+                  style: TextStyle(color: AppColors.deepBlue),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Container _buildCustomerCard(
+      BuildContext context, Customer customer, OrderCubit cubit) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.green.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.green.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.green,
+            radius: 16,
+            child: Text(
+              customer.name[0].toUpperCase(),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(customer.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('${customer.loyaltyPoints} pts',
+                    style:
+                        TextStyle(color: AppColors.green, fontSize: 12)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: cubit.onClearCustomer,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCustomerDialog(BuildContext context, OrderCubit cubit) {
+    final nameController = TextEditingController();
+    final phoneController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Customer'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TxtFormField(controller: nameController, labelText: 'Name'),
+            const SizedBox(height: 12),
+            TxtFormField(controller: phoneController, labelText: 'Phone'),
+          ],
+        ),
+        actions: [
+          AppButton(
+            isOutlined: true,
+            text: 'Cancel',
+            onPressed: () => Navigator.pop(context),
+          ),
+          const SizedBox(width: 8),
+          AppButton(
+            text: 'Add',
+            onPressed: () {
+              cubit.onCreateCustomer(
+                  nameController.text.trim(), phoneController.text.trim());
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

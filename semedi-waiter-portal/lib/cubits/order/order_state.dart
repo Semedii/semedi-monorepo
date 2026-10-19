@@ -14,6 +14,7 @@ final class OrderIdle extends OrderState {
   final bool isExpanded;
   final List<MenuModifier> availableModifiers;
   final Map<String, List<String>> itemModifiers;
+  final Customer? selectedCustomer;
 
   OrderIdle({
     required this.orderItems,
@@ -25,6 +26,7 @@ final class OrderIdle extends OrderState {
     this.isExpanded = false,
     this.availableModifiers = const [],
     this.itemModifiers = const {},
+    this.selectedCustomer,
   });
 
   OrderIdle copyWith({
@@ -37,6 +39,8 @@ final class OrderIdle extends OrderState {
     bool? isExpanded,
     List<MenuModifier>? availableModifiers,
     Map<String, List<String>>? itemModifiers,
+    Customer? selectedCustomer,
+    bool clearCustomer = false,
   }) {
     return OrderIdle(
       orderItems: orderItems ?? this.orderItems,
@@ -48,6 +52,8 @@ final class OrderIdle extends OrderState {
       isExpanded: isExpanded ?? this.isExpanded,
       availableModifiers: availableModifiers ?? this.availableModifiers,
       itemModifiers: itemModifiers ?? this.itemModifiers,
+      selectedCustomer:
+          clearCustomer ? null : selectedCustomer ?? this.selectedCustomer,
     );
   }
 }
