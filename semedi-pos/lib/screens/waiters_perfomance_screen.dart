@@ -47,7 +47,8 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            const SizedBox(height: 24),
+            _buildSummaryHeader(state),
+            const SizedBox(height: 20),
             Expanded(
               child: Container(
                 decoration: _buildBoxDecoration(),
@@ -61,6 +62,101 @@ class WaitersPerfomanceScreen extends StatelessWidget {
             _buildActionButtons(context, state),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryHeader(WaitersPerfomanceLoaded state) {
+    final waiters = state.waitersPerfomance;
+    final totalRevenue =
+        waiters.fold(0.0, (sum, w) => sum + w.totalSales);
+    final totalOrders =
+        waiters.fold(0, (sum, w) => sum + w.totalOrders);
+    final topWaiter = waiters.isEmpty
+        ? null
+        : waiters.reduce((a, b) => a.totalSales > b.totalSales ? a : b);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildSummaryCard(
+            icon: Icons.attach_money,
+            label: 'Total Revenue',
+            value: '\$${totalRevenue.toStringAsFixed(2)}',
+            color: AppColors.green,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildSummaryCard(
+            icon: Icons.receipt,
+            label: 'Total Orders',
+            value: totalOrders.toString(),
+            color: AppColors.deepBlue,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildSummaryCard(
+            icon: Icons.emoji_events,
+            label: 'Top Performer',
+            value: topWaiter?.name ?? '-',
+            color: AppColors.warmOrange,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -105,8 +201,10 @@ class WaitersPerfomanceScreen extends StatelessWidget {
         AppColors.deepBlue.withOpacity(0.05),
       ),
       columns: [
+        _buildDataColumn("#"),
         _buildDataColumn("waiter"),
         _buildDataColumn("no of orders"),
+        _buildDataColumn("avg order value"),
         _buildDataColumn("unpaid orders total"),
         _buildDataColumn("total sales"),
         _buildDataColumn("view"),
@@ -125,20 +223,50 @@ class WaitersPerfomanceScreen extends StatelessWidget {
   }
 
   _buildDataRow(BuildContext context, WaitersPerfomanceLoaded state) {
-    return state.waitersPerfomance.map((waiter) {
+    final sorted = List<WaitersPerfomance>.from(state.waitersPerfomance)
+      ..sort((a, b) => b.totalSales.compareTo(a.totalSales));
+
+    return sorted.asMap().entries.map((entry) {
+      final rank = entry.key + 1;
+      final waiter = entry.value;
+      final avg = waiter.totalOrders == 0
+          ? 0.0
+          : waiter.totalSales / waiter.totalOrders;
+
       return DataRow(
         cells: [
+          _buildRankCell(rank),
           _buildDataCell(waiter.name),
           _buildDataCell(
             waiter.totalOrders.toString(),
             color: AppColors.warmOrange,
           ),
+          _buildDataCell('\$${avg.toStringAsFixed(2)}'),
           _buildDataCell('\$${waiter.unpaidOrdersTotal.toString()}'),
           _buildDataCell('\$${waiter.totalSales.toStringAsFixed(2)}'),
           _buildVIewButton(context, waiter),
         ],
       );
     });
+  }
+
+  DataCell _buildRankCell(int rank) {
+    final medal = rank == 1
+        ? '🥇'
+        : rank == 2
+            ? '🥈'
+            : rank == 3
+                ? '🥉'
+                : '$rank';
+    return DataCell(
+      Text(
+        medal,
+        style: TextStyle(
+          fontSize: rank <= 3 ? 20 : 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 
   DataCell _buildDataCell(String text, {Color? color}) {
