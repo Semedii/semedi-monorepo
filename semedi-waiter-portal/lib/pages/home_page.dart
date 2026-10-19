@@ -10,6 +10,7 @@ import '../services/auth_service.dart';
 import '../services/service_locator.dart';
 import '../utils/app_colors.dart';
 import 'change_password_page.dart';
+import 'help_page.dart';
 import 'history_page.dart';
 import 'settings_page.dart';
 import 'order_page.dart';
@@ -92,6 +93,14 @@ class HomePage extends StatelessWidget {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => ReservationPage()),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.help_outline),
+          tooltip: 'Help',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HelpPage()),
           ),
         ),
         _buildSettings(context),
