@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/components/app_button.dart';
+import 'package:semedi/components/split_bill_dialog.dart';
 import 'package:semedi/cubits/order/order_cubit.dart';
 import 'package:semedi/models/dining_tables.dart';
 import 'package:semedi/utils/app_colors.dart';
@@ -51,7 +52,9 @@ class OrderConfirmDialog extends StatelessWidget {
                         _buildSpecialNote(state),
                         const Divider(height: 24),
                         _buildTotalPrice(context),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 8),
+                        _buildSplitBillButton(context),
+                        const SizedBox(height: 16),
                         _buildActionButtons(context),
                       ],
                     ),
@@ -193,6 +196,26 @@ class OrderConfirmDialog extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSplitBillButton(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: () {
+          final total = orderCubit.calculateOrderTotal();
+          showDialog(
+            context: context,
+            builder: (context) => SplitBillDialog(total: total),
+          );
+        },
+        icon: Icon(Icons.call_split, size: 18, color: AppColors.deepBlue),
+        label: Text(
+          'Split Bill',
+          style: TextStyle(color: AppColors.deepBlue),
+        ),
+      ),
     );
   }
 
