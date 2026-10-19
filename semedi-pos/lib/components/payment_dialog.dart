@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/txt_form_field.dart';
+import 'package:semedi_pos/models/discount.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 
 class PaymentDialog extends StatelessWidget {
-  PaymentDialog({required this.order, this.isPayAll = false, super.key})
+  PaymentDialog({required this.order, this.isPayAll = false, this.discounts = const [], super.key})
       : orderList = [],
         total = 0;
   PaymentDialog.payAll(
       {required this.orderList,
       required this.total,
       this.isPayAll = true,
+      this.discounts = const [],
       super.key})
       : order = null;
 
@@ -19,11 +21,13 @@ class PaymentDialog extends StatelessWidget {
   final bool isPayAll;
   final List<OrderModel> orderList;
   final double total;
+  final List<Discount> discounts;
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController remarksController = TextEditingController();
 
   String selectedPaymentMethod = 'Cash';
+  String? selectedDiscount;
 
   final List<String> paymentMethods = [
     'Cash',
@@ -62,6 +66,12 @@ class PaymentDialog extends StatelessWidget {
               const SizedBox(height: 16),
               _buildPaymentMethodDropdown(),
               const SizedBox(height: 16),
+              if (discounts.isNotEmpty) ...[
+                _buildDiscountDropdown(),
+                const SizedBox(height: 12),
+                _buildDiscountedTotal(),
+                const SizedBox(height: 4),
+              ],
               _buildRemarksField(),
               const SizedBox(height: 28),
               _buildFooterButtons(context),
@@ -111,6 +121,55 @@ class PaymentDialog extends StatelessWidget {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      ),
+    );
+  }
+
+  DropdownButtonFormField<String> _buildDiscountDropdown() {
+    final activeDiscounts = discounts.where((d) => d.isActive).toList();
+    return DropdownButtonFormField<String>(
+      dropdownColor: AppColors.offWhite,
+      value: selectedDiscount,
+      hint: const Text('No discount'),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('No discount')),
+        ...activeDiscounts.map((d) => DropdownMenuItem(
+              value: d.name,
+              child: Text('${d.name} (${d.percentage.toStringAsFixed(0)}% off)'),
+            )),
+      ],
+      onChanged: (value) {
+        selectedDiscount = value;
+      },
+      decoration: InputDecoration(
+        labelText: 'Discount',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      ),
+    );
+  }
+
+  Widget _buildDiscountedTotal() {
+    final baseAmount =
+        double.tryParse(amountController.text) ?? order?.totalPrice ?? total;
+    final discount = discounts.firstWhere(
+      (d) => d.name == selectedDiscount,
+      orElse: () => Discount(name: '', percentage: 0),
+    );
+    if (selectedDiscount == null || discount.percentage == 0) {
+      return const SizedBox.shrink();
+    }
+    final discounted = baseAmount * (1 - discount.percentage / 100);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        'After discount: \$${discounted.toStringAsFixed(2)}',
+        style: TextStyle(
+          color: AppColors.green,
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
       ),
     );
   }
