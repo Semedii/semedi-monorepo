@@ -5,6 +5,7 @@ import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/service/inventory_service.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
+import 'package:semedi_pos/service/table_note_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,6 +14,7 @@ part 'order_state.dart';
 class OrderCubit extends Cubit<OrderState> {
   final OrderService _orderService;
   final ManagementService managementService;
+  final TableNoteService _tableNoteService = TableNoteService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription<List<OrderModel>>? _ordersSubscription;
 
@@ -59,6 +61,7 @@ class OrderCubit extends Cubit<OrderState> {
           tableNumbers: tableNumber,
           exchangeRate: exchangeRate,
           lowStockCount: lowStockItems.length,
+          tableNotes: _tableNoteService.notesMap,
         ));
       },
       onError: (error) {
@@ -156,6 +159,18 @@ class OrderCubit extends Cubit<OrderState> {
         activeOrders.any((order) => order.tableNumber == tableNumber);
 
     return !hasOrder;
+  }
+
+  void onSaveTableNote(int tableNumber, String note) {
+    _tableNoteService.saveNote(tableNumber, note);
+    final current = state as OrderLoaded;
+    emit(current.copyWith(tableNotes: _tableNoteService.notesMap));
+  }
+
+  void onDeleteTableNote(int tableNumber) {
+    _tableNoteService.deleteNote(tableNumber);
+    final current = state as OrderLoaded;
+    emit(current.copyWith(tableNotes: _tableNoteService.notesMap));
   }
 
   @override

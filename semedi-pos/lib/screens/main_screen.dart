@@ -399,14 +399,43 @@ class MainScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: Container(
-                decoration: _getTableBoxDecoration(cubit, tableNumber),
-                child: _getTableText(tableNumber),
-              ),
+              onLongPress: () =>
+                  _showTableNoteDialog(context, cubit, state, tableNumber),
+              child: _buildTableButton(cubit, state, tableNumber),
             );
           },
           childCount: state.tableNumbers,
         ),
+      ),
+    );
+  }
+
+  Widget _buildTableButton(
+      OrderCubit cubit, OrderLoaded state, int tableNumber) {
+    final hasNote = state.tableNotes.containsKey(tableNumber);
+    return Stack(
+      children: [
+        Container(
+          decoration: _getTableBoxDecoration(cubit, tableNumber),
+          child: _getTableText(tableNumber),
+        ),
+        if (hasNote)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: _buildTableNoteIcon(),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTableNoteIcon() {
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: const BoxDecoration(
+        color: Colors.amber,
+        shape: BoxShape.circle,
       ),
     );
   }
@@ -446,6 +475,73 @@ class MainScreen extends StatelessWidget {
       return AppColors.warmOrange;
     }
     return AppColors.deepBlue;
+  }
+
+  void _showTableNoteDialog(BuildContext context, OrderCubit cubit,
+      OrderLoaded state, int tableNumber) {
+    final existing = state.tableNotes[tableNumber] ?? '';
+    final controller = TextEditingController(text: existing);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.offWhite,
+        title: _buildTableNoteDialogTitle(tableNumber),
+        content: _buildTableNoteDialogContent(controller),
+        actions: _buildTableNoteDialogActions(
+            context, cubit, tableNumber, controller, existing),
+      ),
+    );
+  }
+
+  Text _buildTableNoteDialogTitle(int tableNumber) {
+    return Text('Table $tableNumber Note');
+  }
+
+  TextField _buildTableNoteDialogContent(TextEditingController controller) {
+    return TextField(
+      controller: controller,
+      maxLines: 3,
+      decoration: const InputDecoration(
+        hintText: 'Add a note for this table...',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  List<Widget> _buildTableNoteDialogActions(
+    BuildContext context,
+    OrderCubit cubit,
+    int tableNumber,
+    TextEditingController controller,
+    String existing,
+  ) {
+    return [
+      if (existing.isNotEmpty)
+        TextButton(
+          onPressed: () {
+            cubit.onDeleteTableNote(tableNumber);
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Clear',
+            style: TextStyle(color: AppColors.warmOrange),
+          ),
+        ),
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      TextButton(
+        onPressed: () {
+          cubit.onSaveTableNote(tableNumber, controller.text);
+          Navigator.pop(context);
+        },
+        child: Text(
+          'Save',
+          style: TextStyle(color: AppColors.deepBlue),
+        ),
+      ),
+    ];
   }
 
   AppButton _buildExchangeRateButton(BuildContext context, OrderLoaded state) {

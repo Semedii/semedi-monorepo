@@ -13,6 +13,7 @@ final class OrderLoaded extends OrderState {
   final int tableNumbers;
   final int? exchangeRate;
   final int lowStockCount;
+  final Map<int, String> tableNotes;
 
   OrderLoaded({
     required this.activeOrders,
@@ -23,6 +24,7 @@ final class OrderLoaded extends OrderState {
     required this.tableNumbers,
     this.exchangeRate,
     this.lowStockCount = 0,
+    this.tableNotes = const {},
   });
 
   OrderLoaded copyWith({
@@ -30,6 +32,7 @@ final class OrderLoaded extends OrderState {
     List<OrderModel>? paidOrders,
     List<OrderModel>? unPaidOrders,
     double? totalRevenue,
+    Map<int, String>? tableNotes,
   }) {
     return OrderLoaded(
       activeOrders: activeOrders ?? this.activeOrders,
@@ -40,6 +43,7 @@ final class OrderLoaded extends OrderState {
       tableNumbers: tableNumbers,
       exchangeRate: exchangeRate,
       lowStockCount: lowStockCount,
+      tableNotes: tableNotes ?? this.tableNotes,
     );
   }
 }
