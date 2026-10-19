@@ -240,6 +240,15 @@ class MainScreen extends StatelessWidget {
               icon: Icons.attach_money,
               color: AppColors.deepBlue,
             ),
+            const SizedBox(width: 24),
+            _buildStatCard(
+              title: 'Low Stock',
+              value: state.lowStockCount.toString(),
+              icon: Icons.warning_amber_rounded,
+              color: state.lowStockCount > 0
+                  ? AppColors.warmOrange
+                  : Colors.grey,
+            ),
           ],
         ),
       ),

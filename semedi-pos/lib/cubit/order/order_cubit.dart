@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/order_model.dart';
+import 'package:semedi_pos/service/inventory_service.dart';
 import 'package:semedi_pos/service/management_service.dart';
 import 'package:semedi_pos/service/order_service.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
@@ -32,6 +33,7 @@ class OrderCubit extends Cubit<OrderState> {
 
     double totalRevenue = 0.0;
     final int? exchangeRate = await managementService.getExchangeRate();
+    final lowStockItems = await InventoryService().getLowStockItems();
 
     final restaurantData =
         await Supabase.instance.client.from('restaurants').select('name');
@@ -56,6 +58,7 @@ class OrderCubit extends Cubit<OrderState> {
           restaurant: (restaurantData.first['name'] as String),
           tableNumbers: tableNumber,
           exchangeRate: exchangeRate,
+          lowStockCount: lowStockItems.length,
         ));
       },
       onError: (error) {

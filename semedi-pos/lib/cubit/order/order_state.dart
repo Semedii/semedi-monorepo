@@ -12,6 +12,7 @@ final class OrderLoaded extends OrderState {
   final String restaurant;
   final int tableNumbers;
   final int? exchangeRate;
+  final int lowStockCount;
 
   OrderLoaded({
     required this.activeOrders,
@@ -21,6 +22,7 @@ final class OrderLoaded extends OrderState {
     required this.restaurant,
     required this.tableNumbers,
     this.exchangeRate,
+    this.lowStockCount = 0,
   });
 
   OrderLoaded copyWith({
@@ -37,6 +39,7 @@ final class OrderLoaded extends OrderState {
       restaurant: restaurant,
       tableNumbers: tableNumbers,
       exchangeRate: exchangeRate,
+      lowStockCount: lowStockCount,
     );
   }
 }
