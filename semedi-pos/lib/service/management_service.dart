@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -142,6 +143,64 @@ class ManagementService {
       final response = await _supabase.from('metadata').select('exchange_rate');
       int? rate = response.first['exchange_rate'];
       return rate;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<List<MenuModifier>?> getModifierList() async {
+    final response = await _supabase
+        .from('menu_modifiers')
+        .select('name, extra_charge, available');
+    return response.map((json) => MenuModifier.fromJson(json)).toList();
+  }
+
+  Future<void> addModifier(MenuModifier modifier) async {
+    try {
+      final response = await _supabase
+          .from('menu_modifiers')
+          .select('name')
+          .ilike('name', modifier.name);
+
+      if (response.isNotEmpty) {
+        throw Exception('Modifier with this name already exists');
+      } else {
+        await _supabase.from('menu_modifiers').insert(modifier.toJson());
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteModifier(MenuModifier modifier) async {
+    try {
+      final response = await _supabase
+          .from('menu_modifiers')
+          .select('name')
+          .ilike('name', modifier.name);
+
+      if (response.isEmpty) {
+        return;
+      } else {
+        await _supabase
+            .from('menu_modifiers')
+            .delete()
+            .eq('name', modifier.name);
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> updateModifier({
+    required MenuModifier oldModifier,
+    required MenuModifier newModifier,
+  }) async {
+    try {
+      await _supabase
+          .from('menu_modifiers')
+          .update(newModifier.toJson())
+          .eq('name', oldModifier.name);
     } catch (e) {
       throw Exception(e);
     }
