@@ -13,6 +13,7 @@ import 'package:semedi_kitchen/services/service_locator.dart';
 import 'package:semedi_kitchen/services/thermal_reciept_service.dart';
 import 'package:semedi_kitchen/utils/app_colors.dart';
 import 'package:semedi_kitchen/models/order.dart';
+import 'package:semedi_kitchen/models/order_timer.dart';
 import 'package:semedi_kitchen/utils/extensions.dart';
 import 'package:semedi_kitchen/utils/order_status_enum.dart';
 
@@ -80,7 +81,7 @@ class HomePage extends StatelessWidget {
       body: Column(
         children: [
           _buildStatsHeader(context),
-          _buildOrderGrid(state.activeOrders),
+          _buildOrderGrid(context, state.activeOrders, state.orderTimers),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -179,7 +180,8 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderGrid(List<OrderModel> orders) {
+  Widget _buildOrderGrid(BuildContext context, List<OrderModel> orders,
+      Map<String, OrderTimer> timers) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -194,22 +196,75 @@ class HomePage extends StatelessWidget {
           itemBuilder: (context, index) => _buildOrderCard(
             context,
             orders[index],
+            timers[orders[index].id],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildOrderCard(BuildContext context, OrderModel order) {
+  Container _buildTimerBadge(OrderTimer timer) {
+    Color color;
+    if (timer.isUrgent) {
+      color = Colors.red;
+    } else if (timer.isWarning) {
+      color = Colors.orange;
+    } else {
+      color = Colors.green;
+    }
     return Container(
-      decoration: _buildOrderCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildOrderHeader(context, order),
-          _buildOrderCardBody(order),
-          _buildCardFooter(context, order),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        '${timer.elapsedMinutes}m',
+        style: const TextStyle(
+            color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildOrderCard(
+      BuildContext context, OrderModel order, OrderTimer? timer) {
+    return Stack(
+      children: [
+        Container(
+          decoration: _buildOrderCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildOrderHeader(context, order),
+              _buildOrderCardBody(order),
+              _buildMarkDoneButton(context, order),
+              _buildCardFooter(context, order),
+            ],
+          ),
+        ),
+        if (timer != null)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: _buildTimerBadge(timer),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMarkDoneButton(BuildContext context, OrderModel order) {
+    final cubit = BlocProvider.of<HomeCubit>(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.green,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        ),
+        onPressed: () => cubit.onMarkComplete(order.id),
+        child: const Text('MARK DONE', style: TextStyle(fontSize: 12)),
       ),
     );
   }
