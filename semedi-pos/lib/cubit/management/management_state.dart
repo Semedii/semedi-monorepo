@@ -10,11 +10,13 @@ final class ManagementLoaded extends ManagementState {
   final List<MenuItem> menuList;
   final List<Waiter> waiterList;
   final int totalTableNumber;
+  final List<MenuModifier> modifierList;
 
   ManagementLoaded({
     required this.menuList,
     required this.waiterList,
     required this.totalTableNumber,
+    this.modifierList = const [],
   });
 }
 

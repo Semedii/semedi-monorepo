@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/management_service.dart';
 
@@ -16,11 +17,14 @@ class ManagementCubit extends Cubit<ManagementState> {
     final List<MenuItem>? menuList = await _managementService.getMenuList();
     final List<Waiter> waiterList = await _managementService.getWaitersList();
     final int totalTableNumber = await _managementService.getTotalTableNumber();
+    final List<MenuModifier>? modifierList =
+        await _managementService.getModifierList();
 
     emit(ManagementLoaded(
       menuList: menuList ?? [],
       waiterList: waiterList,
       totalTableNumber: totalTableNumber,
+      modifierList: modifierList ?? [],
     ));
   }
 
@@ -68,6 +72,37 @@ class ManagementCubit extends Cubit<ManagementState> {
     emit(ManagementLoading());
     try {
       await _managementService.decrementTotalTables();
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onAddModifier(MenuModifier modifier) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.addModifier(modifier);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onEditModifier(MenuModifier newModifier, MenuModifier oldModifier) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.updateModifier(
+          oldModifier: oldModifier, newModifier: newModifier);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onDeleteModifier(MenuModifier modifier) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.deleteModifier(modifier);
     } catch (e) {
       emit(ManagementFailure(e.toString()));
     }

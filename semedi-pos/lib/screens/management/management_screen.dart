@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/management/management_cubit.dart';
 import 'package:semedi_pos/screens/management/menu_management_tab.dart';
+import 'package:semedi_pos/screens/management/modifier_management_tab.dart';
 import 'package:semedi_pos/screens/management/table_management_tab.dart';
 import 'package:semedi_pos/screens/management/waiter_management_tab.dart';
 import 'package:semedi_pos/service/management_service.dart';
@@ -16,7 +17,7 @@ class ManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('MANAGEMENT'),
@@ -27,6 +28,7 @@ class ManagementScreen extends StatelessWidget {
               Tab(icon: Icon(Icons.restaurant), text: 'Menu'),
               Tab(icon: Icon(Icons.table_restaurant), text: 'Tables'),
               Tab(icon: Icon(Icons.person), text: 'Waiters'),
+              Tab(icon: Icon(Icons.tune), text: 'Modifiers'),
             ],
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
@@ -62,6 +64,12 @@ class ManagementScreen extends StatelessWidget {
                     onRemove: cubit.onRemoveTable,
                   ),
                   WaiterManagementTab(waiterList: state.waiterList),
+                  ModifierManagementTab(
+                    modifiers: state.modifierList,
+                    onDelete: cubit.onDeleteModifier,
+                    onAdd: cubit.onAddModifier,
+                    onEdit: cubit.onEditModifier,
+                  ),
                 ],
               );
             }
