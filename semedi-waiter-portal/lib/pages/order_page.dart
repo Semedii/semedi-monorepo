@@ -142,9 +142,43 @@ class OrderPage extends StatelessWidget {
     );
   }
 
+  Widget _buildModifierChips(
+      BuildContext context, String itemName, OrderIdle state) {
+    if (state.availableModifiers.isEmpty) return const SizedBox.shrink();
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    final selected = state.itemModifiers[itemName] ?? [];
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 4),
+      child: Wrap(
+        spacing: 6,
+        children: state.availableModifiers.map((modifier) {
+          final isSelected = selected.contains(modifier.name);
+          return GestureDetector(
+            onTap: () => cubit.onToggleModifier(itemName, modifier.name),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.deepBlue : Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                modifier.name,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isSelected ? Colors.white : Colors.grey.shade700,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildSelectedItemsList(
       BuildContext context, List<OrderItem> selectedItems) {
     final orderCubit = BlocProvider.of<OrderCubit>(context);
+    final state = BlocProvider.of<OrderCubit>(context).state as OrderIdle;
 
     return ListView.separated(
       shrinkWrap: true,
@@ -164,7 +198,11 @@ class OrderPage extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: ExpansionTile(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildModifierChips(context, item.itemName ?? '', state),
+              ExpansionTile(
             title: Row(
               children: [
                 Expanded(
@@ -227,6 +265,8 @@ class OrderPage extends StatelessWidget {
                   ),
                 ),
               ),
+            ],
+          ),
             ],
           ),
         );

@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi/models/menu.dart';
+import 'package:semedi/models/menu_modifier.dart';
 import 'package:semedi/models/order_item.dart';
 import 'package:semedi/services/menu_service.dart';
+import 'package:semedi/services/modifier_service.dart';
 import 'package:semedi/services/order_service.dart';
 import 'package:semedi/utils/order_status_enum.dart';
 
@@ -11,17 +13,39 @@ class OrderCubit extends Cubit<OrderState> {
   final OrderService _orderService = OrderService();
   final MenuService _menuService = MenuService();
 
+  final ModifierService _modifierService = ModifierService();
+
   OrderCubit() : super(OrderInitial());
 
   void initPage() async {
     List<MenuItem> allMenuItems = await _menuService.getMenu();
+    List<MenuModifier> modifiers = [];
+    try {
+      modifiers = await _modifierService.getModifierList();
+    } catch (e) {
+      //todo
+    }
     emit(
       OrderIdle(
         orderItems: [],
         allMenuItems: allMenuItems,
         filteredMenuItems: allMenuItems,
+        availableModifiers: modifiers,
       ),
     );
+  }
+
+  void onToggleModifier(String itemName, String modifierName) {
+    var currentState = state as OrderIdle;
+    final updated = Map<String, List<String>>.from(currentState.itemModifiers);
+    final current = List<String>.from(updated[itemName] ?? []);
+    if (current.contains(modifierName)) {
+      current.remove(modifierName);
+    } else {
+      current.add(modifierName);
+    }
+    updated[itemName] = current;
+    emit(currentState.copyWith(itemModifiers: updated));
   }
 
   void onSelectedItem(MenuItem item) {
