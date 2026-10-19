@@ -6,6 +6,7 @@ import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
 import 'package:semedi_kitchen/models/order_item.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
+import 'package:semedi_kitchen/pages/settings_page.dart';
 import 'package:semedi_kitchen/services/auth_service.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
 import 'package:semedi_kitchen/services/secure_storage_service.dart';
@@ -62,6 +63,13 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.account_circle),
             itemBuilder: (context) => [
               PopupMenuItem(
+                value: 'settings',
+                child: Text(
+                  'Settings',
+                  style: TextStyle(color: AppColors.offWhite),
+                ),
+              ),
+              PopupMenuItem(
                 value: 'logout',
                 child: Text(
                   'Logout',
@@ -72,6 +80,13 @@ class HomePage extends StatelessWidget {
             onSelected: (value) {
               if (value == 'logout') {
                 _authService.logout();
+              }
+              if (value == 'settings') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsPage()),
+                );
               }
             },
             tooltip: 'Logout',
