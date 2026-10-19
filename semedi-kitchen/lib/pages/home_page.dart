@@ -430,8 +430,31 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Expanded _buildItemName(OrderItem item) =>
-      Expanded(child: Text(item.itemName));
+  Text _buildModifierText(List<String> modifiers) {
+    return Text(
+      '+ ${modifiers.join(', ')}',
+      style: const TextStyle(
+        color: Colors.grey,
+        fontSize: 12,
+        fontStyle: FontStyle.italic,
+      ),
+    );
+  }
+
+  Expanded _buildItemName(OrderItem item) {
+    if (item.modifiers.isEmpty) {
+      return Expanded(child: Text(item.itemName));
+    }
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(item.itemName),
+          _buildModifierText(item.modifiers),
+        ],
+      ),
+    );
+  }
 
   Widget _buildCardFooter(BuildContext context, OrderModel order) {
     return Column(
