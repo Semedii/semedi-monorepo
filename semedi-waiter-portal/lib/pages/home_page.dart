@@ -10,6 +10,7 @@ import '../services/auth_service.dart';
 import '../services/service_locator.dart';
 import '../utils/app_colors.dart';
 import 'change_password_page.dart';
+import 'history_page.dart';
 import 'order_page.dart';
 import 'reservation_page.dart';
 
@@ -64,6 +65,14 @@ class HomePage extends StatelessWidget {
       title: _buildAppBarTitle(state),
       centerTitle: false,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.history),
+          tooltip: 'Order History',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HistoryPage()),
+          ),
+        ),
         IconButton(
           icon: const Icon(Icons.calendar_today),
           tooltip: 'Reservations',
