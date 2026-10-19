@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/discount.dart';
 import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
 
@@ -201,6 +202,60 @@ class ManagementService {
           .from('menu_modifiers')
           .update(newModifier.toJson())
           .eq('name', oldModifier.name);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<List<Discount>?> getDiscountList() async {
+    final response =
+        await _supabase.from('discounts').select('name, percentage, active');
+    return response.map((json) => Discount.fromJson(json)).toList();
+  }
+
+  Future<void> addDiscount(Discount discount) async {
+    try {
+      final response = await _supabase
+          .from('discounts')
+          .select('name')
+          .ilike('name', discount.name);
+
+      if (response.isNotEmpty) {
+        throw Exception('Discount with this name already exists');
+      } else {
+        await _supabase.from('discounts').insert(discount.toJson());
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteDiscount(Discount discount) async {
+    try {
+      final response = await _supabase
+          .from('discounts')
+          .select('name')
+          .ilike('name', discount.name);
+
+      if (response.isEmpty) {
+        return;
+      } else {
+        await _supabase.from('discounts').delete().eq('name', discount.name);
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> updateDiscount({
+    required Discount oldDiscount,
+    required Discount newDiscount,
+  }) async {
+    try {
+      await _supabase
+          .from('discounts')
+          .update(newDiscount.toJson())
+          .eq('name', oldDiscount.name);
     } catch (e) {
       throw Exception(e);
     }
