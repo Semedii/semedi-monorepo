@@ -430,11 +430,14 @@ class MainScreen extends StatelessWidget {
   Widget _buildTableButton(
       OrderCubit cubit, OrderLoaded state, int tableNumber) {
     final hasNote = state.tableNotes.containsKey(tableNumber);
+    final isVacant = cubit.isTableVacant(tableNumber);
+    final isPayPending = cubit.isTablePayPending(tableNumber);
     return Stack(
       children: [
         Container(
           decoration: _getTableBoxDecoration(cubit, tableNumber),
-          child: _getTableText(tableNumber),
+          child: _buildTableOccupancyInfo(
+              tableNumber, isVacant, isPayPending),
         ),
         if (hasNote)
           Positioned(
@@ -442,7 +445,52 @@ class MainScreen extends StatelessWidget {
             right: 8,
             child: _buildTableNoteIcon(),
           ),
+        if (!isVacant)
+          Positioned(
+            bottom: 8,
+            left: 8,
+            child: _buildOccupancyBadge(isPayPending),
+          ),
       ],
+    );
+  }
+
+  Widget _buildTableOccupancyInfo(
+      int tableNumber, bool isVacant, bool isPayPending) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Table $tableNumber',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          if (!isVacant)
+            Text(
+              isPayPending ? 'Paying' : 'Occupied',
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.white70,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOccupancyBadge(bool isPayPending) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: isPayPending ? Colors.yellow : Colors.white,
+        shape: BoxShape.circle,
+      ),
     );
   }
 
@@ -468,20 +516,6 @@ class MainScreen extends StatelessWidget {
           offset: const Offset(2, 4),
         )
       ],
-    );
-  }
-
-  Center _getTableText(int tableNumber) {
-    return Center(
-      child: Text(
-        'Table $tableNumber',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 
