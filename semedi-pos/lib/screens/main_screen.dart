@@ -8,6 +8,7 @@ import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
+import 'package:semedi_pos/screens/shift_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
 import 'package:semedi_pos/screens/take_order_screen.dart';
 import 'package:semedi_pos/service/auth_service.dart';
@@ -140,6 +141,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'shift',
+              child: Text(
+                'Shift Management',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+            PopupMenuItem(
               value: 'logout',
               child: Text(
                 'Logout',
@@ -156,6 +164,10 @@ class MainScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => SalesHistoryListScreen()));
+            }
+            if (value == 'shift') {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ShiftScreen()));
             }
           },
           tooltip: 'Logout',
