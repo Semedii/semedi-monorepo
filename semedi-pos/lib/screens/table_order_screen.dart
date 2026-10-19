@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:semedi_pos/components/order_card.dart';
 import 'package:semedi_pos/components/payment_dialog.dart';
+import 'package:semedi_pos/components/split_bill_dialog.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
@@ -92,6 +93,8 @@ class TableOrderScreen extends StatelessWidget {
         ),
         _buildAppBarButton(Icons.payment, "Pay All",
             () => showPaymentDialog(context, tableOrders, total)),
+        _buildAppBarButton(Icons.call_split, "Split",
+            () => showSplitBillDialog(context, tableOrders, total)),
         _buildAppBarButton(
           Icons.add_circle_outline,
           "Extras",
@@ -173,6 +176,21 @@ class TableOrderScreen extends StatelessWidget {
       barrierDismissible: true,
       builder: (context) {
         return PaymentDialog.payAll(orderList: orders, total: total);
+      },
+    );
+  }
+
+  void showSplitBillDialog(
+      BuildContext context, List<OrderModel> orders, double total) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return SplitBillDialog(
+          orders: orders,
+          total: total,
+          exchangeRate: exchangeRate,
+        );
       },
     );
   }
