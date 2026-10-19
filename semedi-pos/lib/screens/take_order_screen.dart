@@ -210,6 +210,49 @@ class TakeOrderScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildCategoryFilterRow(
+      BuildContext context, TakeOrderStateInitial state) {
+    final categories = state.availableCategories ?? [];
+    if (categories.isEmpty) return const SizedBox();
+    final cubit = context.read<TakeOrderCubit>();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _buildCategoryChip(context, cubit, null, state.selectedCategory),
+          ...categories.map(
+            (cat) =>
+                _buildCategoryChip(context, cubit, cat, state.selectedCategory),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(BuildContext context, TakeOrderCubit cubit,
+      String? category, String? selected) {
+    final isSelected = category == selected;
+    final label = category ?? 'All';
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () => cubit.onFilterByCategory(category),
+        child: Chip(
+          label: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : AppColors.darkGrey,
+              fontWeight:
+                  isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          backgroundColor:
+              isSelected ? AppColors.deepBlue : Colors.grey.shade200,
+        ),
+      ),
+    );
+  }
+
   Widget _buildMenuSection(BuildContext context, TakeOrderStateInitial state) {
     final menuItems = state.filteredMenuItems ?? state.menuList ?? [];
     final cubit = context.read<TakeOrderCubit>();
@@ -224,6 +267,8 @@ class TakeOrderScreen extends StatelessWidget {
             color: AppColors.deepBlue,
           ),
         ),
+        const SizedBox(height: 8),
+        _buildCategoryFilterRow(context, state),
         const SizedBox(height: 8),
         menuItems.isEmpty
             ? const Text("No menu items found.")

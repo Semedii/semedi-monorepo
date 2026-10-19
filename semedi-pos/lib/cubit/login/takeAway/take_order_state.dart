@@ -11,6 +11,8 @@ class TakeOrderStateInitial extends TakeOrderState {
   final List<MenuItem>? filteredMenuItems;
   final List<MenuModifier>? availableModifiers;
   final Map<MenuItem, List<String>>? itemModifiers;
+  final String? selectedCategory;
+  final List<String>? availableCategories;
 
   TakeOrderStateInitial({
     this.customerName,
@@ -21,6 +23,8 @@ class TakeOrderStateInitial extends TakeOrderState {
     this.filteredMenuItems,
     this.availableModifiers,
     this.itemModifiers,
+    this.selectedCategory,
+    this.availableCategories,
   });
 
   TakeOrderStateInitial copyWith({
@@ -32,6 +36,8 @@ class TakeOrderStateInitial extends TakeOrderState {
     List<MenuItem>? filteredMenuItems,
     List<MenuModifier>? availableModifiers,
     Map<MenuItem, List<String>>? itemModifiers,
+    String? selectedCategory,
+    List<String>? availableCategories,
   }) {
     return TakeOrderStateInitial(
       customerName: customerName ?? this.customerName,
@@ -42,6 +48,8 @@ class TakeOrderStateInitial extends TakeOrderState {
       menuList: menuList ?? this.menuList,
       availableModifiers: availableModifiers ?? this.availableModifiers,
       itemModifiers: itemModifiers ?? this.itemModifiers,
+      selectedCategory: selectedCategory,
+      availableCategories: availableCategories ?? this.availableCategories,
     );
   }
 }

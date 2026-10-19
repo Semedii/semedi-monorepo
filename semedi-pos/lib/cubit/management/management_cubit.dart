@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/models/discount.dart';
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_category.dart';
 import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
 import 'package:semedi_pos/service/management_service.dart';
@@ -22,6 +23,8 @@ class ManagementCubit extends Cubit<ManagementState> {
         await _managementService.getModifierList();
     final List<Discount>? discountList =
         await _managementService.getDiscountList();
+    final List<MenuCategory>? categoryList =
+        await _managementService.getCategoryList();
 
     emit(ManagementLoaded(
       menuList: menuList ?? [],
@@ -29,6 +32,7 @@ class ManagementCubit extends Cubit<ManagementState> {
       totalTableNumber: totalTableNumber,
       modifierList: modifierList ?? [],
       discountList: discountList ?? [],
+      categoryList: categoryList ?? [],
     ));
   }
 
@@ -138,6 +142,37 @@ class ManagementCubit extends Cubit<ManagementState> {
     emit(ManagementLoading());
     try {
       await _managementService.deleteDiscount(discount);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onAddCategory(MenuCategory category) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.addCategory(category);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onEditCategory(MenuCategory newCategory, MenuCategory oldCategory) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.updateCategory(
+          oldCategory: oldCategory, newCategory: newCategory);
+    } catch (e) {
+      emit(ManagementFailure(e.toString()));
+    }
+    initPage();
+  }
+
+  onDeleteCategory(MenuCategory category) async {
+    emit(ManagementLoading());
+    try {
+      await _managementService.deleteCategory(category);
     } catch (e) {
       emit(ManagementFailure(e.toString()));
     }

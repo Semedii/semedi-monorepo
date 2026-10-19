@@ -15,9 +15,29 @@ class TakeOrderCubit extends Cubit<TakeOrderState> {
     final List<MenuItem>? menuList = await ManagementService().getMenuList();
     final List<MenuModifier>? modifiers =
         await ManagementService().getModifierList();
+    final List<String> categories = menuList
+            ?.map((item) => item.category)
+            .whereType<String>()
+            .toSet()
+            .toList() ??
+        [];
     emit(TakeOrderStateInitial(
       menuList: menuList,
       availableModifiers: modifiers ?? [],
+      availableCategories: categories,
+    ));
+  }
+
+  void onFilterByCategory(String? category) {
+    var currentState = state as TakeOrderStateInitial;
+    final filtered = category == null
+        ? currentState.menuList
+        : currentState.menuList
+            ?.where((item) => item.category == category)
+            .toList();
+    emit(currentState.copyWith(
+      selectedCategory: category,
+      filteredMenuItems: filtered,
     ));
   }
 

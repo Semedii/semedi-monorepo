@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:semedi_pos/cubit/management/management_cubit.dart';
+import 'package:semedi_pos/screens/management/category_management_tab.dart';
 import 'package:semedi_pos/screens/management/menu_management_tab.dart';
 import 'package:semedi_pos/screens/management/discount_management_tab.dart';
 import 'package:semedi_pos/screens/management/modifier_management_tab.dart';
@@ -18,7 +19,7 @@ class ManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('MANAGEMENT'),
@@ -31,6 +32,7 @@ class ManagementScreen extends StatelessWidget {
               Tab(icon: Icon(Icons.person), text: 'Waiters'),
               Tab(icon: Icon(Icons.tune), text: 'Modifiers'),
               Tab(icon: Icon(Icons.local_offer), text: 'Discounts'),
+              Tab(icon: Icon(Icons.category), text: 'Categories'),
             ],
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
@@ -77,6 +79,12 @@ class ManagementScreen extends StatelessWidget {
                     onDelete: cubit.onDeleteDiscount,
                     onAdd: cubit.onAddDiscount,
                     onEdit: cubit.onEditDiscount,
+                  ),
+                  CategoryManagementTab(
+                    categories: state.categoryList,
+                    onDelete: cubit.onDeleteCategory,
+                    onAdd: cubit.onAddCategory,
+                    onEdit: cubit.onEditCategory,
                   ),
                 ],
               );

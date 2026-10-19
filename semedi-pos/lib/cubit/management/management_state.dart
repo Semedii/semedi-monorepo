@@ -12,6 +12,7 @@ final class ManagementLoaded extends ManagementState {
   final int totalTableNumber;
   final List<MenuModifier> modifierList;
   final List<Discount> discountList;
+  final List<MenuCategory> categoryList;
 
   ManagementLoaded({
     required this.menuList,
@@ -19,6 +20,7 @@ final class ManagementLoaded extends ManagementState {
     required this.totalTableNumber,
     this.modifierList = const [],
     this.discountList = const [],
+    this.categoryList = const [],
   });
 }
 
