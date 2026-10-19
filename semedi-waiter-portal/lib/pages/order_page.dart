@@ -53,6 +53,14 @@ class OrderPage extends StatelessWidget {
     );
   }
 
+  static const List<String> _presetNotes = [
+    'Extra napkins',
+    'No rush',
+    'Allergy check',
+    'Birthday',
+    'VIP',
+  ];
+
   Widget _buildPageBody(BuildContext context, OrderIdle state) {
     return Column(
       children: [
@@ -68,6 +76,8 @@ class OrderPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildCustomerLookup(context, state),
+                        const SizedBox(height: 8),
+                        _buildOrderNoteSection(context, state),
                         const SizedBox(height: 8),
                         _buildSelectedItemsSection(
                           context,
@@ -87,6 +97,85 @@ class OrderPage extends StatelessWidget {
         ),
         _buildBottomSection(context, state),
       ],
+    );
+  }
+
+  Widget _buildOrderNoteSection(BuildContext context, OrderIdle state) {
+    final cubit = BlocProvider.of<OrderCubit>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Order Notes',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.deepBlue,
+              ),
+            ),
+            if (state.orderNote.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: cubit.onClearOrderNote,
+                child: Icon(Icons.close, size: 16, color: Colors.grey.shade500),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: _presetNotes
+              .map((preset) => _buildPresetChip(context, cubit, state, preset))
+              .toList(),
+        ),
+        if (state.orderNote.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: _buildOrderNoteSummary(state.orderNote),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPresetChip(
+      BuildContext context, OrderCubit cubit, OrderIdle state, String label) {
+    final isActive = state.orderNote.contains(label);
+    return GestureDetector(
+      onTap: () => cubit.onAppendNote(label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.deepBlue : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: isActive ? Colors.white : Colors.grey.shade700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderNoteSummary(String note) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.amber.shade200),
+      ),
+      child: Text(
+        note,
+        style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
+      ),
     );
   }
 

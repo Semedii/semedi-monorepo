@@ -134,6 +134,18 @@ class OrderCubit extends Cubit<OrderState> {
     emit(currentState.copyWith(orderItems: newItems));
   }
 
+  void onAppendNote(String preset) {
+    var currentState = state as OrderIdle;
+    final existing = currentState.orderNote;
+    final updated = existing.isEmpty ? preset : '$existing, $preset';
+    emit(currentState.copyWith(orderNote: updated));
+  }
+
+  void onClearOrderNote() {
+    var currentState = state as OrderIdle;
+    emit(currentState.copyWith(orderNote: ''));
+  }
+
   void updateSearchQuery(String query) {
     var currentState = state as OrderIdle;
     final filtered = currentState.allMenuItems.where((item) {
