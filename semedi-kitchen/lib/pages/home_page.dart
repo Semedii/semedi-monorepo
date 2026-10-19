@@ -6,6 +6,7 @@ import 'package:semedi_kitchen/components/app_button.dart';
 import 'package:semedi_kitchen/cubit/homepage/home_cubit.dart';
 import 'package:semedi_kitchen/models/order_item.dart';
 import 'package:semedi_kitchen/pages/menu_management_screen.dart';
+import 'package:semedi_kitchen/pages/help_page.dart';
 import 'package:semedi_kitchen/pages/settings_page.dart';
 import 'package:semedi_kitchen/services/auth_service.dart';
 import 'package:semedi_kitchen/services/order_service.dart';
@@ -70,6 +71,13 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               PopupMenuItem(
+                value: 'help',
+                child: Text(
+                  'Kitchen Guide',
+                  style: TextStyle(color: AppColors.offWhite),
+                ),
+              ),
+              PopupMenuItem(
                 value: 'logout',
                 child: Text(
                   'Logout',
@@ -86,6 +94,12 @@ class HomePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const SettingsPage()),
+                );
+              }
+              if (value == 'help') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HelpPage()),
                 );
               }
             },
