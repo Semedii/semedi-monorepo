@@ -96,6 +96,7 @@ class HomePage extends StatelessWidget {
       body: Column(
         children: [
           _buildStatsHeader(context),
+          _buildKitchenStatsPanel(context),
           _buildOrderGrid(context, state.activeOrders, state.orderTimers),
         ],
       ),
@@ -192,6 +193,66 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildKitchenStatsPanel(BuildContext context) {
+    final cubit = BlocProvider.of<HomeCubit>(context);
+    final active = cubit.getActiveOrdersCount();
+    final urgent = cubit.getUrgentCount();
+    final avgWait = cubit.getAvgWaitMinutes();
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+      color: AppColors.deepBlue.withValues(alpha: 0.05),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildKitchenStatChip(
+            label: 'Active',
+            value: active.toString(),
+            icon: Icons.receipt_long,
+            color: AppColors.deepBlue,
+          ),
+          _buildKitchenStatChip(
+            label: 'Avg Wait',
+            value: '${avgWait.toStringAsFixed(0)}m',
+            icon: Icons.timer_outlined,
+            color: AppColors.warmOrange,
+          ),
+          _buildKitchenStatChip(
+            label: 'Urgent',
+            value: urgent.toString(),
+            icon: Icons.priority_high,
+            color: urgent > 0 ? Colors.red : Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKitchenStatChip({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 4),
+        Text(
+          '$label: ',
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
     );
   }
 

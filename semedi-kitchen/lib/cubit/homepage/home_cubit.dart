@@ -148,4 +148,23 @@ class HomeCubit extends Cubit<HomeState> {
         .length;
     return number;
   }
+
+  int getActiveOrdersCount() {
+    return (state as HomeLoaded).activeOrders.length;
+  }
+
+  int getUrgentCount() {
+    var currentState = state as HomeLoaded;
+    return currentState.orderTimers.values
+        .where((timer) => timer.isUrgent)
+        .length;
+  }
+
+  double getAvgWaitMinutes() {
+    var currentState = state as HomeLoaded;
+    if (currentState.orderTimers.isEmpty) return 0;
+    final total = currentState.orderTimers.values
+        .fold<int>(0, (sum, t) => sum + t.elapsedMinutes);
+    return total / currentState.orderTimers.length;
+  }
 }
