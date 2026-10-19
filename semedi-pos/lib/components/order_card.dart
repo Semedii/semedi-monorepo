@@ -5,6 +5,7 @@ import 'package:semedi_pos/components/app_button.dart';
 import 'package:semedi_pos/components/payment_dialog.dart';
 import 'package:semedi_pos/models/order_item.dart';
 import 'package:semedi_pos/models/order_model.dart';
+import 'package:semedi_pos/screens/receipt_preview_screen.dart';
 import 'package:semedi_pos/service/thermal_reciept_service.dart';
 import 'package:semedi_pos/utils/app_colors.dart';
 import 'package:semedi_pos/utils/order_status_enum.dart';
@@ -101,6 +102,7 @@ class OrderCard extends StatelessWidget {
     return Row(
       children: [
         _buildPrintButton(context, order),
+        _buildReceiptPreviewButton(context, order),
         const SizedBox(width: 4),
         _buildTableAndOrderNumber(tableOrName, order),
       ],
@@ -115,6 +117,22 @@ class OrderCard extends StatelessWidget {
         color: AppColors.offWhite,
       ),
       tooltip: 'Print Reciept',
+    );
+  }
+
+  IconButton _buildReceiptPreviewButton(BuildContext context, OrderModel order) {
+    return IconButton(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReceiptPreviewScreen(
+            order: order,
+            exchangeRate: exchangeRate,
+          ),
+        ),
+      ),
+      icon: Icon(Icons.receipt_long, color: AppColors.offWhite),
+      tooltip: 'Receipt Preview',
     );
   }
 
