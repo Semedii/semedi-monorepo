@@ -11,6 +11,7 @@ import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/reservation_screen.dart';
+import 'package:semedi_pos/screens/settings_screen.dart';
 import 'package:semedi_pos/screens/shift_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
 import 'package:semedi_pos/screens/take_order_screen.dart';
@@ -172,6 +173,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'settings',
+              child: Text(
+                'Settings',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+            PopupMenuItem(
               value: 'logout',
               child: Text(
                 'Logout',
@@ -182,6 +190,10 @@ class MainScreen extends StatelessWidget {
           onSelected: (value) {
             if (value == 'logout') {
               AuthService().logout();
+            }
+            if (value == 'settings') {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()));
             }
             if (value == 'history') {
               Navigator.push(
