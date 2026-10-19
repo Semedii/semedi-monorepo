@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:semedi_pos/models/menu.dart';
+import 'package:semedi_pos/models/menu_category.dart';
 import 'package:semedi_pos/models/discount.dart';
 import 'package:semedi_pos/models/menu_modifier.dart';
 import 'package:semedi_pos/models/waiter.dart';
@@ -256,6 +257,65 @@ class ManagementService {
           .from('discounts')
           .update(newDiscount.toJson())
           .eq('name', oldDiscount.name);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<List<MenuCategory>?> getCategoryList() async {
+    final response = await _supabase
+        .from('menu_categories')
+        .select('name, icon_name, sort_order')
+        .order('sort_order', ascending: true);
+    return response.map((json) => MenuCategory.fromJson(json)).toList();
+  }
+
+  Future<void> addCategory(MenuCategory category) async {
+    try {
+      final response = await _supabase
+          .from('menu_categories')
+          .select('name')
+          .ilike('name', category.name);
+
+      if (response.isNotEmpty) {
+        throw Exception('Category with this name already exists');
+      } else {
+        await _supabase.from('menu_categories').insert(category.toJson());
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> deleteCategory(MenuCategory category) async {
+    try {
+      final response = await _supabase
+          .from('menu_categories')
+          .select('name')
+          .ilike('name', category.name);
+
+      if (response.isEmpty) {
+        return;
+      } else {
+        await _supabase
+            .from('menu_categories')
+            .delete()
+            .eq('name', category.name);
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> updateCategory({
+    required MenuCategory oldCategory,
+    required MenuCategory newCategory,
+  }) async {
+    try {
+      await _supabase
+          .from('menu_categories')
+          .update(newCategory.toJson())
+          .eq('name', oldCategory.name);
     } catch (e) {
       throw Exception(e);
     }
