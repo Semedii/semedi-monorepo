@@ -12,6 +12,7 @@ import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/reservation_screen.dart';
 import 'package:semedi_pos/components/notification_banner.dart';
+import 'package:semedi_pos/screens/help_screen.dart';
 import 'package:semedi_pos/screens/quick_stats_screen.dart';
 import 'package:semedi_pos/screens/settings_screen.dart';
 import 'package:semedi_pos/screens/shift_screen.dart';
@@ -197,6 +198,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'help',
+              child: Text(
+                'Help & Shortcuts',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+            PopupMenuItem(
               value: 'logout',
               child: Text(
                 'Logout',
@@ -235,6 +243,10 @@ class MainScreen extends StatelessWidget {
             if (value == 'reservations') {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ReservationScreen()));
+            }
+            if (value == 'help') {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const HelpScreen()));
             }
           },
           tooltip: 'Logout',
