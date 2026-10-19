@@ -13,6 +13,7 @@ import 'change_password_page.dart';
 import 'history_page.dart';
 import 'order_page.dart';
 import 'reservation_page.dart';
+import 'table_status_page.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -65,6 +66,17 @@ class HomePage extends StatelessWidget {
       title: _buildAppBarTitle(state),
       centerTitle: false,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.table_bar),
+          tooltip: 'Table Overview',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  TableStatusPage(zones: state.diningTables),
+            ),
+          ),
+        ),
         IconButton(
           icon: const Icon(Icons.history),
           tooltip: 'Order History',
