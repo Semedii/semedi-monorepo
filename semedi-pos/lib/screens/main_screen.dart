@@ -6,6 +6,7 @@ import 'package:semedi_pos/components/txt_form_field.dart';
 import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/customer_screen.dart';
+import 'package:semedi_pos/screens/inventory_screen.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
@@ -156,6 +157,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'inventory',
+              child: Text(
+                'Inventory',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+            PopupMenuItem(
               value: 'logout',
               child: Text(
                 'Logout',
@@ -180,6 +188,12 @@ class MainScreen extends StatelessWidget {
             if (value == 'customers') {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => CustomerScreen()));
+            }
+            if (value == 'inventory') {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const InventoryScreen()));
             }
           },
           tooltip: 'Logout',
