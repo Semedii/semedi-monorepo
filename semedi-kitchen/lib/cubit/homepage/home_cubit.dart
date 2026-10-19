@@ -153,6 +153,11 @@ class HomeCubit extends Cubit<HomeState> {
     return (state as HomeLoaded).activeOrders.length;
   }
 
+  void onFilterOrders(String status) {
+    final current = state as HomeLoaded;
+    emit(current.copyWith(filterStatus: status));
+  }
+
   int getUrgentCount() {
     var currentState = state as HomeLoaded;
     return currentState.orderTimers.values

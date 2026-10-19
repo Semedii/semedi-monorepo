@@ -97,7 +97,8 @@ class HomePage extends StatelessWidget {
         children: [
           _buildStatsHeader(context),
           _buildKitchenStatsPanel(context),
-          _buildOrderGrid(context, state.activeOrders, state.orderTimers),
+          _buildFilterRow(context, state),
+          _buildOrderGrid(context, state.filteredOrders, state.orderTimers),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -192,6 +193,54 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterRow(BuildContext context, HomeLoaded state) {
+    final cubit = BlocProvider.of<HomeCubit>(context);
+    final filters = [
+      ('all', 'All'),
+      ('pending', 'New'),
+      ('preparing', 'In Progress'),
+    ];
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Colors.white,
+      child: Row(
+        children: filters.map((entry) {
+          final key = entry.$1;
+          final label = entry.$2;
+          final isActive = state.filterStatus == key;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () => cubit.onFilterOrders(key),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.deepBlue : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? AppColors.deepBlue
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: isActive ? Colors.white : Colors.grey.shade700,
+                    fontWeight:
+                        isActive ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
