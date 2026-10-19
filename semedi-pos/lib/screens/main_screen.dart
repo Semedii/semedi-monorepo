@@ -11,6 +11,7 @@ import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/reservation_screen.dart';
+import 'package:semedi_pos/screens/quick_stats_screen.dart';
 import 'package:semedi_pos/screens/settings_screen.dart';
 import 'package:semedi_pos/screens/shift_screen.dart';
 import 'package:semedi_pos/screens/table_order_screen.dart';
@@ -107,6 +108,17 @@ class MainScreen extends StatelessWidget {
       elevation: 0,
       centerTitle: true,
       actions: [
+        IconButton(
+          icon: const Icon(Icons.bar_chart),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const QuickStatsScreen(),
+              ),
+            );
+          },
+          tooltip: 'Quick Stats',
+        ),
         IconButton(
           icon: const Icon(Icons.calendar_today_sharp),
           onPressed: () {
