@@ -11,6 +11,7 @@ import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
 import 'package:semedi_pos/screens/reservation_screen.dart';
+import 'package:semedi_pos/components/notification_banner.dart';
 import 'package:semedi_pos/screens/quick_stats_screen.dart';
 import 'package:semedi_pos/screens/settings_screen.dart';
 import 'package:semedi_pos/screens/shift_screen.dart';
@@ -61,6 +62,10 @@ class MainScreen extends StatelessWidget {
       appBar: _buildAppBar(context, state),
       body: CustomScrollView(
         slivers: [
+          if (state.lowStockCount > 0)
+            SliverToBoxAdapter(
+              child: LowStockBanner(count: state.lowStockCount),
+            ),
           SliverToBoxAdapter(
             child: Row(
               children: [
