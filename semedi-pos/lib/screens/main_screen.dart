@@ -7,6 +7,7 @@ import 'package:semedi_pos/cubit/order/order_cubit.dart';
 import 'package:semedi_pos/models/order_model.dart';
 import 'package:semedi_pos/screens/customer_screen.dart';
 import 'package:semedi_pos/screens/inventory_screen.dart';
+import 'package:semedi_pos/screens/purchasing_screen.dart';
 import 'package:semedi_pos/screens/management/management_screen.dart';
 import 'package:semedi_pos/screens/report_screen.dart';
 import 'package:semedi_pos/screens/sales_history_list_screen.dart';
@@ -214,6 +215,13 @@ class MainScreen extends StatelessWidget {
               ),
             ),
             PopupMenuItem(
+              value: 'purchasing',
+              child: Text(
+                'Purchasing',
+                style: TextStyle(color: AppColors.offWhite),
+              ),
+            ),
+            PopupMenuItem(
               value: 'help',
               child: Text(
                 'Help & Shortcuts',
@@ -280,6 +288,12 @@ class MainScreen extends StatelessWidget {
                             state: state,
                             cubit: cubit,
                           )));
+            }
+            if (value == 'purchasing') {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PurchasingScreen()));
             }
             if (value == 'help') {
               Navigator.push(context,
